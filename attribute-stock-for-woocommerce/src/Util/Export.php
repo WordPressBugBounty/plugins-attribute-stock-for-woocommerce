@@ -12,6 +12,7 @@ class Export
 		'sku' => '',
 		'quantity' => '',
 		'low_stock' => '',
+		'backorders' => '',
 		'enabled' => '',
 		'internal' => '',
 		'multiplex' => '',

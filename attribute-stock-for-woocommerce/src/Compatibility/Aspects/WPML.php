@@ -2,39 +2,36 @@
 namespace Mewz\WCAS\Compatibility\Aspects;
 
 use Mewz\Framework\Base\Aspect;
+use Mewz\WCAS\Aspects\Front\ProductLimits;
 use Mewz\WCAS\Aspects\Workers\AutoProductLimits;
 use Mewz\WCAS\Util\Limits;
 
+/**
+ * Prevent WPML syncing overridden stock values to translated products during stock changes.
+ */
 class WPML extends Aspect
 {
 	public $sync;
 	public $removed_hooks = false;
 
-	public function __run()
+	public function __hooks()
 	{
-		/** @var \woocommerce_wpml $woocommerce_wpml */
+		add_action('init', [$this, 'init']);
+	}
+
+	public function init()
+	{
 		global $woocommerce_wpml;
 
 		if ($woocommerce_wpml && $woocommerce_wpml->sync_product_data) {
 			$this->sync = $woocommerce_wpml->sync_product_data;
 		} else {
-			return false;
-		}
-	}
-
-	public function __hooks()
-	{
-		// prevent WPML syncing overridden stock values to translated products during stock changes
-		add_action('init', [$this, 'init']);
-		add_action('mewz_wcas_task_trigger_product_stock_changes', [$this, 'before_task_trigger_product_stock_changes'], 0);
-	}
-
-	public function init()
-	{
-		if (!Limits::product_limits_active() && !class_exists(AutoProductLimits::class, false)) {
 			return;
 		}
 
+		if (!Limits::product_limits_active() && !class_exists(AutoProductLimits::class, false)) {
+			return;
+		}
 		if (has_action('woocommerce_product_set_stock_status', [$this->sync, 'sync_stock_status_for_translations'])) {
 			remove_action('woocommerce_product_set_stock_status', [$this->sync, 'sync_stock_status_for_translations'], 100);
 			add_action('woocommerce_product_set_stock_status', [$this, 'sync_stock_status_for_translations'], 100, 3);
@@ -46,6 +43,8 @@ class WPML extends Aspect
 		}
 
 		add_filter('mewz_wcas_limit_product_stock_quantity', [$this, 'limit_product_stock_quantity'], 10, 3);
+		add_action('mewz_wcas_task_trigger_product_stock_changes', [$this, 'before_task_trigger_product_stock_changes'], 0);
+		add_action('wcml_before_sync_product_data', [$this, 'wcml_before_sync_product_data']);
 	}
 
 	public function sync_stock_status_for_translations($product_id, $stock_status, $product)
@@ -87,5 +86,18 @@ class WPML extends Aspect
 		}
 
 		return $limit;
+	}
+
+	public function wcml_before_sync_product_data()
+	{
+		if (Limits::product_limits_active()) {
+			ProductLimits::$enabled = false;
+			add_action('wcml_after_sync_product_data', [$this, 'wcml_after_sync_product_data']);
+		}
+	}
+
+	public function wcml_after_sync_product_data()
+	{
+		ProductLimits::$enabled = true;
 	}
 }

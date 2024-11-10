@@ -9,13 +9,14 @@ use Mewz\WCAS\Util\Matches;
 class AttributeStock extends PostModel
 {
 	const POST_TYPE = 'attribute_stock';
-	const MODEL_TYPE = self::POST_TYPE;
+	const MODEL_TYPE = 'attribute_stock';
 
 	protected static $props = [
 		'thumbnail_id' => null,
 		'sku' => '',
 		'quantity' => '',
 		'low_stock' => '',
+		'backorders' => '',
 		'internal' => false,
 		'multiplex' => false,
 		'lock_multipliers' => false,
@@ -138,6 +139,26 @@ class AttributeStock extends PostModel
 	public function set_low_stock($value)
 	{
 		$this->set('low_stock', Number::safe_decimal($value));
+	}
+
+	/**
+	 * @return string '' | 'no' | 'yes' | 'notify'
+	 */
+	public function backorders()
+	{
+		return $this->get('backorders');
+	}
+
+	/**
+	 * @param string $value
+	 */
+	public function set_backorders($value)
+	{
+		if (!in_array($value, ['', 'no', 'yes', 'notify'], true)) {
+			$value = '';
+		}
+
+		$this->set('backorders', $value);
 	}
 
 	/**

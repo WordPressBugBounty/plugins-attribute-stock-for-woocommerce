@@ -21,7 +21,7 @@ class StockNotifications extends Aspect
 			$stock = AttributeStock::instance($stock);
 		}
 
-		// get the exact quantity to account for rounding in view context
+		// get the raw quantity to account for possible rounding in view context
 		$quantity = $stock->get_contextual('quantity', 'edit');
 		$low_stock = $stock->low_stock();
 
@@ -54,6 +54,10 @@ class StockNotifications extends Aspect
 
 		$args = apply_filters('mewz_wcas_no_stock_email_args', $args, $stock);
 
+		if (!apply_filters('mewz_wcas_allow_no_stock_email', true, $stock, $args)) {
+			return false;
+		}
+
 		return wp_mail($args['recipient'], $args['subject'], $args['message'], $args['headers'], $args['attachments']);
 	}
 
@@ -70,6 +74,10 @@ class StockNotifications extends Aspect
 		];
 
 		$args = apply_filters('mewz_wcas_low_stock_email_args', $args, $stock);
+
+		if (!apply_filters('mewz_wcas_allow_low_stock_email', true, $stock, $args)) {
+			return false;
+		}
 
 		return wp_mail($args['recipient'], $args['subject'], $args['message'], $args['headers'], $args['attachments']);
 	}

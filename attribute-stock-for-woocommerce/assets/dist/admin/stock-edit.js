@@ -1,10 +1,9 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other entry modules.
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other entry modules.
 (() => {
 
-;// CONCATENATED MODULE: ../../packages/framework/assets/src/lib/util.js
+;// ../../packages/framework/assets/src/lib/util.js
 let selectWooInit = false;
 jQuery(document.body).one('wc-enhanced-select-init', () => {
   selectWooInit = true;
@@ -47,7 +46,7 @@ function getFormValueString(form, namePrefix) {
   }
   return JSON.stringify(values);
 }
-;// CONCATENATED MODULE: ./admin/stock-edit/ui/form-fields.js
+;// ./admin/stock-edit/ui/form-fields.js
 
 const $ = jQuery;
 function load() {
@@ -64,10 +63,11 @@ function onSubmit() {
 function onInternalChange() {
   const $this = $('#mewz_wcas_internal');
   const internal = $this.prop('checked') || $this.prop('disabled');
+  $('#mewz_wcas_backorders').prop('disabled', internal);
   $('#mewz_wcas_product_sku').prop('disabled', internal);
   $('#mewz_wcas_product_image').prop('disabled', internal);
 }
-;// CONCATENATED MODULE: ./admin/stock-edit/ui/header-actions.js
+;// ./admin/stock-edit/ui/header-actions.js
 const header_actions_$ = jQuery;
 const headerActions = window.mewzWcas && mewzWcas.headerActions || {};
 function header_actions_load() {
@@ -76,7 +76,7 @@ function header_actions_load() {
     $actions.insertAfter('.wrap > .page-title-action');
   }
 }
-;// CONCATENATED MODULE: ./admin/stock-edit/ui/tab-indicators.js
+;// ./admin/stock-edit/ui/tab-indicators.js
 const tab_indicators_$ = jQuery;
 let tab_indicators_form;
 function tab_indicators_load() {
@@ -115,7 +115,7 @@ function updatePanelIndicator(tab, panel) {
   });
   setTabIndicator(tab, indicator);
 }
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/internal/utils.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/internal/utils.js
 /** @returns {void} */
 function utils_noop() {}
 
@@ -408,7 +408,7 @@ function utils_split_css_unit(value) {
 
 const utils_contenteditable_truthy_values = (/* unused pure expression or super */ null && (['', true, 1, 'true', 'contenteditable']));
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/internal/environment.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/internal/environment.js
 
 
 const is_client = typeof window !== 'undefined';
@@ -429,7 +429,7 @@ function set_raf(fn) {
 	raf = fn;
 }
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/internal/loop.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/internal/loop.js
 
 
 const tasks = new Set();
@@ -476,7 +476,7 @@ function loop_loop(callback) {
 	};
 }
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/internal/globals.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/internal/globals.js
 /** @type {typeof globalThis} */
 const globals =
 	typeof window !== 'undefined'
@@ -486,7 +486,7 @@ const globals =
 		: // @ts-ignore Node typings have this
 		  global;
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/internal/ResizeObserverSingleton.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/internal/ResizeObserverSingleton.js
 
 
 /**
@@ -549,7 +549,7 @@ class ResizeObserverSingleton {
 // Needs to be written like this to pass the tree-shake-test
 ResizeObserverSingleton.entries = "WeakMap" in globals ? new WeakMap() : undefined;
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/internal/dom.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/internal/dom.js
 
 
 
@@ -1802,7 +1802,7 @@ function construct_svelte_component(component, props) {
  * }} ChildNodeArray
  */
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/internal/style_manager.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/internal/style_manager.js
 
 
 
@@ -1903,7 +1903,7 @@ function clear_rules() {
 	});
 }
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/internal/animations.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/internal/animations.js
 
 
 
@@ -2005,7 +2005,7 @@ function add_transform(node, a) {
 	}
 }
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/internal/lifecycle.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/internal/lifecycle.js
 
 
 let lifecycle_current_component;
@@ -2190,7 +2190,7 @@ function bubble(component, event) {
 	}
 }
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/internal/scheduler.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/internal/scheduler.js
 
 
 
@@ -2327,7 +2327,7 @@ function flush_render_callbacks(fns) {
 	render_callbacks = filtered;
 }
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/internal/transitions.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/internal/transitions.js
 
 
 
@@ -2790,7 +2790,7 @@ function create_bidirectional_transition(node, fn, params, intro) {
  * @property {Outro} [group]
  */
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/internal/await_block.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/internal/await_block.js
 
 
 
@@ -2892,7 +2892,7 @@ function update_await_block_branch(info, ctx, dirty) {
 	info.block.p(child_ctx, dirty);
 }
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/internal/each.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/internal/each.js
 
 
 
@@ -3037,7 +3037,7 @@ function validate_each_keys(ctx, list, get_context, get_key) {
 	}
 }
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/shared/boolean_attributes.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/shared/boolean_attributes.js
 const _boolean_attributes = /** @type {const} */ ([
 	'allowfullscreen',
 	'allowpaymentrequest',
@@ -3076,7 +3076,9 @@ const boolean_attributes_boolean_attributes = new Set([..._boolean_attributes]);
 
 /** @typedef {typeof _boolean_attributes[number]} BooleanAttributes */
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/internal/ssr.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/internal/ssr.js
+
+
 
 
 
@@ -3146,34 +3148,10 @@ function merge_ssr_styles(style_attribute, style_directive) {
 	return style_object;
 }
 
-const ATTR_REGEX = /[&"]/g;
-const CONTENT_REGEX = /[&<]/g;
-
-/**
- * Note: this method is performance sensitive and has been optimized
- * https://github.com/sveltejs/svelte/pull/5701
- * @param {unknown} value
- * @returns {string}
- */
-function ssr_escape(value, is_attr = false) {
-	const str = String(value);
-	const pattern = is_attr ? ATTR_REGEX : CONTENT_REGEX;
-	pattern.lastIndex = 0;
-	let escaped = '';
-	let last = 0;
-	while (pattern.test(str)) {
-		const i = pattern.lastIndex - 1;
-		const ch = str[i];
-		escaped += str.substring(last, i) + (ch === '&' ? '&amp;' : ch === '"' ? '&quot;' : '&lt;');
-		last = i + 1;
-	}
-	return escaped + str.substring(last);
-}
-
 function escape_attribute_value(value) {
 	// keep booleans, null, and undefined for the sake of `spread`
 	const should_escape = typeof value === 'string' || (value && typeof value === 'object');
-	return should_escape ? ssr_escape(value, true) : value;
+	return should_escape ? escape(value, true) : value;
 }
 
 /** @returns {{}} */
@@ -3260,7 +3238,7 @@ function create_ssr_component(fn) {
 /** @returns {string} */
 function add_attribute(name, value, boolean) {
 	if (value == null || (boolean && !value)) return '';
-	const assignment = boolean && value === true ? '' : `="${ssr_escape(value, true)}"`;
+	const assignment = boolean && value === true ? '' : `="${escape(value, true)}"`;
 	return ` ${name}${assignment}`;
 }
 
@@ -3283,7 +3261,7 @@ function add_styles(style_object) {
 	return styles ? ` style="${styles}"` : '';
 }
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/internal/Component.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/internal/Component.js
 
 
 
@@ -3788,7 +3766,7 @@ class SvelteComponent {
  * @property {'String'|'Boolean'|'Number'|'Array'|'Object'} [type]
  */
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/internal/dev.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/internal/dev.js
 
 
 
@@ -4146,7 +4124,7 @@ function loop_guard(timeout) {
 	};
 }
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/internal/index.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/internal/index.js
 
 
 
@@ -4163,7 +4141,7 @@ function loop_guard(timeout) {
 
 
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/shared/version.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/shared/version.js
 // generated during release, do not modify
 
 /**
@@ -4172,20 +4150,20 @@ function loop_guard(timeout) {
  * https://svelte.dev/docs/svelte-compiler#svelte-version
  * @type {string}
  */
-const version_VERSION = '4.2.18';
+const version_VERSION = '4.2.19';
 const PUBLIC_VERSION = '4';
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/internal/disclose-version/index.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/internal/disclose-version/index.js
 
 
 if (typeof window !== 'undefined')
 	// @ts-ignore
 	(window.__svelte || (window.__svelte = { v: new Set() })).v.add(PUBLIC_VERSION);
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/index.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/index.js
 
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/easing/index.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/easing/index.js
 /*
 Adapted from https://github.com/mattdesl
 Distributed under MIT License https://github.com/mattdesl/eases/blob/master/LICENSE.md
@@ -4496,7 +4474,7 @@ function sineOut(t) {
 	return Math.sin((t * Math.PI) / 2);
 }
 
-;// CONCATENATED MODULE: ../../packages/framework/assets/src/lib/transitions.js
+;// ../../packages/framework/assets/src/lib/transitions.js
 
 function shift(node, {
   delay = 0,
@@ -4543,8 +4521,8 @@ function shift(node, {
     css
   };
 }
-;// CONCATENATED MODULE: ../../packages/framework/assets/src/lib/Select2.svelte
-/* packages/framework/assets/src/lib/Select2.svelte generated by Svelte v4.2.18 */
+;// ../../packages/framework/assets/src/lib/Select2.svelte
+/* packages/framework/assets/src/lib/Select2.svelte generated by Svelte v4.2.19 */
 
 
 
@@ -4769,8 +4747,8 @@ class Select2 extends SvelteComponent {
 }
 
 /* harmony default export */ const Select2_svelte = (Select2);
-;// CONCATENATED MODULE: ./admin/stock-edit/ui/ComponentsField.svelte
-/* assets/src/admin/stock-edit/ui/ComponentsField.svelte generated by Svelte v4.2.18 */
+;// ./admin/stock-edit/ui/ComponentsField.svelte
+/* assets/src/admin/stock-edit/ui/ComponentsField.svelte generated by Svelte v4.2.19 */
 
 
 
@@ -5321,8 +5299,8 @@ class ComponentsField extends SvelteComponent {
 }
 
 /* harmony default export */ const ComponentsField_svelte = (ComponentsField);
-;// CONCATENATED MODULE: ./admin/stock-edit/ui/Components.svelte
-/* assets/src/admin/stock-edit/ui/Components.svelte generated by Svelte v4.2.18 */
+;// ./admin/stock-edit/ui/Components.svelte
+/* assets/src/admin/stock-edit/ui/Components.svelte generated by Svelte v4.2.19 */
 
 
 
@@ -5540,7 +5518,7 @@ class Components extends SvelteComponent {
 }
 
 /* harmony default export */ const Components_svelte = (Components);
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte@4.2.18/node_modules/svelte/src/runtime/transition/index.js
+;// ../../node_modules/.pnpm/svelte@4.2.19/node_modules/svelte/src/runtime/transition/index.js
 
 
 
@@ -5797,7 +5775,7 @@ function crossfade({ fallback, ...defaults }) {
 	return [transition(to_send, to_receive, false), transition(to_receive, to_send, true)];
 }
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/svelte-collapse@0.1.2/node_modules/svelte-collapse/src/collapse.js
+;// ../../node_modules/.pnpm/svelte-collapse@0.1.3/node_modules/svelte-collapse/src/collapse.js
 
 function collapse (node, params) {
 
@@ -5813,11 +5791,13 @@ function collapse (node, params) {
     let transitionEndResolve = noop
     let transitionEndReject = noop
 
-    const listener = node.addEventListener('transitionend', () => {
-        transitionEndResolve()
-        transitionEndResolve = noop
-        transitionEndReject = noop
-    })
+    const listener = () => {
+        transitionEndResolve();
+        transitionEndResolve = noop;
+        transitionEndReject = noop;
+    };
+
+    node.addEventListener('transitionend', listener);
 
     // convenience functions
     async function asyncTransitionEnd () {
@@ -5905,7 +5885,8 @@ function collapse (node, params) {
     return { update, destroy }
 
 }
-;// CONCATENATED MODULE: ../../packages/framework/assets/src/lib/drag-action.js
+
+;// ../../packages/framework/assets/src/lib/drag-action.js
 /**
  * @param {HTMLElement} node
  * @param {Function} dragStart
@@ -6083,8 +6064,8 @@ function getFromTouchList(touchList, identifier) {
   }
   return null;
 }
-;// CONCATENATED MODULE: ./admin/stock-edit/ui/MatchRule.svelte
-/* assets/src/admin/stock-edit/ui/MatchRule.svelte generated by Svelte v4.2.18 */
+;// ./admin/stock-edit/ui/MatchRule.svelte
+/* assets/src/admin/stock-edit/ui/MatchRule.svelte generated by Svelte v4.2.19 */
 
 
 
@@ -7433,8 +7414,8 @@ class MatchRule extends SvelteComponent {
 }
 
 /* harmony default export */ const MatchRule_svelte = (MatchRule);
-;// CONCATENATED MODULE: ./admin/stock-edit/ui/MatchRules.svelte
-/* assets/src/admin/stock-edit/ui/MatchRules.svelte generated by Svelte v4.2.18 */
+;// ./admin/stock-edit/ui/MatchRules.svelte
+/* assets/src/admin/stock-edit/ui/MatchRules.svelte generated by Svelte v4.2.19 */
 
 
 
@@ -8064,7 +8045,7 @@ class MatchRules extends SvelteComponent {
 }
 
 /* harmony default export */ const MatchRules_svelte = (MatchRules);
-;// CONCATENATED MODULE: ./admin/stock-edit/index.js
+;// ./admin/stock-edit/index.js
 
 
 
@@ -8087,7 +8068,7 @@ new MatchRules_svelte({
 });
 })();
 
-// This entry need to be wrapped in an IIFE because it need to be isolated against other entry modules.
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other entry modules.
 (() => {
 // extracted by mini-css-extract-plugin
 

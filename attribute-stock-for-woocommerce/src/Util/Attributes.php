@@ -230,7 +230,7 @@ class Attributes
 	 * @param Attribute|Attribute[] $attributes
 	 * @param array<int, int[]> $filter_ids
 	 *
-	 * @return array|void
+	 * @return array
 	 */
 	public static function get_term_options($attributes, $filter_ids = null)
 	{

@@ -133,7 +133,11 @@ class StockList extends Aspect
 			'settings' => (clone $qb)
 				->left_join('postmeta', 'pm')->on('pm.post_id = p.ID')
 				->left_join(Components::TABLE, 'c')->on('c.child_id = p.ID')
-				->where("(pm.meta_key IN ? AND pm.meta_value = '1') OR c.child_id IS NOT NULL", ['_internal', '_multiplex', '_lock_multipliers']),
+				->where("
+					(pm.meta_key = '_backorders' AND pm.meta_value != '')
+					OR (pm.meta_key IN ('_internal', '_multiplex', '_lock_multipliers') AND pm.meta_value = '1')
+					OR c.child_id IS NOT NULL
+				"),
 
 			'components' => (clone $qb)
 				->join(Components::TABLE, 'c')->on('c.child_id = p.ID'),
@@ -276,17 +280,28 @@ class StockList extends Aspect
 		static $titles = null;
 
 		if ($titles === null) {
+			$backorder_options = wc_get_product_backorder_options();
+			$backorders_title = __('Backorders: %s', 'woocommerce-attribute-stock');
+
 			$titles = apply_filters('mewz_wcas_stock_settings_badge_titles', [
-				'component'        => __('Component stock', 'woocommerce-attribute-stock'),
-				'internal'         => __('Internal stock', 'woocommerce-attribute-stock'),
-				'multiplex'        => __('Multiplex matching', 'woocommerce-attribute-stock'),
-				'lock-multipliers' => __('Lock multipliers', 'woocommerce-attribute-stock'),
+				'component'         => __('Component stock', 'woocommerce-attribute-stock'),
+				'backorders-no'     => sprintf($backorders_title, $backorder_options['no']),
+				'backorders-yes'    => sprintf($backorders_title, $backorder_options['yes']),
+				'backorders-notify' => sprintf($backorders_title, $backorder_options['notify']),
+				'internal'          => __('Internal stock', 'woocommerce-attribute-stock'),
+				'multiplex'         => __('Multiplex matching', 'woocommerce-attribute-stock'),
+				'lock-multipliers'  => __('Lock multipliers', 'woocommerce-attribute-stock'),
 			], $stock);
 		}
 
+		$internal = $stock->internal();
+		$backorders = $internal ? '' : $stock->backorders();
+		$backorders_key = 'backorders-' . ($backorders ?: 'default');
+
 		$settings = apply_filters('mewz_wcas_stock_settings_badges', [
 			'component'        => isset($this->columns['components']) && !empty($stock->components()['parent']),
-			'internal'         => $stock->internal(),
+			$backorders_key    => (bool)$backorders,
+			'internal'         => $internal,
 			'multiplex'        => $stock->multiplex(),
 			'lock-multipliers' => $stock->lock_multipliers(),
 		], $stock);
@@ -295,8 +310,10 @@ class StockList extends Aspect
 			echo '<div class="mewz-wcas-settings-badges">';
 
 			foreach ($settings as $key => $_) {
-				$letter = strtoupper($titles[$key][0]);
-				echo '<span class="mewz-wcas-settings-badge setting-' . $key . '" title="' . esc_attr($titles[$key]) . '" rel="tiptip">' . $letter . '</span>';
+				$title = $titles[$key];
+				$letter = strtoupper($title[0]);
+
+				echo '<span class="mewz-wcas-settings-badge setting-' . $key . '" title="' . esc_attr($title) . '" rel="tiptip">' . $letter . '</span>';
 			}
 
 			echo '</div>';

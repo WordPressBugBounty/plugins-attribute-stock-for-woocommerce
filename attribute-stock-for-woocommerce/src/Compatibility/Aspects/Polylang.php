@@ -9,7 +9,7 @@ class Polylang extends Aspect
 {
 	public $stock;
 
-	public function __run()
+	public function __load()
 	{
 	    $this->stock = PLLWC()->stock;
 

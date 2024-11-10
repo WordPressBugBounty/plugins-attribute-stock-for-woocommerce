@@ -89,7 +89,7 @@ class Loader extends Core\Loader
 
 			// load frontend actions
 			if ($this->context->front) {
-				add_action('wp_loaded', [$this, 'wp_loaded_front'], 0);
+				add_action('woocommerce_cart_loaded_from_session', [$this, 'cart_loaded_from_session'], 0);
 				add_action('wc_ajax_get_variation', [$this, 'wc_ajax_get_variation'], 0);
 
 				$this->aspects->load(Aspects\Front\VariableLimits::class);
@@ -267,11 +267,9 @@ class Loader extends Core\Loader
 		$this->aspects->load(Aspects\Admin\Plugin\PluginLinks::class);
 	}
 
-	public function wp_loaded_front()
+	public function cart_loaded_from_session()
 	{
-		if (WC()->cart) {
-			$this->aspects->load(Aspects\Front\CartItems::class);
-		}
+		$this->aspects->load(Aspects\Front\CartItems::class);
 	}
 
 	public function wc_ajax_get_variation()

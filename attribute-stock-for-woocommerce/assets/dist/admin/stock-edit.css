@@ -174,6 +174,13 @@
   padding-right: 5px;
   margin-left: -4px;
 }
+.post-type-attribute_stock #poststuff .woocommerce-help-tip {
+  font-size: 16.8px;
+}
+.post-type-attribute_stock #poststuff .form-field .description .woocommerce-help-tip {
+  vertical-align: text-top;
+  transform: translate(-3px, 1px);
+}
 .post-type-attribute_stock #poststuff .help-icon-link {
   display: inline-block;
   width: 1em;
@@ -769,13 +776,15 @@
   white-space: nowrap;
 }
 .mewz-wcas-match-rule .match-rule-options label {
+  display: flex;
+  align-items: center;
   min-width: 100px;
   margin-right: 15px;
   line-height: 30px;
   text-align: right;
 }
 .mewz-wcas-match-rule .match-rule-options label .woocommerce-help-tip {
-  margin: 0;
+  margin: 2px 0 0 3px;
 }
 .mewz-wcas-match-rule .match-rule-options input,
 .mewz-wcas-match-rule .match-rule-options select {

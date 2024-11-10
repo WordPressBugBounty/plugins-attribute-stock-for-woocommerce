@@ -12,6 +12,7 @@ class AttributeTermEdit extends Aspect
 	public function __hooks()
 	{
 		$taxonomy = $this->context->taxonomy;
+
 		add_action($taxonomy . '_add_form_fields', [$this, 'display_add_term_fields']);
 		add_action($taxonomy . '_edit_form_fields', [$this, 'display_edit_term_fields']);
 	}

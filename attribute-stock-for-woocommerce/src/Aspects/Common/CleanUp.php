@@ -18,6 +18,7 @@ class CleanUp extends Aspect
 		add_action('update_option_mewz_wcas_unmatched_any_variations', [$this, 'clear_stock_cache']);
 		add_action('mewz_wcas_match_rules_saved', [$this, 'clear_match_rules_cache']);
 		add_action('mewz_wcas_components_saved', [$this, 'clear_components_cache']);
+		add_action('added_term_meta', [$this, 'clear_term_meta_cache'], 10, 4);
 		add_action('updated_term_meta', [$this, 'clear_term_meta_cache'], 10, 4);
 		add_action('deleted_term_meta', [$this, 'clear_term_meta_cache'], 10, 4);
 

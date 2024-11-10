@@ -124,6 +124,12 @@ class RestApiController extends \WC_REST_Posts_Controller
 					'type' => ['number', 'string'],
 					'context' => ['view', 'edit'],
 				],
+				'backorders' => [
+					'type' => 'string',
+					'context' => ['view', 'edit'],
+					'default' => '',
+					'enum' => ['', 'no', 'notify', 'yes'],
+				],
 				'internal' => [
 					'type' => 'boolean',
 					'context' => ['view', 'edit'],
@@ -448,6 +454,7 @@ class RestApiController extends \WC_REST_Posts_Controller
 	public function update_stock($stock, $request)
 	{
 		$schema = $this->get_item_schema();
+		$components = null;
 		$match_rules = null;
 		$tags = null;
 
@@ -458,7 +465,9 @@ class RestApiController extends \WC_REST_Posts_Controller
 
 			if ($value === null) continue;
 
-			if ($key === 'match_rules') {
+			if ($key === 'components') {
+				$components = $value;
+			} elseif ($key === 'match_rules') {
 				$match_rules = $value;
 			} elseif ($key === 'tags') {
 				$tags = $value;
@@ -475,8 +484,14 @@ class RestApiController extends \WC_REST_Posts_Controller
 
 		$stock->save();
 
-		if ($match_rules && $stock->exists()) {
-			$stock->save_match_rules($match_rules);
+		if ($stock->exists()) {
+			if ($components !== null) {
+				$stock->save_components($components);
+			}
+
+			if ($match_rules !== null) {
+				$stock->save_match_rules($match_rules);
+			}
 		}
 
 		if ($tags !== null) {

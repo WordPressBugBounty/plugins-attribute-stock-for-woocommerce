@@ -1295,6 +1295,7 @@ class Matches
 		$matches = [];
 		$max_quantity = 0;
 
+		$inherit_backorders = apply_filters('mewz_wcas_inherit_product_backorders', true, $parent);
 		$inherit_sku = apply_filters('mewz_wcas_inherit_product_sku', true, $parent);
 		$inherit_image = apply_filters('mewz_wcas_inherit_product_image', true, $parent);
 
@@ -1350,6 +1351,10 @@ class Matches
 
 				if ($stock->lock_multipliers()) {
 					$match['l'] = true;
+				}
+
+				if ($inherit_backorders && $backorders = $stock->backorders()) {
+					$match['b'] = $backorders;
 				}
 
 				if ($inherit_sku && $stock->product_sku() && ($sku = $stock->sku()) !== '') {

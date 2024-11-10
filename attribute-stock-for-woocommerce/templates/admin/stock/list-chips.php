@@ -8,7 +8,6 @@ defined('ABSPATH') or die;
  * @var array $chips
  * @var bool $wrap
  * @var int $show_max
- * @var int $collapsed_max
  */
 
 if (empty($chips)) {
@@ -24,12 +23,13 @@ $n = 0;
 ?>
 
 <?php if ($wrap): ?>
-	<div class="mewz-wcas-chips">
+	<div class="mewz-wcas-chips mewz-wcas-chips-<?= $type . $class; ?>">
 <?php endif; ?>
 
 <?php foreach ($chips as $chip): ?>
+	<?php $chip_class = !empty($chip['class']) ? ' ' . $chip['class'] : ''; ?>
 
-	<?= !empty($chip['url']) ? '<a href="' . esc_url($chip['url']) . '"' : '<span' ?> class="mewz-wcas-chip mewz-wcas-chip-<?= $type . $class; ?>"<?= isset($chip['title']) ? ' title="' . esc_attr($chip['title']) . '"' : '' ?>><?php
+	<?= !empty($chip['url']) ? '<a href="' . esc_url($chip['url']) . '"' : '<span' ?> class="mewz-wcas-chip mewz-wcas-chip-<?= $type . $chip_class; ?>"<?= isset($chip['title']) ? ' title="' . esc_attr($chip['title']) . '"' : '' ?>><?php
 
 		if (isset($chip['label'])) {
 			echo '<span class="chip-label">' . esc_html($chip['label']) . '<span class="hidden-text">: </span></span>';

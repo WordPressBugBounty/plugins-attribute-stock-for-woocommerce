@@ -35,54 +35,11 @@ class Products
 			return false;
 		}
 
-	    return true;
-	}
-
-	/**
-	 * This is a modified version of `WC_Product::validate_props()` that uses 'edit' context so as not to
-	 * save data that's been modified by filters in 'view' context.
-	 *
-	 * It also fixes the original method not respecting the 'woocommerce_stock_amount' filter to allow
-	 * decimal stock quantities.
-	 *
-	 * @see \WC_Product::validate_props()
-	 *
-	 * @param \WC_Product $product
-	 */
-	public static function validate_stock_props($product)
-	{
-		if ($manage_stock = $product->get_manage_stock('edit')) {
-			if ($manage_stock === 'parent' && method_exists($product, 'get_parent_data')) {
-				$parent_data = $product->get_parent_data();
-				$stock_quantity = $parent_data['stock_quantity'];
-			} else {
-				$stock_quantity = $product->get_stock_quantity('edit');
-			}
-
-			$multiplier = self::get_multiplier($product, 'product');
-			$stock_quantity = Matches::calc_limit_qty($stock_quantity, $multiplier);
-
-			$no_stock_amount = max(0, (int)get_option('woocommerce_notify_no_stock_amount', 0));
-
-			if ($stock_quantity > $no_stock_amount) {
-				$new_stock_status = 'instock';
-			} elseif ($product->get_backorders('edit') !== 'no') {
-				$new_stock_status = 'onbackorder';
-			} else {
-				$new_stock_status = 'outofstock';
-			}
-
-			$product->set_stock_status($new_stock_status);
-		} else {
-			// set 'stock_status' back to what it was before `$product->validate_props()` changed it with 'view' context
-			if ($original_stock_status = self::get_prop($product, 'original_stock_status')) {
-				$product->set_stock_status($original_stock_status);
-			}
-
-			$product->set_stock_quantity('');
-			$product->set_backorders('no');
-			$product->set_low_stock_amount('');
+		if (!$product->get_id() || $product->get_status('edit') == 'auto-draft') {
+			return false;
 		}
+
+	    return true;
 	}
 
 	/**
@@ -205,10 +162,8 @@ class Products
 		if (!isset($value)) {
 			if (!self::use_multiplier($product, $type)) {
 				$value = '';
-			} elseif (!empty($parent)) {
-				$value = self::get_option('multiplier', $product, $parent);
 			} else {
-				$value = self::get_option('multiplier', $product);
+				$value = self::get_option('multiplier', $product, !empty($parent) ? $parent : null);
 			}
 
 			if ($value !== '') {

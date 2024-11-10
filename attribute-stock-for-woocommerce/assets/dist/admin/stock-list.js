@@ -1,10 +1,9 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other entry modules.
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other entry modules.
 (() => {
 
-;// CONCATENATED MODULE: ./admin/stock-list/ui/header-actions.js
+;// ./admin/stock-list/ui/header-actions.js
 const $ = jQuery;
 const headerActions = window.mewzWcas && mewzWcas.headerActions || {};
 let $importFileInput;
@@ -25,7 +24,7 @@ function handleImportAction() {
   }
   $importFileInput[0].click();
 }
-;// CONCATENATED MODULE: ./admin/stock-list/ui/filter-attribute.js
+;// ./admin/stock-list/ui/filter-attribute.js
 const filter_attribute_$ = jQuery;
 const attributeOptions = window.mewzWcas && mewzWcas.attributeOptions || {};
 let $attrFilter, $termFilter;
@@ -62,7 +61,7 @@ function getTermOptions(attributeId) {
   }
   return options;
 }
-;// CONCATENATED MODULE: ./admin/stock-list/ui/inline-edit.js
+;// ./admin/stock-list/ui/inline-edit.js
 const inline_edit_$ = jQuery;
 const {
   restUrl,
@@ -205,7 +204,7 @@ function getNextRow($tr, prev = false) {
   }
   return $nextRow;
 }
-;// CONCATENATED MODULE: ./admin/stock-list/ui/chips.js
+;// ./admin/stock-list/ui/chips.js
 function chips_load() {
   const table = document.querySelector('.wp-list-table');
   if (!table) return;
@@ -220,7 +219,7 @@ function chips_load() {
     }
   });
 }
-;// CONCATENATED MODULE: ./admin/stock-list/ui/confirmations.js
+;// ./admin/stock-list/ui/confirmations.js
 const confirmations_$ = jQuery;
 const {
   __,
@@ -239,7 +238,7 @@ function onTableListClick(e) {
     e.preventDefault();
   }
 }
-;// CONCATENATED MODULE: ./admin/stock-list/ui/tooltips.js
+;// ./admin/stock-list/ui/tooltips.js
 function tooltips_load() {
   jQuery('[rel="tiptip"]').tipTip({
     fadeIn: 50,
@@ -247,7 +246,7 @@ function tooltips_load() {
     delay: 200
   });
 }
-;// CONCATENATED MODULE: ./admin/stock-list/index.js
+;// ./admin/stock-list/index.js
 
 
 
@@ -262,7 +261,7 @@ confirmations_load();
 tooltips_load();
 })();
 
-// This entry need to be wrapped in an IIFE because it need to be isolated against other entry modules.
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other entry modules.
 (() => {
 // extracted by mini-css-extract-plugin
 

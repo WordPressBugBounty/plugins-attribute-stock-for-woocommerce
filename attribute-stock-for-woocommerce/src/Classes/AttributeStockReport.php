@@ -62,19 +62,19 @@ class AttributeStockReport extends \WC_Report_Stock
 
 		switch ($column_name) {
 			case 'title':
-				$output = esc_html($item['title']);
+				$output = esc_html($item->title);
 				break;
 
 			case 'sku':
-				$output = esc_html($item['sku']);
+				$output = esc_html($item->sku);
 				break;
 
 			case 'quantity':
-				$output = $item['quantity'];
+				$output = $item->quantity;
 				break;
 
 			case 'wc_actions':
-				$stock = new AttributeStock($item['id'], 'object');
+				$stock = new AttributeStock($item->id, 'object');
 				$referer = ['_wp_http_referer' => $_SERVER['REQUEST_URI']];
 
 				$output = '<a class="button tips edit" href="' . esc_url($stock->edit_url($referer)) . '" data-tip="' . esc_attr(__('Edit attribute stock', 'woocommerce-attribute-stock')) . '">' . esc_html__('Edit', 'woocommerce') . '</a>';

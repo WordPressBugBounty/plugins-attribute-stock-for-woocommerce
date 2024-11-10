@@ -49,7 +49,7 @@ class StockSave extends Aspect
 		$data['multiplex'] = !empty($data['multiplex']);
 		$data['lock_multipliers'] = !empty($data['lock_multipliers']);
 
-		// only save limit product stock option in full version
+		// only save settings that require stock limits in full version
 		if (!MEWZ_WCAS_LITE) {
 			$data['internal'] = !empty($data['internal']);
 

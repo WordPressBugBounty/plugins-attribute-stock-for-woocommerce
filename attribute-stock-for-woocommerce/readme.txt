@@ -2,9 +2,9 @@
 Contributors: mewz
 Tags: attribute stock, shared stock, variable stock, woocommerce, stock
 Requires at least: 5.4
-Tested up to: 6.6
+Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.0.3
+Stable tag: 2.1.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -108,6 +108,19 @@ Email support is offered via [CodeCanyon](https://codecanyon.net/item/woocommerc
 The full version is available to purchase on [CodeCanyon](https://codecanyon.net/item/woocommerce-attribute-stock/25796765).
 
 == Changelog ==
+
+= 2.1.0 (2024-11-10) =
+- WordPress 6.7 compatibility.
+- WooCommerce 9.3 compatibility.
+- Added a backorders setting for individual stock items.
+- Added filters to easily disable stock emails for specific stock items.
+- Improved compatibility with WooCommerce blocks.
+- Fixed term meta cache not being cleared when adding a new term.
+- Fixed programmatically created products sometimes being set out of stock.
+- Fixed products not using the correct stock status when on backorder.
+- Fixed PHP error in attribute stock report.
+- Fixed some issues with WPML compatibility in newer versions.
+- Various tweaks and improvements.
 
 = 2.0.3 (2024-08-13) =
 - WordPress 6.6 compatibility.
