@@ -477,7 +477,7 @@ class StockList extends Aspect
 		$this->view->render('admin/stock/list-chips', [
 			'type' => 'product',
 			'wrap' => false,
-			'class' => $class,
+			'chip_class' => $class,
 			'chips' => $chips,
 		]);
 	}
@@ -510,7 +510,7 @@ class StockList extends Aspect
 		$this->view->render('admin/stock/list-chips', [
 			'wrap' => false,
 			'type' => 'category',
-			'class' => $class,
+			'chip_class' => $class,
 			'chips' => $chips,
 		]);
 	}

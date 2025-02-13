@@ -88,7 +88,6 @@ class Installer extends Core\Installer
 		}
 
 		if (version_compare($db_version, '1.9.0', '<')) {
-			$this->maybe_optimize_tables();
 			$this->maybe_sync_outofstock_products();
 		}
 
@@ -98,6 +97,10 @@ class Installer extends Core\Installer
 			$this->migrate_metadata_props_200();
 			$this->migrate_settings();
 			$this->migrate_zero_excludes();
+		}
+
+		if (version_compare($db_version, '2.1.1', '<')) {
+			$this->maybe_optimize_tables();
 		}
 	}
 
@@ -157,13 +160,21 @@ class Installer extends Core\Installer
 			return;
 		}
 
-		$postmeta_indexes = $wpdb->get_results("SHOW INDEX FROM {$wpdb->postmeta} WHERE Column_name = 'meta_value'");
+		$suppressed = $wpdb->suppress_errors();
 
-		if (!$postmeta_indexes) {
-			$suppressed = $wpdb->suppress_errors();
-			$wpdb->query("ALTER TABLE {$wpdb->postmeta} ADD INDEX (meta_value(20))");
-			$wpdb->suppress_errors($suppressed);
+		$has_meta_value = $wpdb->get_results("SHOW INDEX FROM {$wpdb->postmeta} WHERE Key_name = 'meta_value'");
+
+		if ($has_meta_value) {
+			$wpdb->query("ALTER TABLE {$wpdb->postmeta} DROP INDEX `meta_value`");
 		}
+
+		$has_key_value = $wpdb->get_results("SHOW INDEX FROM {$wpdb->postmeta} WHERE Key_name = 'key_value'");
+
+		if (!$has_key_value) {
+			$wpdb->query("ALTER TABLE {$wpdb->postmeta} ADD INDEX `key_value` (`meta_key`, `meta_value`(20))");
+		}
+
+		$wpdb->suppress_errors($suppressed);
 	}
 
 	public function maybe_sync_outofstock_products()

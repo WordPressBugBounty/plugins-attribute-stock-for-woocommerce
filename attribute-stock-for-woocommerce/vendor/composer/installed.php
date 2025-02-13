@@ -3,7 +3,7 @@
         'name' => 'mewz/woocommerce-attribute-stock',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '95e58a506f70f45661cc6920b78ae2a26e400b42',
+        'reference' => 'f4ae6977a421086310f5e131b9c7b6df989dcef0',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -31,7 +31,7 @@
         'mewz/woocommerce-attribute-stock' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '95e58a506f70f45661cc6920b78ae2a26e400b42',
+            'reference' => 'f4ae6977a421086310f5e131b9c7b6df989dcef0',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

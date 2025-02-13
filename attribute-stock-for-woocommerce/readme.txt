@@ -4,7 +4,7 @@ Tags: attribute stock, shared stock, variable stock, woocommerce, stock
 Requires at least: 5.4
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.1.0
+Stable tag: 2.1.1
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -108,6 +108,14 @@ Email support is offered via [CodeCanyon](https://codecanyon.net/item/woocommerc
 The full version is available to purchase on [CodeCanyon](https://codecanyon.net/item/woocommerce-attribute-stock/25796765).
 
 == Changelog ==
+
+= 2.1.1 (2025-02-13) =
+- WooCommerce 9.6 compatibility.
+- Fixed stock list chips not displaying correctly in some cases.
+- Fixed stock item tags not being duplicated.
+- Fixed product multiplier compatibility with OpenPOS.
+- Fixed some rare JS errors with "any" variations.
+- Improved postmeta table index optimization.
 
 = 2.1.0 (2024-11-10) =
 - WordPress 6.7 compatibility.

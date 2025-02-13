@@ -411,6 +411,10 @@ class AttributeStock extends PostModel
 			$copy->save_match_rules($this->match_rules('edit'));
 			$copy->save_components($this->components('edit'));
 
+			if ($tags = $this->tags(['fields' => 'ids'])) {
+				wp_set_object_terms($copy->id(), $tags, 'product_tag');
+			}
+
 			foreach ($this->meta('attribute_level', false) as $attribute_id) {
 				$copy->add_meta('attribute_level', $attribute_id);
 			}

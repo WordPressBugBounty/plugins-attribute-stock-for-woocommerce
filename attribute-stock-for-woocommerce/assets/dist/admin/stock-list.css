@@ -413,29 +413,26 @@
 .post-type-attribute_stock .wp-list-table .mewz-wcas-chip:not(:focus) {
   box-shadow: var(--shadow-top), var(--shadow-bottom);
 }
-.post-type-attribute_stock .wp-list-table a.mewz-wcas-chip {
+.post-type-attribute_stock .wp-list-table .mewz-wcas-chip {
   cursor: pointer;
 }
-.post-type-attribute_stock .wp-list-table a.mewz-wcas-chip:hover,
-.post-type-attribute_stock .wp-list-table a.mewz-wcas-chip:focus {
+.post-type-attribute_stock .wp-list-table .mewz-wcas-chip:hover,
+.post-type-attribute_stock .wp-list-table .mewz-wcas-chip:focus {
   color: #1d2327;
 }
-.post-type-attribute_stock .wp-list-table a.mewz-wcas-chip:hover::before,
-.post-type-attribute_stock .wp-list-table a.mewz-wcas-chip:focus::before {
+.post-type-attribute_stock .wp-list-table .mewz-wcas-chip:hover::before,
+.post-type-attribute_stock .wp-list-table .mewz-wcas-chip:focus::before {
   filter: var(--hover-filter, brightness(0.85));
 }
-.post-type-attribute_stock .wp-list-table a.mewz-wcas-chip:hover {
+.post-type-attribute_stock .wp-list-table .mewz-wcas-chip:hover {
   background: #fafafa;
 }
-.post-type-attribute_stock .wp-list-table a.mewz-wcas-chip:focus {
+.post-type-attribute_stock .wp-list-table .mewz-wcas-chip:focus {
   box-shadow: 0 0 0 2px var(--accent);
   z-index: 1;
 }
-.post-type-attribute_stock .wp-list-table a.mewz-wcas-chip:hover .chip-label {
+.post-type-attribute_stock .wp-list-table .mewz-wcas-chip:hover .chip-label {
   background: #f2f2f2;
-}
-.post-type-attribute_stock .wp-list-table button.mewz-wcas-chip {
-  cursor: pointer;
 }
 .post-type-attribute_stock .wp-list-table tr:has(.check-column input:checked) .mewz-wcas-chip:not(:focus) {
   box-shadow: var(--shadow-bottom);
@@ -484,9 +481,13 @@
   --hover-filter: brightness(0.9);
 }
 .post-type-attribute_stock .wp-list-table .mewz-wcas-chip.show-more {
+  contain: none;
   padding: 0 4px;
   font-weight: 700;
   font-size: 9px;
+}
+.post-type-attribute_stock .wp-list-table .mewz-wcas-chip.show-more::before {
+  display: none !important;
 }
 .post-type-attribute_stock .wp-list-table .mewz-wcas-chip.hidden {
   display: none !important;
