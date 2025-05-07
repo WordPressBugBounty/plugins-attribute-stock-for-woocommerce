@@ -27,7 +27,7 @@ $can_delete = current_user_can('delete_post', $stock->id());
 			</div>
 
 			<div class="status-row row-date row-modified">
-				<div class="row-label"><?= esc_html__('Modified', 'woocommerce-attribute-stock') ?></div>
+				<div class="row-label"><?= esc_html__('Updated', 'woocommerce') ?></div>
 				<div class="row-content"><?= esc_html($stock->modified(false, 'admin-full')) ?></div>
 			</div>
 		<?php endif; ?>
@@ -44,7 +44,7 @@ $can_delete = current_user_can('delete_post', $stock->id());
 
 		<div class="foot-right">
 			<span class="spinner"></span>
-			<?php submit_button($stock->exists() ? __('Update Stock', 'woocommerce-attribute-stock') : __('Create Stock', 'woocommerce-attribute-stock'), 'primary', 'submit', false) ?>
+			<?php submit_button($stock->exists() ? __('Update') : __('Create'), 'primary', 'submit', false) ?>
 		</div>
 	</section>
 

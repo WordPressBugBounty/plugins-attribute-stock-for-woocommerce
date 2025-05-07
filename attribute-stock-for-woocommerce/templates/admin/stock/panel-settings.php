@@ -52,7 +52,7 @@ $backorder_options = wc_get_product_backorder_options();
 		'label' => __('Internal stock', 'woocommerce-attribute-stock') . $pro_cta,
 		'id' => 'mewz_wcas_internal',
 		'name' => 'mewz_wcas[internal]',
-		'description' => __('Internal stock is ignored when determining the stock availability of matched products', 'woocommerce-attribute-stock'),
+		'description' => __('Internal stock items don\'t affect the stock availability of products', 'woocommerce-attribute-stock'),
 		'cbvalue' => 1,
 		'value' => MEWZ_WCAS_LITE ? 1 : (int)$stock->internal(),
 		'custom_attributes' => MEWZ_WCAS_LITE ? ['disabled' => 'disabled'] : [],

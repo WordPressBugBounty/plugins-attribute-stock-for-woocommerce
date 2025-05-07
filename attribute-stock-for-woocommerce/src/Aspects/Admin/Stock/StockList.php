@@ -68,7 +68,7 @@ class StockList extends Aspect
 		$columns['filters'] = __('Filters', 'woocommerce-attribute-stock');
 		$columns['taglist'] = __('Tags', 'woocommerce');
 		$columns['created'] = __('Created', 'woocommerce');
-		$columns['modified'] = __('Modified', 'woocommerce-attribute-stock');
+		$columns['modified'] = __('Updated', 'woocommerce');
 
 		return $columns;
 	}

@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the WooCommerce Attribute Stock plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: WooCommerce Attribute Stock 2.1.1\n"
+"Project-Id-Version: WooCommerce Attribute Stock 2.1.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/woocommerce-attribute-stock\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-02-13T18:09:54+02:00\n"
+"POT-Creation-Date: 2025-05-08T00:03:49+02:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: woocommerce-attribute-stock\n"
@@ -244,40 +244,40 @@ msgid_plural "%d attribute stocks restored from the Trash."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:43
+#: src/Aspects/Admin/Stock/StockEdit.php:53
 msgid "Stock details"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:44
+#: src/Aspects/Admin/Stock/StockEdit.php:54
 msgid "Match rules"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:76
+#: src/Aspects/Admin/Stock/StockEdit.php:86
 #: src/Aspects/Admin/Stock/StockList.php:66
 msgid "Components"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:103
+#: src/Aspects/Admin/Stock/StockEdit.php:113
 #: src/Aspects/Admin/Stock/StockList.php:68
 msgid "Filters"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:226
+#: src/Aspects/Admin/Stock/StockEdit.php:236
 #: src/Aspects/Admin/Stock/StockList.php:374
 #: src/Util/Attributes.php:197
 msgid "Any"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:230
+#: src/Aspects/Admin/Stock/StockEdit.php:240
 msgid "Drag to re-order"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:233
+#: src/Aspects/Admin/Stock/StockEdit.php:243
 #: templates/admin/products/variation-toolbar.php:13
 msgid "Stock multiplier inherited from attribute terms"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:234
+#: src/Aspects/Admin/Stock/StockEdit.php:244
 #: templates/admin/attributes/add-fields.php:48
 #: templates/admin/attributes/edit-fields.php:150
 #: templates/admin/products/product-fields.php:24
@@ -285,129 +285,129 @@ msgstr ""
 msgid "Stock multiplier"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:235
+#: src/Aspects/Admin/Stock/StockEdit.php:245
 msgid "The amount of stock reduced per item purchased. Can be set to 0 to force out of stock, or to -1 to stop matching."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:236
+#: src/Aspects/Admin/Stock/StockEdit.php:246
 msgid "New rule"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:237
+#: src/Aspects/Admin/Stock/StockEdit.php:247
 msgid "Attribute rules are matched against products from top to bottom in order. Only the first matched rule will be used, unless <strong>Multiplex matching</strong> is enabled. A product or variation must have all attributes in a rule to match."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:240
+#: src/Aspects/Admin/Stock/StockEdit.php:250
 msgid "Restore last removed rule"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:241
+#: src/Aspects/Admin/Stock/StockEdit.php:251
 msgid "Rule #%s"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:242
+#: src/Aspects/Admin/Stock/StockEdit.php:252
 msgid "Stop rule — When matched, excludes this and subsequent rules from matching,"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:251
+#: src/Aspects/Admin/Stock/StockEdit.php:261
 #: src/Aspects/Admin/Stock/StockListFilters.php:165
 #: templates/admin/stock/panel-components.php:11
 msgid "Parent components"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:252
+#: src/Aspects/Admin/Stock/StockEdit.php:262
 msgid "Parent components are stock items that use this stock item as a component."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:253
+#: src/Aspects/Admin/Stock/StockEdit.php:263
 msgid "Add parent component..."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:254
-#: src/Aspects/Admin/Stock/StockEdit.php:260
+#: src/Aspects/Admin/Stock/StockEdit.php:264
+#: src/Aspects/Admin/Stock/StockEdit.php:270
 msgid "Child quantity per parent"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:257
+#: src/Aspects/Admin/Stock/StockEdit.php:267
 #: src/Aspects/Admin/Stock/StockListFilters.php:169
 #: templates/admin/stock/panel-components.php:26
 msgid "Child components"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:258
+#: src/Aspects/Admin/Stock/StockEdit.php:268
 msgid "Child components are stock items that this stock item uses as components."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:259
+#: src/Aspects/Admin/Stock/StockEdit.php:269
 msgid "Add child component..."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:316
-#: src/Aspects/Admin/Stock/StockEdit.php:319
-#: src/Aspects/Admin/Stock/StockEdit.php:321
+#: src/Aspects/Admin/Stock/StockEdit.php:326
 #: src/Aspects/Admin/Stock/StockEdit.php:329
+#: src/Aspects/Admin/Stock/StockEdit.php:331
+#: src/Aspects/Admin/Stock/StockEdit.php:339
 msgid "Attribute stock updated."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:317
+#: src/Aspects/Admin/Stock/StockEdit.php:327
 msgid "Attribute stock field updated."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:318
+#: src/Aspects/Admin/Stock/StockEdit.php:328
 msgid "Attribute stock field deleted."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:322
+#: src/Aspects/Admin/Stock/StockEdit.php:332
 msgid "Attribute stock saved."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:323
+#: src/Aspects/Admin/Stock/StockEdit.php:333
 msgid "Attribute stock submitted."
 msgstr ""
 
 #. translators: %s: date
-#: src/Aspects/Admin/Stock/StockEdit.php:326
+#: src/Aspects/Admin/Stock/StockEdit.php:336
 msgid "Attribute stock scheduled for: %s."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:345
-#: src/Aspects/Admin/Stock/StockEdit.php:377
+#: src/Aspects/Admin/Stock/StockEdit.php:355
+#: src/Aspects/Admin/Stock/StockEdit.php:387
 msgid "Back to attribute stock"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:349
+#: src/Aspects/Admin/Stock/StockEdit.php:359
 msgid "Back to \"%s\" attribute term"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:351
+#: src/Aspects/Admin/Stock/StockEdit.php:361
 msgid "Back to attribute term"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:356
+#: src/Aspects/Admin/Stock/StockEdit.php:366
 msgid "Back to \"%s\" attribute terms"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:358
+#: src/Aspects/Admin/Stock/StockEdit.php:368
 msgid "Back to attribute terms"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:363
+#: src/Aspects/Admin/Stock/StockEdit.php:373
 msgid "Back to \"%s\" attribute"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:365
+#: src/Aspects/Admin/Stock/StockEdit.php:375
 msgid "Back to attribute"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:369
+#: src/Aspects/Admin/Stock/StockEdit.php:379
 msgid "Back to attributes"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:372
+#: src/Aspects/Admin/Stock/StockEdit.php:382
 msgid "Back to stock report"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:411
+#: src/Aspects/Admin/Stock/StockEdit.php:421
 msgid "Circular reference detected in component tree. Component stock will be disabled until you've resolved this."
 msgstr ""
 
@@ -444,11 +444,6 @@ msgstr ""
 
 #: src/Aspects/Admin/Stock/StockList.php:45
 msgid "Stock management is disabled in your <a href=\"%s\">WooCommerce settings</a>. Attribute stock won't function unless stock management is enabled."
-msgstr ""
-
-#: src/Aspects/Admin/Stock/StockList.php:71
-#: templates/admin/stock/metabox-status.php:30
-msgid "Modified"
 msgstr ""
 
 #: src/Aspects/Admin/Stock/StockList.php:271
@@ -560,7 +555,7 @@ msgstr ""
 
 #: src/Core/Loader.php:138
 msgctxt "post type singular name"
-msgid "Attribute Stock"
+msgid "Stock Item"
 msgstr ""
 
 #: src/Core/Loader.php:139
@@ -657,14 +652,6 @@ msgstr ""
 msgid "Show more"
 msgstr ""
 
-#: templates/admin/stock/metabox-status.php:47
-msgid "Update Stock"
-msgstr ""
-
-#: templates/admin/stock/metabox-status.php:47
-msgid "Create Stock"
-msgstr ""
-
 #: templates/admin/stock/panel-components.php:15
 msgid "Select items that use this stock item as a component."
 msgstr ""
@@ -742,7 +729,7 @@ msgid "Allow or disallow backorders on matched products that do not have stock m
 msgstr ""
 
 #: templates/admin/stock/panel-settings.php:55
-msgid "Internal stock is ignored when determining the stock availability of matched products"
+msgid "Internal stock items don't affect the stock availability of products"
 msgstr ""
 
 #: templates/admin/stock/panel-settings.php:66

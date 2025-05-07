@@ -7,7 +7,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-02-13T18:09:54+02:00\n"
+"POT-Creation-Date: 2025-05-08T00:03:50+02:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: mewz-framework\n"
@@ -38,11 +38,6 @@ msgstr ""
 
 #: src/Core/Authorizer.php:128
 msgid "Need a license? <a href=\"%s\" target=\"_blank\">Buy one</a>"
-msgstr ""
-
-#: src/Util/PostType.php:113
-#: src/Util/PostType.php:144
-msgid "Add New %s"
 msgstr ""
 
 #: src/Util/PostType.php:115

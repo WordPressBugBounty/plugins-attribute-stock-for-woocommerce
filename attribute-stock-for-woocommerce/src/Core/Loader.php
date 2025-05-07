@@ -135,7 +135,7 @@ class Loader extends Core\Loader
 			'rewrite' => false,
 			'labels' => [
 				'name'                  => _x('Attribute Stock', 'post type general name', 'woocommerce-attribute-stock'),
-				'singular_name'         => _x('Attribute Stock', 'post type singular name', 'woocommerce-attribute-stock'),
+				'singular_name'         => _x('Stock Item', 'post type singular name', 'woocommerce-attribute-stock'),
 				'featured_image'        => __('Stock image', 'woocommerce-attribute-stock'),
 				'set_featured_image'    => __('Set stock image', 'woocommerce-attribute-stock'),
 				'remove_featured_image' => __('Remove stock image', 'woocommerce-attribute-stock'),

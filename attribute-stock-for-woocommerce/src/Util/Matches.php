@@ -1381,7 +1381,7 @@ class Matches
 				}
 			}
 
-			$matches[$stock_id]['r'][$rule_id]['a'][$taxonomy] = $term_slug;
+			$matches[$stock_id]['r'][$rule_id]['a'][$taxonomy][] = $term_slug;
 
 			if (!isset($match_data['attributes'][$taxonomy][$term_slug])) {
 				$match_data['attributes'][$taxonomy][$term_slug] = $term_slug;

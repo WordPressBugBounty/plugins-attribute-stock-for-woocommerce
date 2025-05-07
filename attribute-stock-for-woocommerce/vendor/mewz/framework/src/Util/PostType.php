@@ -110,7 +110,7 @@ class PostType
 
 		return $labels ?: $labels = [
 			'add_new'                  => [__('Add New', 'woocommerce'),                    'singular'],
-			'add_new_item'             => [__('Add New %s', 'mewz-framework'),              'singular'],
+			'add_new_item'             => [__('Add %s', 'woocommerce'),                     'singular'],
 			'edit_item'                => [__('Edit %s', 'woocommerce'),                    'singular'],
 			'new_item'                 => [__('New %s', 'mewz-framework'),                  'singular'],
 			'view_item'                => [_x('View %s', 'post type view singular', 'mewz-framework'), 'singular'],
@@ -141,7 +141,7 @@ class PostType
 
 		return $labels ?: $labels = [
 			'add_new'                    => [_x('Add New', 'woocommerce'),                         'singular'],
-			'add_new_item'               => [__('Add New %s', 'mewz-framework'),                   'singular'],
+			'add_new_item'               => [__('Add %s', 'woocommerce'),                          'singular'],
 			'search_items'               => [__('Search %s', 'woocommerce'),                       'plural'],
 			'popular_items'              => [__('Popular %s', 'mewz-framework'),                   'plural'],
 			'all_items'                  => [__('All %s', 'woocommerce'),                          'plural'],

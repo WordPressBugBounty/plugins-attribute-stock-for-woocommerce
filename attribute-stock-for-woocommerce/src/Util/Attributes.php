@@ -143,9 +143,9 @@ class Attributes
 			$attribute = self::get_attribute($attribute);
 			if (!$attribute) continue;
 
-			if ($terms) {
+			if ($terms || $terms === '0') {
 				foreach ((array)$terms as $term) {
-					if (!$term) {
+					if ($term == '') {
 						$term_id = 0;
 					} elseif (is_string($term)) {
 						$term = get_term_by('slug', $term, $attribute->taxonomy);

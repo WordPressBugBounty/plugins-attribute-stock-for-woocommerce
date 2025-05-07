@@ -2,9 +2,9 @@
 Contributors: mewz
 Tags: attribute stock, shared stock, variable stock, woocommerce, stock
 Requires at least: 5.4
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 2.1.1
+Stable tag: 2.1.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -108,6 +108,16 @@ Email support is offered via [CodeCanyon](https://codecanyon.net/item/woocommerc
 The full version is available to purchase on [CodeCanyon](https://codecanyon.net/item/woocommerce-attribute-stock/25796765).
 
 == Changelog ==
+
+= 2.1.2 (2025-05-07) =
+- WordPress 6.8 compatibility.
+- WooCommerce 9.8 compatibility.
+- Updated various UI text to align with recent WordPress updates.
+- Fixed a regression causing attribute terms with a slug of "0" to not match.
+- Fixed multiple attribute match rule terms not working properly with "Any" variations.
+- Fixed checking the stock status of invalid/disabled variations.
+- Fixed a bug causing stock statuses to sometimes not sync correctly.
+- Fixed URL mismatches when plugins don't respect the URL scheme parameter.
 
 = 2.1.1 (2025-02-13) =
 - WooCommerce 9.6 compatibility.

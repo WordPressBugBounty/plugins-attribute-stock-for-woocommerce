@@ -155,11 +155,11 @@ class Context
 
 		return (
 			// referer is this site
-			strpos($referer, site_url('', 'http')) === 0
+			strpos($referer, ltrim(site_url(), 'htps:')) === 0
 			// but not wp-admin
-			&& strpos($referer, admin_url('', 'http')) !== 0
+			&& strpos($referer, ltrim(admin_url(), 'htps:')) !== 0
 			// and not wp-login
-			&& strpos($referer, site_url('wp-login.php', 'http')) !== 0
+			&& strpos($referer, ltrim(wp_login_url(), 'htps:')) !== 0
 			// and not a rest request
 			&& strpos($referer, '?rest_route=') === false
 			&& strpos($referer, '/' . rest_get_url_prefix() . '/') === false
@@ -171,11 +171,7 @@ class Context
 		$referer = wp_get_raw_referer();
 		if (!$referer) return false;
 
-		if ($referer[0] === '/') {
-			$referer = site_url($referer, 'http');
-		} elseif (strpos($referer, 'https') === 0) {
-			$referer = 'http' . substr($referer, 5);
-		}
+		$referer = ltrim($referer, 'htps:');
 
 		return $referer;
 	}

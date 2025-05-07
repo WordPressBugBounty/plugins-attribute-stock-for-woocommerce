@@ -18,6 +18,7 @@ class StockEdit extends Aspect
 		$this->spoof_backlink_referer();
 
 		add_filter('woocommerce_screen_ids', [$this, 'woocommerce_screen_ids']);
+		add_filter('enter_title_here', [$this, 'title_placeholder'], 1, 2);
 		add_action('add_meta_boxes_' . AttributeStock::POST_TYPE, [$this, 'add_meta_boxes']);
 		add_filter('post_updated_messages', [$this, 'post_updated_messages']);
 		add_action('admin_notices', [$this, 'admin_notices'], 20);
@@ -33,6 +34,15 @@ class StockEdit extends Aspect
 		$screen_ids[] = AttributeStock::POST_TYPE;
 
 		return $screen_ids;
+	}
+
+	public function title_placeholder($placeholder, $post)
+	{
+		if ($post->post_type === AttributeStock::POST_TYPE) {
+			$placeholder = __('Title');
+	    }
+
+		return $placeholder;
 	}
 
 	public function add_meta_boxes()
