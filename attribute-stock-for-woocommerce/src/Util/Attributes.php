@@ -338,16 +338,16 @@ class Attributes
 		$term_multipliers = self::get_term_multipliers();
 		if (!$term_multipliers) return [];
 
-		$rule_attr_table = DB::prefix(Matches::ATTR_TABLE);
+		$rule_conds_table = DB::prefix(Matches::CONDITIONS_TABLE);
 		$attributes_table = DB::prefix('woocommerce_attribute_taxonomies');
 
 		$rule_ids = implode(',', $rule_ids);
 
 		$query = "
-			SELECT r.rule_id, r.attribute_id, r.term_id
-			FROM {$rule_attr_table} r
-			JOIN {$attributes_table} a ON a.attribute_id = r.attribute_id
-			WHERE r.rule_id IN ($rule_ids)
+			SELECT c.rule_id, c.type_id, c.value_id
+			FROM {$rule_conds_table} c
+			JOIN {$attributes_table} a ON a.attribute_id = c.type_id
+			WHERE c.rule_id IN ($rule_ids)
 			ORDER BY a.attribute_name
 		";
 
@@ -361,17 +361,17 @@ class Attributes
 				continue;
 			}
 
-			$attr_id = (int)$row->attribute_id;
+			$attr_id = (int)$row->type_id;
 
 			if (empty($attribute_id_sets[$attr_id])) {
 				continue;
 			}
 
 			$taxonomy = self::get_attribute_name($attr_id, true);
-			$row->term_id = (int)$row->term_id;
+			$row->value_id = (int)$row->value_id;
 
 			foreach ($attribute_id_sets[$attr_id] as $term_id) {
-				if ($row->term_id > 0 && (int)$term_id !== $row->term_id) {
+				if ($row->value_id > 0 && (int)$term_id !== $row->value_id) {
 					continue;
 				}
 

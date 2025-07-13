@@ -16,7 +16,7 @@ class Installer extends Core\Installer
 	{
 		return [
 			Matches::RULES_TABLE,
-			Matches::ATTR_TABLE,
+			Matches::CONDITIONS_TABLE,
 			Components::TABLE,
 		];
 	}
@@ -35,19 +35,21 @@ class Installer extends Core\Installer
 			  priority INT(11) NOT NULL,
 			  PRIMARY KEY  (id),
 			  KEY stock_id (stock_id),
-			  KEY priority (priority)
+			  KEY priority (priority),
+			  KEY stock_priority (stock_id, priority)
 			) {$collate};
 
-			CREATE TABLE " . $wpdb->prefix . Matches::ATTR_TABLE . " (
+			CREATE TABLE " . $wpdb->prefix . Matches::CONDITIONS_TABLE . " (
 			  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 			  rule_id BIGINT UNSIGNED NOT NULL,
-			  attribute_id BIGINT UNSIGNED NOT NULL,
-			  term_id BIGINT UNSIGNED NOT NULL,
+			  type_id BIGINT UNSIGNED NOT NULL,
+			  value_id BIGINT UNSIGNED NOT NULL,
 			  PRIMARY KEY  (id),
 			  KEY rule_id (rule_id),
-			  KEY attribute_id (attribute_id),
-			  KEY term_id (term_id),
-			  KEY attribute_term (attribute_id, term_id)
+			  KEY type_id (type_id),
+			  KEY value_id (value_id),
+			  KEY type_value (type_id, value_id),
+			  KEY lookup (rule_id, type_id, value_id)
 			) {$collate};
 			
 			CREATE TABLE " . $wpdb->prefix . Components::TABLE . " (
@@ -101,6 +103,11 @@ class Installer extends Core\Installer
 
 		if (version_compare($db_version, '2.1.1', '<')) {
 			$this->maybe_optimize_tables();
+		}
+
+		if (version_compare($db_version, '2.2.0', '<')) {
+			$this->migrate_conditions_table();
+			$this->migrate_stock_filters();
 		}
 	}
 
@@ -213,9 +220,9 @@ class Installer extends Core\Installer
 
 		$names = [
 			$pfx . 'wc_mewz_wcas_match_sets' => $pfx . Matches::RULES_TABLE,
-			$pfx . 'wc_mewz_wcas_match_rows'  => $pfx . Matches::ATTR_TABLE,
+			$pfx . 'wc_mewz_wcas_match_rows'  => $pfx . 'wcas_rule_attributes',
 			$pfx . 'wcas_match_sets' => $pfx . Matches::RULES_TABLE,
-			$pfx . 'wcas_match_rows' => $pfx . Matches::ATTR_TABLE,
+			$pfx . 'wcas_match_rows' => $pfx . 'wcas_rule_attributes',
 		];
 
 		foreach ($old_tables as $old_table) {
@@ -277,5 +284,59 @@ class Installer extends Core\Installer
 			->where('multiplier', 0) // matches '0' and '0.00', but also ''
 			->where_not('multiplier', '') // we only want to update explicit zeros
 			->update(['multiplier' => '-1']);
+	}
+
+	public function migrate_conditions_table()
+	{
+		$attr_table = DB::prefix('wcas_rule_attributes');
+		$cond_table = DB::prefix('wcas_rule_conditions');
+
+		if (DB::table($attr_table, true)->exists()) {
+			DB::query("
+				INSERT INTO {$cond_table} (id, rule_id, type_id, value_id)
+				SELECT id, rule_id, attribute_id, term_id
+				FROM {$attr_table}
+			");
+		}
+
+		DB::table($attr_table, true)->drop();
+	}
+
+	public function migrate_stock_filters()
+	{
+		$keymap = [
+			'_products' => 'products',
+			'_exclude_products' => 'excl_products',
+			'_categories' => 'categories',
+			'_exclude_categories' => 'excl_categories',
+			'_product_types' => 'product_types',
+		];
+
+		$query = DB::table('postmeta', 'pm')
+			->left_join('posts', 'p')->on('p.ID = pm.post_id')
+			->where('p.post_type', AttributeStock::POST_TYPE)
+			->where('pm.meta_key', array_keys($keymap))
+			->select('pm.*')
+			->orderby('pm.post_id');
+
+		if ($old_filters = $query->get()) {
+			$new_filters = [];
+
+			foreach ($old_filters as $row) {
+				if (!isset($new_filters[$row->post_id])) {
+					$new_filters[$row->post_id] = array_fill_keys(array_values($keymap), null);
+				}
+
+				$new_filters[$row->post_id][$keymap[$row->meta_key]] = maybe_unserialize($row->meta_value);
+			}
+
+			foreach ($new_filters as $stock_id => $filters) {
+				if ($filters = array_filter($filters)) {
+					add_post_meta($stock_id, '_filters', $filters, true);
+				}
+			}
+		}
+
+		$query->delete();
 	}
 }

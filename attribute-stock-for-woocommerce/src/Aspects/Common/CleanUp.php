@@ -23,7 +23,7 @@ class CleanUp extends Aspect
 		add_action('deleted_term_meta', [$this, 'clear_term_meta_cache'], 10, 4);
 
 		// delete associated data
-		add_action('delete_post', [$this, 'delete_post']);
+		add_action('delete_post', [$this, 'delete_post'], 10, 2);
 		add_action('delete_term', [$this, 'delete_term'], 10, 3);
 		add_action('woocommerce_attribute_deleted', [$this, 'deleted_attribute']);
 	}
@@ -55,7 +55,7 @@ class CleanUp extends Aspect
 		// clear attribute transients
 		$attribute_ids = Util\Matches::query()
 			->where('r.stock_id', $stock->id())
-			->col('a.attribute_id');
+			->col('c.type_id');
 
 		$taxonomies = [];
 
@@ -88,23 +88,26 @@ class CleanUp extends Aspect
 		}
 	}
 
-	public function delete_post($post_id)
+	public function delete_post($post_id, \WP_Post $post)
 	{
-		if (get_post_type($post_id) === AttributeStock::POST_TYPE) {
+		if ($post->post_type === AttributeStock::POST_TYPE) {
 			Util\Matches::save_rules($post_id, false);
 			Util\Components::save_components($post_id, false);
+		}
+		elseif ($post->post_type === 'product') {
+			Util\Matches::remove_condition(0, $post_id);
 		}
 	}
 
 	public function delete_term($term_id, $tt_id, $taxonomy)
 	{
 		if (strpos($taxonomy, 'pa_') === 0) {
-			Util\Compatibility::safe_post_type([Util\Matches::class, 'remove_attribute'], $taxonomy, $term_id);
+			Util\Compatibility::safe_post_type([Util\Matches::class, 'remove_condition'], $taxonomy, $term_id);
 		}
 	}
 
 	public function deleted_attribute($attribute_id)
 	{
-		Util\Matches::remove_attribute($attribute_id);
+		Util\Matches::remove_condition($attribute_id);
 	}
 }

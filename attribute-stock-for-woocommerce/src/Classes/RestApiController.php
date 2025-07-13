@@ -172,25 +172,31 @@ class RestApiController extends \WC_REST_Posts_Controller
 					'type' => 'array',
 					'context' => ['view', 'edit'],
 				],
-				'products' => [
-					'type' => 'array',
+				'filters' => [
+					'type' => 'object',
 					'context' => ['view', 'edit'],
-				],
-				'exclude_products' => [
-					'type' => 'array',
-					'context' => ['view', 'edit'],
-				],
-				'categories' => [
-					'type' => 'array',
-					'context' => ['view', 'edit'],
-				],
-				'exclude_categories' => [
-					'type' => 'array',
-					'context' => ['view', 'edit'],
-				],
-				'product_types' => [
-					'type' => 'array',
-					'context' => ['view', 'edit'],
+					'properties' => [
+						'products' => [
+							'type' => 'array',
+							'context' => ['view', 'edit'],
+						],
+						'excl_products' => [
+							'type' => 'array',
+							'context' => ['view', 'edit'],
+						],
+						'categories' => [
+							'type' => 'array',
+							'context' => ['view', 'edit'],
+						],
+						'excl_categories' => [
+							'type' => 'array',
+							'context' => ['view', 'edit'],
+						],
+						'product_types' => [
+							'type' => 'array',
+							'context' => ['view', 'edit'],
+						],
+					],
 				],
 				'tags' => [
 					'type' => 'array',
@@ -476,6 +482,19 @@ class RestApiController extends \WC_REST_Posts_Controller
 			}
 		}
 
+		// handle deprecated params
+		foreach (['products', 'excl_products', 'categories', 'excl_categories', 'product_types'] as $filter_key) {
+			$value = $request->get_param($filter_key);
+			if ($value === null) continue;
+
+			wc_deprecated_argument($filter_key, '2.2.0', 'Use "filters" instead.');
+
+			if (method_exists($stock, $method = 'set_' . $filter_key)) {
+				$stock->$method($value);
+			}
+		}
+
+		// update slug automatically
 		if ($stock->exists() && ($changes = $stock->get_changes()) && isset($changes['title'])) {
 			$slug = sanitize_title($stock->title());
 			if ($stock->trashed()) $slug .= '__trashed';

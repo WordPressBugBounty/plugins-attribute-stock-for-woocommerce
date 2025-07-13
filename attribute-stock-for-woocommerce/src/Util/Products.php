@@ -408,31 +408,6 @@ class Products
 	}
 
 	/**
-	 * @param \WC_Product $product
-	 *
-	 * @return string
-	 */
-	public static function get_formatted_product_name($product)
-	{
-		$name = $product->get_name();
-
-		if (!$product instanceof \WC_Product_Variation) {
-			return $name;
-		}
-
-		$sku = $product->get_sku('edit');
-
-		if ($sku !== '') {
-			$name .= " ($sku)";
-		} else {
-			$variation = wc_get_formatted_variation($product, true, true, true);
-			$name .= $variation !== '' ? " ($variation)" : ' (#' . $product->get_id() . ')';
-		}
-
-		return $name;
-	}
-
-	/**
 	 * @param \WC_Product|int $product
 	 *
 	 * @return \WC_Product|int Returns the same type that was provided

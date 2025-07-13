@@ -10,18 +10,26 @@ use Mewz\WCAS\Models\AttributeStock;
 class Matches
 {
 	const RULES_TABLE = 'wcas_rules';
-	const ATTR_TABLE = 'wcas_rule_attributes';
+	const CONDITIONS_TABLE = 'wcas_rule_conditions';
 
 	/**
-	 * @param string $join
+	 * @param bool $left_join
 	 *
 	 * @return \Mewz\QueryBuilder\Query
 	 */
-	public static function query($join = 'join')
+	public static function query($left_join = false)
 	{
-		return DB::table(self::RULES_TABLE, 'r')
-			->$join(self::ATTR_TABLE, 'a')->on('a.rule_id = r.id')
-			->distinct();
+		$query = DB::table(self::RULES_TABLE, 'r')->distinct();
+
+		if ($left_join) {
+			$query->left_join(self::CONDITIONS_TABLE, 'c');
+		} else {
+			$query->join(self::CONDITIONS_TABLE, 'c');
+		}
+
+		$query->on('c.rule_id = r.id');
+
+		return $query;
 	}
 
 	/**
@@ -60,7 +68,7 @@ class Matches
 
 		$attribute_id_sets = Attributes::get_attribute_id_sets($attributes);
 
-		$raw_matches = self::match_raw_stock($attribute_id_sets);
+		$raw_matches = self::match_raw_stock($attribute_id_sets, $product->get_parent_id() ?: $product->get_id());
 		$raw_matches = apply_filters('mewz_wcas_product_stock_raw_matches', $raw_matches, $product, $attributes, $context);
 
 		$stock_matches = [];
@@ -153,50 +161,19 @@ class Matches
 	}
 
 	/**
-	 * Finds attribute stock items based solely on attributes. Does not check if the stock items
-	 * are enabled, internal, or even exist.
+	 * Match attribute stock items based solely on match rules.
 	 *
-	 * @param array $attribute_id_sets Attribute ID sets from {@see Attributes::get_attribute_id_sets()}.
+	 * @param array<int, int[]> $attribute_id_sets Attribute ID sets from {@see Attributes::get_attribute_id_sets()}.
+	 * @param int|int[] $product_ids Optional product ID or IDs.
 	 *
 	 * @return array Raw stock match results, before any validation or filtering
 	 */
-	public static function match_raw_stock(array $attribute_id_sets)
+	public static function match_raw_stock(array $attribute_id_sets = null, $product_ids = null)
 	{
-		if (!$attribute_id_sets) return [];
+		$match_query = self::build_stock_match_query($attribute_id_sets, $product_ids);
+		if (!$match_query) return [];
 
-		$cache_key = 'match_raw_stock_' . md5(json_encode($attribute_id_sets));
-		$cache_tags = ['match_rules'];
-		$cache = Mewz_WCAS()->cache->get($cache_key, $cache_tags);
-		if (is_array($cache)) return $cache;
-
-		$conditions = [];
-
-		foreach ($attribute_id_sets as $attribute_id => $term_ids) {
-			if ($term_ids[0] != 0) {
-				$term_ids[] = '0';
-			}
-
-			$term_ids = implode(',', $term_ids);
-			$conditions[] = "(a.attribute_id = $attribute_id AND a.term_id IN ($term_ids))";
-		}
-
-		if (!$conditions) return [];
-
-		$conditions = implode("\nOR ", $conditions);
-
-		$rules_table = DB::prefix(self::RULES_TABLE);
-		$attr_table = DB::prefix(self::ATTR_TABLE);
-
-		$query = "
-			SELECT r.stock_id, r.id rule_id, r.multiplier
-			FROM {$rules_table} r
-			LEFT JOIN {$attr_table} a ON a.rule_id = r.id
-			GROUP BY r.id
-			HAVING COUNT(DISTINCT IF(\n{$conditions}\n, a.attribute_id, NULL)) = COUNT(DISTINCT a.attribute_id)
-			ORDER BY r.stock_id, r.priority
-		";
-
-		$results = DB::$wpdb->get_results($query);
+		$results = DB::$wpdb->get_results($match_query['query']);
 		$matches = [];
 
 		if ($results) {
@@ -205,9 +182,75 @@ class Matches
 			}
 		}
 
-		Mewz_WCAS()->cache->set($cache_key, $matches, $cache_tags);
-
 		return $matches;
+	}
+
+	/**
+	 * @param array<int, int[]> $attribute_id_sets
+	 * @param int|int[] $product_ids
+	 * @param string|null $select
+	 *
+	 * @return array|false
+	 */
+	public static function build_stock_match_query(array $attribute_id_sets = null, $product_ids = null, string $select = null)
+	{
+		if (!$attribute_id_sets && !$product_ids) {
+			return false;
+		}
+
+		if ($product_ids) {
+			if (is_array($product_ids)) {
+				$product_ids = array_keys(array_flip($product_ids));
+				sort($product_ids);
+			} else {
+				$product_ids = [(int)$product_ids];
+			}
+		}
+
+		$conditions = [];
+
+		if ($product_ids) {
+			$product_ids = implode(',', $product_ids);
+			$conditions[] = "(c.type_id = 0 AND c.value_id IN ($product_ids))";
+		}
+
+		if ($attribute_id_sets) {
+			$attribute_ids = implode(',', array_keys($attribute_id_sets));
+			$term_ids = implode(',', array_keys(array_flip(array_merge([0], ...$attribute_id_sets))));
+			$conditions[] = "(c.type_id IN ($attribute_ids) AND c.value_id IN ($term_ids))";
+		}
+
+		if (!$conditions) {
+			return false;
+		}
+
+		$conditions = implode("\nOR ", $conditions);
+
+		$rules_table = DB::prefix(self::RULES_TABLE);
+		$conds_table = DB::prefix(self::CONDITIONS_TABLE);
+		$posts_table = DB::prefix('posts');
+		$post_type = AttributeStock::POST_TYPE;
+
+		if (!$select) {
+			$select = 'r.stock_id, r.id rule_id, r.multiplier';
+		}
+
+		$query = "
+			SELECT {$select}
+			FROM {$rules_table} r
+			LEFT JOIN {$posts_table} p ON p.ID = r.stock_id
+			LEFT JOIN {$conds_table} c ON c.rule_id = r.id
+			WHERE p.post_type = '{$post_type}'
+			  AND p.post_status = 'publish'
+			GROUP BY r.id
+			HAVING COUNT(DISTINCT IF(\n{$conditions}\n, c.type_id, NULL)) = COUNT(DISTINCT c.type_id)
+			ORDER BY r.stock_id, r.priority
+		";
+
+		return [
+			'query' => $query,
+			'conditions' => $conditions,
+		];
 	}
 
 	/**
@@ -255,19 +298,20 @@ class Matches
 		if (!$product_ids) return false;
 
 		$product_id = $product_ids[0];
+		$filters = $stock->filters();
 
 		// if product is specifically excluded, immediately fail
-		if (($excl_products = $stock->exclude_products()) && self::ids_in_array($product_ids, $excl_products)) {
+		if (self::ids_in_array($product_ids, $filters['excl_products'])) {
 			return false;
 		}
 
 		// if product is specifically included, immediately pass
-		if (($incl_products = $stock->products()) && self::ids_in_array($product_ids, $incl_products)) {
+		if (self::ids_in_array($product_ids, $filters['products'])) {
 			return true;
 		}
 
 		// if product type isn't valid, fail
-		if ($valid_types = $stock->product_types()) {
+		if ($valid_types = $filters['product_types']) {
 			if ($product instanceof \WC_Product) {
 				$product_type = $product->get_type();
 			} else {
@@ -280,8 +324,8 @@ class Matches
 		}
 
 		// check category filters
-		$incl_cats = $stock->categories();
-		$excl_cats = $stock->exclude_categories();
+		$incl_cats = $filters['categories'];
+		$excl_cats = $filters['excl_categories'];
 
 		if ($incl_cats || $excl_cats) {
 			$product_cats = Products::get_all_product_category_ids($product_id);
@@ -298,7 +342,7 @@ class Matches
 		}
 
 		// if product filters are specified but don't match, and no other filters are specified, fail
-		if ($incl_products && !$valid_types && !$incl_cats && !$excl_cats) {
+		if ($filters['products'] && !$valid_types && !$incl_cats && !$excl_cats) {
 			return false;
 		}
 
@@ -356,7 +400,7 @@ class Matches
 	 * @param int $stock_id
 	 * @param string $context 'view' or 'edit'
 	 *
-	 * @return array [rule_id => [multiplier, attributes[attr_id] => [term_ids]]]
+	 * @return array [rule_id => [multiplier, conditions[type_id] => [value_ids]]]
 	 */
 	public static function get_rules($stock_id, $context = 'view')
 	{
@@ -372,8 +416,8 @@ class Matches
 			}
 		}
 
-		$results = self::query()
-			->select('a.rule_id, r.multiplier, a.attribute_id, a.term_id')
+		$results = self::query(true)
+			->select('r.id rule_id, r.multiplier, c.type_id, c.value_id')
 			->where('r.stock_id', $stock_id)
 			->asc('r.priority')
 			->get();
@@ -395,33 +439,34 @@ class Matches
 
 					$rules[$rule_id] = [
 						'multiplier' => $multiplier,
-						'attributes' => [],
+						'conditions' => [],
 					];
 				}
 
-				$attribute_id = (int)$row->attribute_id;
+				$type_id = (int)$row->type_id;
 
-				if (isset($attributes[$attribute_id])) {
-					if ($row->term_id) {
-						$rules[$rule_id]['attributes'][$attribute_id][] = (int)$row->term_id;
-					} elseif (!isset($rules[$rule_id]['attributes'][$attribute_id])) {
-						$rules[$rule_id]['attributes'][$attribute_id] = [];
+				if ($type_id === 0) {
+					$rules[$rule_id]['conditions'][$type_id][] = (int)$row->value_id;
+				} elseif (isset($attributes[$type_id])) {
+					if ($row->value_id) {
+						$rules[$rule_id]['conditions'][$type_id][] = (int)$row->value_id;
+					} elseif (!isset($rules[$rule_id]['conditions'][$type_id])) {
+						$rules[$rule_id]['conditions'][$type_id] = [];
 					}
 				}
 			}
 
-			$sort_callback = fn($a, $b) => strnatcasecmp(
-				$attributes[$a]->label,
-				$attributes[$b]->label
-			);
+			$sort_callback = fn($a, $b) => isset($attributes[$a], $attributes[$b])
+				? strnatcasecmp($attributes[$a]->label, $attributes[$b]->label)
+				: $a <=> $b;
 
 			foreach ($rules as $rule_id => &$rule) {
-				$row_count = count($rule['attributes']);
+				$row_count = count($rule['conditions']);
 
 				if ($row_count === 0) {
 					unset($rules[$rule_id]);
 				} elseif ($row_count > 1) {
-					uksort($rule['attributes'], $sort_callback);
+					uksort($rule['conditions'], $sort_callback);
 				}
 			}
 		}
@@ -446,16 +491,25 @@ class Matches
 
 		if ($rules && is_array($rules)) {
 			foreach ($rules as $i => $rule) {
-				if (empty($rule['attributes'])) {
+				if (isset($rule['conditions'][0]) && !$rule['conditions'][0]) {
+					unset($rules[$i]['conditions'][0]);
+				}
+
+				if (empty($rule['conditions'])) {
 					unset($rules[$i]);
 				}
 			}
 		}
 
 		if (!$rules) {
-			self::query('left_join')
-				->table('a', true)
-				->where('r.stock_id', $stock_id)
+			DB::table(self::RULES_TABLE)
+				->where('stock_id', $stock_id)
+				->delete();
+
+			DB::table(self::CONDITIONS_TABLE, 'c')
+				->left_join(self::RULES_TABLE, 'r')->on('r.id = c.rule_id')
+				->is_null('r.id')
+				->or()->where('c.type_id = 0 AND c.value_id = 0')
 				->delete();
 
 			do_action('mewz_wcas_match_rules_saved', $stock_id, false);
@@ -466,8 +520,8 @@ class Matches
 			return;
 		}
 
-		$results = self::query('left_join')
-			->select('r.id rule_id, r.multiplier, r.priority, a.id rule_attr_id, a.attribute_id, a.term_id')
+		$results = self::query(true)
+			->select('r.id rule_id, r.multiplier, r.priority, c.id condition_id, c.type_id, c.value_id')
 			->where('r.stock_id', $stock_id)
 			->asc('r.priority')
 			->get();
@@ -482,19 +536,19 @@ class Matches
 					'rule_id' => $rule_id,
 					'multiplier' => $row->multiplier,
 					'priority' => (int)$row->priority,
-					'attributes' => [],
+					'conditions' => [],
 				];
 			}
 
-			if ($row->rule_attr_id) {
-				$existing_rules[$rule_id]['attributes'][$row->attribute_id][$row->term_id] = (int)$row->rule_attr_id;
+			if ($row->condition_id) {
+				$existing_rules[$rule_id]['conditions'][$row->type_id][$row->value_id] = (int)$row->condition_id;
 			}
 		}
 
 		$rules = array_values($rules);
 		$existing_rules = array_values($existing_rules);
-		$insert_attr = [];
-		$delete_attr = [];
+		$insert_conds = [];
+		$delete_conds = [];
 
 		foreach ($rules as $i => $rule) {
 			if (isset($rule['multiplier']) && $rule['multiplier'] !== '') {
@@ -525,24 +579,24 @@ class Matches
 						->update($update);
 				}
 
-				foreach ($rule['attributes'] as $attr_id => $term_ids) {
-					foreach ($term_ids ?: [0] as $term_id) {
-						$term_id = (int)$term_id;
+				foreach ($rule['conditions'] as $type_id => $value_ids) {
+					foreach ($value_ids ?: [0] as $value_id) {
+						$value_id = (int)$value_id;
 
-						if (isset($existing['attributes'][$attr_id][$term_id])) {
-							unset($existing['attributes'][$attr_id][$term_id]);
+						if (isset($existing['conditions'][$type_id][$value_id])) {
+							unset($existing['conditions'][$type_id][$value_id]);
 						} else {
-							$insert_attr[] = [
+							$insert_conds[] = [
 								'rule_id' => $rule_id,
-								'attribute_id' => $attr_id,
-								'term_id' => $term_id,
+								'type_id' => $type_id,
+								'value_id' => $value_id,
 							];
 						}
 					}
 				}
 
-				foreach ($existing['attributes'] as $attr) {
-					array_push($delete_attr, ...$attr);
+				foreach ($existing['conditions'] as $attr) {
+					array_push($delete_conds, ...$attr);
 				}
 
 				unset($existing_rules[$i]);
@@ -553,12 +607,12 @@ class Matches
 					'priority' => $priority,
 				]);
 
-				foreach ($rule['attributes'] as $attr_id => $term_ids) {
-					foreach ($term_ids ?: [0] as $term_id) {
-						$insert_attr[] = [
+				foreach ($rule['conditions'] as $type_id => $value_ids) {
+					foreach ($value_ids ?: [0] as $value_id) {
+						$insert_conds[] = [
 							'rule_id' => $rule_id,
-							'attribute_id' => $attr_id,
-							'term_id' => (int)$term_id,
+							'type_id' => $type_id,
+							'value_id' => (int)$value_id,
 						];
 					}
 				}
@@ -569,16 +623,22 @@ class Matches
 			DB::table(self::RULES_TABLE)
 				->where('id', array_column($existing_rules, 'rule_id'))
 				->delete();
-		}
 
-		if ($delete_attr) {
-			DB::table(self::ATTR_TABLE)
-				->where('id', array_keys(array_flip($delete_attr)))
+			DB::table(self::CONDITIONS_TABLE, 'c')
+				->left_join(self::RULES_TABLE, 'r')->on('r.id = c.rule_id')
+				->is_null('r.id')
+				->or()->where('c.type_id = 0 AND c.value_id = 0')
 				->delete();
 		}
 
-		if ($insert_attr) {
-			DB::insert(self::ATTR_TABLE, $insert_attr);
+		if ($delete_conds) {
+			DB::table(self::CONDITIONS_TABLE)
+				->where('id', array_keys(array_flip($delete_conds)))
+				->delete();
+		}
+
+		if ($insert_conds) {
+			DB::insert(self::CONDITIONS_TABLE, $insert_conds);
 		}
 
 		do_action('mewz_wcas_match_rules_saved', $stock_id, $rules);
@@ -612,7 +672,7 @@ class Matches
 			'priority' => $priority,
 		]);
 
-		$rule_attr_id = DB::insert(self::ATTR_TABLE, [
+		$rule_attr_id = DB::insert(self::CONDITIONS_TABLE, [
 			'rule_id' => $rule_id,
 			'attribute_id' => $attribute_id,
 			'term_id' => $term_id,
@@ -627,32 +687,46 @@ class Matches
 	 * Handles the removal of an attribute/term from all stock items.
 	 * Related match rules will be removed, and empty stock items will be trashed.
 	 *
-	 * @param string|int $attribute
-	 * @param int $term_id
+	 * @param int|string $type_id Attribute ID/slug or 0 for products condition
+	 * @param int $value_id Term ID or product ID or 0 for "any"
 	 *
 	 * @return int[]|false
 	 */
-	public static function remove_attribute($attribute, $term_id = null)
+	public static function remove_condition($type_id, $value_id = null)
 	{
-		$attribute_id = Attributes::get_attribute_id($attribute);
+		if (is_string($type_id) || $type_id > 0) {
+			$type_id = Attributes::get_attribute_id($type_id);
+		} else {
+			$type_id = (int)$type_id;
+		}
 
 		// get affected stock ids
-		$query = self::query()->where('a.attribute_id', $attribute_id);
+		$query = self::query()->where('c.type_id', $type_id);
 
-		if ($term_id !== null) {
-			$query->where('a.term_id', $term_id);
+		if ($value_id !== null) {
+			$query->where('c.value_id', (int)$value_id);
 		}
 
 		$stock_ids = $query->col('r.stock_id');
 		if (!$stock_ids) return false;
 
-		// delete all affected match rules and associated attributes
 		$rule_ids = $query->col('r.id');
 
-		if ($rule_ids) {
-			self::query('left_join')
-				->table('a', true)
+		// delete condition values
+		$delete_values = DB::table(self::CONDITIONS_TABLE)->where('type_id', $type_id);
+
+		if ($value_id !== null) {
+			$delete_values->where('value_id', (int)$value_id);
+		}
+
+		$deleted = $delete_values->delete();
+
+		if ($deleted) {
+			// delete rules where any conditions have been removed entirely (no more values)
+			DB::table(self::RULES_TABLE, 'r')
+				->left_join(self::CONDITIONS_TABLE, 'c')->on('r.id = c.rule_id AND c.type_id = ' . $type_id)
 				->where('r.id', $rule_ids)
+				->is_null('c.id')
 				->delete();
 
 			Mewz_WCAS()->cache->invalidate('match_rules');
@@ -674,8 +748,8 @@ class Matches
 			Mewz_WCAS()->cache->invalidate('stock');
 		}
 
-		if (!$term_id) {
-			AttributeStock::delete_all_meta('attribute_level', $attribute_id);
+		if ($type_id > 0 && !$value_id) {
+			AttributeStock::delete_all_meta('attribute_level', $type_id);
 			Mewz_WCAS()->cache->invalidate('attribute_level');
 		}
 
@@ -689,8 +763,9 @@ class Matches
 		}
 
 		$rule_attributes = self::query()
-			->select('a.attribute_id, a.term_id')
+			->select('c.type_id, c.value_id')
 			->left_join('posts', 'p')->on('p.ID = r.stock_id')
+			->where('c.type_id > 0')
 			->where('p.post_status', $post_status)
 			->distinct()
 			->get();
@@ -706,8 +781,8 @@ class Matches
 		$attributes = [];
 
 		if ($rule_attributes) {
-			foreach ($rule_attributes as $attr) {
-				$attributes[$attr->attribute_id][$attr->term_id] = (int)$attr->term_id;
+			foreach ($rule_attributes as $row) {
+				$attributes[$row->type_id][$row->value_id] = (int)$row->value_id;
 			}
 		}
 
@@ -751,9 +826,9 @@ class Matches
 					->where('pm_al.meta_value', $attribute_id);
 			} else {
 				$query->left_join(self::RULES_TABLE, 'r')->on('r.stock_id = p.ID')
-					->left_join(self::ATTR_TABLE, 'a')->on('a.rule_id = r.id')
-					->where('a.attribute_id', $attribute_id)
-					->where('a.term_id', (int)$term_id);
+					->left_join(self::CONDITIONS_TABLE, 'c')->on('c.rule_id = r.id')
+					->where('c.type_id', $attribute_id)
+					->where('c.value_id', (int)$term_id);
 
 				if ($context === 'edit') {
 					$query->left_join('postmeta', 'pm_al')
@@ -854,8 +929,24 @@ class Matches
 			$match_rules = $stock->match_rules();
 			if (!$match_rules) return [];
 
+			$rule_product_ids = [];
+
+			foreach ($match_rules as $i => $rule) {
+				if (!empty($rule['conditions'][0])) {
+					$rule_product_ids[] = $rule['conditions'][0];
+					unset($match_rules[$i]);
+				}
+			}
+
+			if ($rule_product_ids) {
+				$rule_product_ids = array_merge(...$rule_product_ids);
+			}
+
 			$tax_query = self::get_rules_tax_query($match_rules);
-			if (!$tax_query) return [];
+
+			if (!$tax_query && !$rule_product_ids) {
+				return [];
+			}
 
 			if ($query_variations) {
 				$stock_ids[] = $stock->id();
@@ -873,17 +964,18 @@ class Matches
 				'suppress_filters' => true, // TODO: Safe to do this?
 			];
 
-			$include = $stock->products();
+			$filters = $stock->filters();
+
+			$include = $filters['products'];
 			if ($include) $args['include'] = $include;
 
-			$exclude = array_keys(array_flip(array_merge($stock->exclude_products(), $exclude)));
+			$exclude = array_keys(array_flip(array_merge($filters['excl_products'], $exclude)));
 			if ($exclude) $args['exclude'] = $exclude;
 
-			$type = $stock->product_types();
+			$type = $filters['product_types'];
 			if ($type) $args['type'] = $type;
 
 			$found_ids = wc_get_products($args);
-
 			$include = array_flip($include);
 
 			foreach ($found_ids as $found_id) {
@@ -893,6 +985,12 @@ class Matches
 					$product_ids[] = $found_id;
 				}
 			}
+
+			if ($rule_product_ids) {
+				$product_ids = array_merge($product_ids, $rule_product_ids);
+			}
+
+			$product_ids = array_keys(array_flip($product_ids));
 		}
 
 		if ($query_variations && $stock_ids && $product_ids) {
@@ -946,13 +1044,19 @@ class Matches
 			foreach ($match_rules as $rule) {
 				$rule_matches = [];
 
-				foreach ($rule['attributes'] as $attr_id => $term_ids) {
-					$taxonomy = Attributes::get_attribute_name($attr_id, true);
+				foreach ($rule['conditions'] as $type_id => $term_ids) {
+					if ($type_id === 0) {
+						$rule_product_id_list = implode(',', $term_ids);
+						$rule_matches[] = "p.post_parent IN ({$rule_product_id_list})";
+						continue;
+					}
 
-					$pv_alias = 'pv_' . $attr_id;
-					$attr_alias = 'attr_' . $attr_id;
+					$taxonomy = Attributes::get_attribute_name($type_id, true);
 
-					if (!isset($joins[$attr_id])) {
+					$pv_alias = 'pv_' . $type_id;
+					$attr_alias = 'attr_' . $type_id;
+
+					if (!isset($joins[$type_id])) {
 						$joins[$pv_alias] = "LEFT JOIN __mewz_wcas_pv {$pv_alias} ON ({$pv_alias}.parent_id = p.post_parent AND {$pv_alias}.taxonomy = '{$taxonomy}')";
 					}
 
@@ -1001,18 +1105,22 @@ class Matches
 
 		unset($pv_values); // allow memory to be freed
 
-		$pv_create_query = "
+		$pv_created = $wpdb->query("
 			CREATE TEMPORARY TABLE __mewz_wcas_pv (
 			    parent_id INT UNSIGNED NOT NULL,
 			    taxonomy VARCHAR(32),
 			    UNIQUE parent_taxonomy (parent_id, taxonomy)
 			)
-		";
+		");
 
-		$pv_insert_query = "INSERT INTO __mewz_wcas_pv (parent_id, taxonomy) VALUES {$pv_insert}";
-		$pv_drop_query = 'DROP TEMPORARY TABLE __mewz_wcas_pv';
+		if ($pv_created === false) {
+			mewz_wcas_log('Failed to create temporary table in Matches::query_matching_variations(): ' . $wpdb->last_error, \WC_Log_Levels::ERROR);
+			return false;
+		}
 
-		$main_query = "
+		$wpdb->query("INSERT INTO __mewz_wcas_pv (parent_id, taxonomy) VALUES {$pv_insert}");
+
+		$results = $wpdb->get_results("
 			SELECT DISTINCT p.ID AS variation_id, p.post_parent AS parent_id
 			FROM {$wpdb->posts} as p
 			{$joins}
@@ -1023,16 +1131,9 @@ class Matches
 			    {$match_cond}
 			  )
 			ORDER BY p.ID
-		";
+		");
 
-		if ($wpdb->query($pv_create_query) === false) {
-			mewz_wcas_log('Failed to create temporary table in Matches::query_matching_variations(): ' . $wpdb->last_error, \WC_Log_Levels::ERROR);
-			return false;
-		}
-
-		$wpdb->query($pv_insert_query);
-		$results = $wpdb->get_results($main_query);
-		$wpdb->query($pv_drop_query);
+		$wpdb->query("DROP TEMPORARY TABLE __mewz_wcas_pv");
 
 		if (!$results) return false;
 
@@ -1074,8 +1175,8 @@ class Matches
 
 		$multiplier = self::query()
 			->where('r.stock_id', $stock->id())
-			->where('a.attribute_id', $attribute_id)
-			->where('a.term_id', $term_id)
+			->where('c.type_id', $attribute_id)
+			->where('c.value_id', $term_id)
 			->asc('r.priority')
 			->var('r.multiplier');
 
@@ -1156,7 +1257,9 @@ class Matches
 			$tax_queries = [];
 
 			// build tax query
-			foreach ($rule['attributes'] as $attr_id => $term_ids) {
+			foreach ($rule['conditions'] as $attr_id => $term_ids) {
+				if ($attr_id <= 0) continue;
+
 				$taxonomy = Attributes::get_attribute_name($attr_id, true);
 				if (!$taxonomy) continue;
 
@@ -1196,13 +1299,13 @@ class Matches
 	 * Gets all data necessary for matching attribute stock, multipliers, etc. for "any" variations
 	 * on the frontend in JS.
 	 *
-	 * @param \WC_Product|\WC_Product[] $products
+	 * @param \WC_Product_Variation[] $variations
 	 * @param array<string, mixed> $attributes
 	 * @param \WC_Product $parent
 	 *
 	 * @return array|false
 	 */
-	public static function get_any_match_data($products, $attributes, $parent)
+	public static function get_any_match_data($variations, $attributes, $parent)
 	{
 		if (!$attributes) return false;
 
@@ -1245,48 +1348,46 @@ class Matches
 			}
 		}
 
-		if (!is_array($products)) {
-			$products = [$products];
+		if (!is_array($variations)) {
+			$variations = [$variations];
 		}
 
 		if (Products::is_product_excluded($parent)) {
 			return $match_data;
 		}
 
-		$valid_products = [];
+		$valid_variations = [];
 
-		foreach ($products as $product) {
-			if (!Products::is_product_excluded($product, false)) {
-				$valid_products[] = $product;
+		foreach ($variations as $variation) {
+			if (!Products::is_product_excluded($variation, false)) {
+				$valid_variations[] = $variation;
 			}
 		}
 
-		if ($valid_products) {
-			$products = $valid_products;
+		if ($valid_variations) {
+			$variations = $valid_variations;
 		} else {
 			return $match_data;
 		}
 
-		$rule_ids = self::query()
-			->join('posts', 'p')->on('p.ID = r.stock_id')
-			->where('p.post_type', AttributeStock::POST_TYPE)
-			->where('p.post_status', 'publish')
-			->where('a.attribute_id', array_keys($attribute_id_sets))
-			->where('a.term_id', array_merge([0], ...$attribute_id_sets))
-			->col('r.id');
+		$match_query = self::build_stock_match_query($attribute_id_sets, $parent->get_id(), 'r.id');
 
-		if (!$rule_ids) {
+		if (!$match_query) {
 			return $match_data;
 		}
 
-		$rule_ids = array_keys(array_flip($rule_ids));
+		$rules_table = DB::prefix(self::RULES_TABLE);
+		$conds_table = DB::prefix(self::CONDITIONS_TABLE);
 
-		// get ALL attributes from found stock match rules
-		$rule_data = self::query()
-			->select('r.stock_id, a.rule_id, r.multiplier, a.attribute_id, a.term_id')
-			->where('r.id', $rule_ids)
-			->asc('r.stock_id, r.priority')
-			->get();
+		$rule_data = DB::$wpdb->get_results("
+			SELECT DISTINCT r.stock_id, c.rule_id, r.multiplier, c.type_id, c.value_id
+			FROM {$rules_table} AS r
+			INNER JOIN {$conds_table} AS c ON c.rule_id = r.id
+			WHERE 
+			    ({$match_query['conditions']})
+				AND r.id IN ({$match_query['query']})
+			ORDER BY r.stock_id, r.priority
+		");
 
 		if (!$rule_data) {
 			return $match_data;
@@ -1314,7 +1415,7 @@ class Matches
 			$stock = AttributeStock::instance($stock_id);
 
 			if (!isset($valid_stock[$stock_id])) {
-				if ($stock->valid() && !$stock->internal() && self::validate_filters($stock, $products)) {
+				if ($stock->valid() && !$stock->internal() && self::validate_filters($stock, $parent, false)) {
 					$valid_stock[$stock_id] = true;
 				} else {
 					$valid_stock[$stock_id] = false;
@@ -1323,20 +1424,24 @@ class Matches
 			}
 
 			$rule_id = (int)$row->rule_id;
-			$attr_id = (int)$row->attribute_id;
+			$type_id = (int)$row->type_id;
 
-			$taxonomy = Attributes::get_attribute_name($attr_id, true);
+			$is_attr_row = $type_id > 0;
 
-			if ($term_id = (int)$row->term_id) {
-				// we need the translated slug, and polylang doesn't auto translate get_term()
-				if (Multilang::plugin() === 'polylang') {
-					$term_id = Multilang::get_translated_object_id($term_id, 'term', $taxonomy);
+			if ($is_attr_row) {
+				$taxonomy = Attributes::get_attribute_name($type_id, true);
+
+				if ($term_id = (int)$row->value_id) {
+					// we need the translated slug, and polylang doesn't auto translate get_term()
+					if (Multilang::plugin() === 'polylang') {
+						$term_id = Multilang::get_translated_object_id($term_id, 'term', $taxonomy);
+					}
+
+					$term_slug = Attributes::get_term_prop($term_id, $taxonomy, 'slug');
+					if ($term_slug === false) continue;
+				} else {
+					$term_slug = '';
 				}
-
-				$term_slug = Attributes::get_term_prop($term_id, $taxonomy, 'slug');
-				if ($term_slug === false) continue;
-			} else {
-				$term_slug = ''; // any
 			}
 
 			if (!isset($matches[$stock_id])) {
@@ -1381,14 +1486,20 @@ class Matches
 				}
 			}
 
-			$matches[$stock_id]['r'][$rule_id]['a'][$taxonomy][] = $term_slug;
+			if ($is_attr_row) {
+				$matches[$stock_id]['r'][$rule_id]['a'][$taxonomy][] = $term_slug;
 
-			if (!isset($match_data['attributes'][$taxonomy][$term_slug])) {
-				$match_data['attributes'][$taxonomy][$term_slug] = $term_slug;
+				if (!isset($match_data['attributes'][$taxonomy][$term_slug])) {
+					$match_data['attributes'][$taxonomy][$term_slug] = $term_slug;
+				}
+			} else {
+				if (empty($matches[$stock_id]['r'][$rule_id]['p'])) {
+					$matches[$stock_id]['r'][$rule_id]['p'] = (int)$row->value_id === $parent->get_id();
+				}
 			}
 		}
 
-		$matches = apply_filters('mewz_wcas_any_match_data_matches', $matches, $match_data + compact('products', 'parent', 'attributes', 'max_quantity'));
+		$matches = apply_filters('mewz_wcas_any_match_data_matches', $matches, $match_data + compact('variations', 'parent', 'max_quantity'));
 
 		if ($matches) {
 			$using_components = Components::using_components();
@@ -1463,7 +1574,7 @@ class Matches
 			$match_data['component_tree'] = $component_tree;
 		}
 
-		$match_data = apply_filters('mewz_wcas_any_match_data', $match_data, $products, $attributes);
+		$match_data = apply_filters('mewz_wcas_any_match_data', $match_data, $variations, $attributes);
 
 		return $match_data;
 	}

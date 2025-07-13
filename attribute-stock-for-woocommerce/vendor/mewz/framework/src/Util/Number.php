@@ -33,7 +33,13 @@ class Number
 	 */
 	public static function local_format($value, $precision = 5)
 	{
-		return rtrim(rtrim(number_format_i18n((float)$value, $precision), '0'), '., ');
+		$output = number_format_i18n((float)$value, $precision);
+
+		if ($precision > 0) {
+			$output = rtrim(rtrim($output, '0'), '., ');
+		}
+
+		return $output;
 	}
 }
 

@@ -21,12 +21,8 @@ class Export
 		'product_image' => '',
 		'image_id' => '',
 		'components' => '',
-		'products' => '',
-		'exclude_products' => '',
-		'categories' => '',
-		'exclude_categories' => '',
-		'product_types' => '',
 		'match_rules' => '',
+		'filters' => '',
 		'tags' => '',
 		'notes' => '',
 	];
@@ -76,11 +72,8 @@ class Export
 
 		$props = array_diff(array_keys($row), [
 			'components',
-			'products',
-			'exclude_products',
-			'categories',
-			'exclude_categories',
 			'match_rules',
+			'filters',
 			'tags',
 		]);
 
@@ -107,13 +100,8 @@ class Export
 			!empty($components['child']) && $row['components'] = self::build_component_list($components['child']);
 		}
 
-		isset($row['products']) && $row['products'] = self::build_product_list($stock->products());
-		isset($row['exclude_products']) && $row['exclude_products'] = self::build_product_list($stock->exclude_products());
-
-		isset($row['categories']) && $row['categories'] = self::build_category_list($stock->categories());
-		isset($row['exclude_categories']) && $row['exclude_categories'] = self::build_category_list($stock->exclude_categories());
-
 		isset($row['match_rules']) && $row['match_rules'] = self::build_match_rules_export_data($stock);
+		isset($row['filters']) && $row['filters'] = self::build_filters_export_data($stock);
 
 		isset($row['tags']) && $row['tags'] = implode(', ', get_terms([
 			'taxonomy' => 'product_tag',
@@ -125,7 +113,7 @@ class Export
 		return apply_filters('mewz_wcas_export_row', $row, $stock_id, $stock);
 	}
 
-	public static function build_component_list($components)
+	public static function build_component_list($components, $sep = ', ')
 	{
 		$list = [];
 
@@ -146,10 +134,10 @@ class Export
 			$list[] = $ident;
 		}
 
-		return implode(', ', $list);
+		return implode($sep, $list);
 	}
 
-	public static function build_product_list($product_ids)
+	public static function build_product_list($product_ids, $sep = ', ')
 	{
 		$list = [];
 
@@ -166,10 +154,10 @@ class Export
 			$list[] = $ident;
 		}
 
-		return implode(', ', $list);
+		return implode($sep, $list);
 	}
 
-	public static function build_category_list($category_ids)
+	public static function build_category_list($category_ids, $sep = ', ')
 	{
 		$list = [];
 
@@ -183,15 +171,10 @@ class Export
 			$list[] = $category->slug;
 		}
 
-		return implode(', ', $list);
+		return implode($sep, $list);
 	}
 
-	/**
-	 * @param AttributeStock $stock
-	 *
-	 * @return string
-	 */
-	public static function build_match_rules_export_data(AttributeStock $stock)
+	public static function build_match_rules_export_data(AttributeStock $stock, $sep = "\n")
 	{
 		$match_rules = $stock->match_rules();
 		$attributes = Attributes::get_attributes();
@@ -201,16 +184,23 @@ class Export
 		foreach ($match_rules as $rule) {
 			$line_attr = [];
 
-			foreach ($rule['attributes'] as $attr_id => $term_ids) {
-				if (!isset($attributes[$attr_id])) {
+			foreach ($rule['conditions'] as $type_id => $value_ids) {
+				if ($type_id === 0) {
+					if ($product_list = self::build_product_list($value_ids, '|')) {
+						$line_attr[] = '[products]: ' . $product_list;
+					}
 					continue;
 				}
 
-				if ($term_ids) {
+				if (!isset($attributes[$type_id])) {
+					continue;
+				}
+
+				if ($value_ids) {
 					$term_slugs = [];
 
-					foreach ($term_ids as $term_id) {
-						$term = get_term($term_id);
+					foreach ($value_ids as $value_id) {
+						$term = get_term($value_id);
 
 						if (!$term || is_wp_error($term)) {
 							continue;
@@ -224,7 +214,7 @@ class Export
 					$terms = '*';
 				}
 
-				$line_attr[] = $attributes[$attr_id]->name . ': ' . $terms;
+				$line_attr[] = $attributes[$type_id]->name . ': ' . $terms;
 			}
 
 			$line = implode(', ', $line_attr);
@@ -238,54 +228,32 @@ class Export
 			}
 		}
 
-		$lines = implode("\n", $lines);
-
-		return $lines;
+		return implode($sep, $lines);
 	}
 
-	/**
-	 * @param AttributeStock $stock
-	 *
-	 * @return array
-	 */
-	public static function build_filters_export_data($stock)
+	public static function build_filters_export_data(AttributeStock $stock, $sep = "\n")
 	{
-		$filters = [];
+		$filters = $stock->filters();
+		$lines = [];
 
-		$product_filters = [
-			'incl' => $stock->products(),
-			'excl' => $stock->exclude_products(),
-		];
+		foreach ($filters as $key => $values) {
+			if (!$values) continue;
 
-		foreach ($product_filters as $type => $product_ids) {
-		    foreach ($product_ids as $product_id) {
-		    	$sku = get_post_meta($product_id, '_sku', true);
-			    $filters['products'][$type][] = strlen($sku) ? $sku : (int)$product_id;
-		    }
-		}
-
-		$category_filters = [
-			'incl' => $stock->categories(),
-			'excl' => $stock->exclude_categories(),
-		];
-
-		foreach ($category_filters as $type => $cat_ids) {
-			foreach ($cat_ids as $cat_id) {
-				$term = get_term($cat_id);
-
-				if (!$term || is_wp_error($term)) {
-					continue;
-				}
-
-				$filters['categories'][$type][] = $term->slug;
+			switch ($key) {
+				case 'products':
+				case 'excl_products':
+					$lines[] = "$key: " . self::build_product_list($values, '|');
+					break;
+				case 'categories':
+				case 'excl_categories':
+					$lines[] = "$key: " . self::build_category_list($values, '|');
+					break;
+				default:
+					$lines[] = "$key: " . implode(', ', $values);
 			}
 		}
 
-	    if ($product_types = $stock->product_types()) {
-		    $filters['product_types'] = $product_types;
-	    }
-
-		return $filters;
+		return implode($sep, $lines);
 	}
 
 	public static function import_row($row, $exclude_match_ids = null)
@@ -315,10 +283,10 @@ class Export
 		if (!empty($row['match_rules'])) {
 			if (self::is_unset_value($row['match_rules'])) {
 				$match_rules = [];
-			} elseif ($row['match_rules'][0] === '[' && $match_rules = json_decode($row['match_rules'], true)) {
-				$match_rules = self::find_match_rules($match_rules);
-			} elseif ($rule_data = self::parse_match_rules($row['match_rules'])) {
-				$match_rules = self::find_match_rules($rule_data);
+			} elseif ($row['match_rules'][0] === '[' && $rule_data = json_decode($row['match_rules'], true)) {
+				$match_rules = $rule_data;
+			} elseif ($rule_data = self::match_rules($row['match_rules'])) {
+				$match_rules = $rule_data;
 			}
 		}
 
@@ -353,11 +321,15 @@ class Export
 			}
 		}
 
-		isset($data['products']) && $data['products'] = self::match_products($data['products']);
-		isset($data['exclude_products']) && $data['exclude_products'] = self::match_products($data['exclude_products']);
-		isset($data['categories']) && $data['categories'] = self::match_categories($data['categories']);
-		isset($data['exclude_categories']) && $data['exclude_categories'] = self::match_categories($data['exclude_categories']);
-		isset($data['product_types']) && $data['product_types'] = self::list_to_array($data['product_types']);
+		if (!empty($row['filters'])) {
+			if (self::is_unset_value($row['filters'])) {
+				$data['filters'] = [];
+			} elseif ($row['filters'][0] === '{' && $filters = json_decode($row['filters'], true)) {
+				$data['filters'] = $filters;
+			} elseif ($filters = self::match_filters($row['filters'])) {
+				$data['filters'] = $filters;
+			}
+		}
 
 		$data = apply_filters('mewz_wcas_import_data', $data, $stock, $row);
 
@@ -385,7 +357,7 @@ class Export
 			} else {
 				$tag_ids = [];
 
-				foreach (self::list_to_array($row['tags']) as $tag) {
+				foreach (self::str_list_to_array($row['tags']) as $tag) {
 					$tag = wp_create_term($tag, 'product_tag');
 					$tag_ids[] = (int)$tag['term_id'];
 				}
@@ -402,6 +374,54 @@ class Export
 			'stock' => $stock,
 			'action' => $update ? 'updated' : 'added',
 		];
+	}
+
+	public static function build_title_from_match_rules($match_rules)
+	{
+		$title = [];
+		$conditions = [];
+
+		foreach ($match_rules as $rule) {
+			foreach ($rule['conditions'] as $type_id => $value_ids) {
+				if (!isset($conditions[$type_id])) {
+					$conditions[$type_id] = [];
+				}
+
+				foreach ($value_ids as $value_id) {
+					$conditions[$type_id][$value_id] = true;
+				}
+			}
+		}
+
+		if (isset($conditions[0])) {
+			foreach ($conditions[0] as $product_id => $_) {
+				$product = wc_get_product($product_id);
+				if (!$product) continue;
+				$title[] = $product->get_name();
+			}
+
+			unset($conditions[0]);
+		}
+
+		foreach ($conditions as $attr_id => $term_ids) {
+			$title_attr = Attributes::get_attribute_label($attr_id);
+			$taxonomy = Attributes::get_attribute_name($attr_id, true);
+
+			if ($term_ids) {
+				$title_terms = [];
+
+				foreach ($term_ids as $term_id => $_) {
+					$term = get_term($term_id, $taxonomy);
+					$title_terms[] = $term->name;
+				}
+
+				$title[] = $title_attr . ': ' . implode('|', $title_terms);
+			} else {
+				$title[] = $title_attr;
+			}
+		}
+
+		return implode(', ', $title);
 	}
 
 	public static function match_stock_item($data, $exclude_ids = null)
@@ -432,6 +452,71 @@ class Export
 		$stock_id = apply_filters('mewz_wcas_import_match_stock_id', $stock_id, $data);
 
 		return new AttributeStock($stock_id, 'edit');
+	}
+
+	public static function match_rules($str_data)
+	{
+		preg_match_all('/^(.*?)(?:\s*\(\s*([\d.]+)\s*\))?$/m', $str_data, $matches, PREG_SET_ORDER);
+
+		$match_rules = [];
+
+		foreach ($matches as $match) {
+			if (empty($match[1])) continue;
+
+			$rule = [];
+			$conditions = explode(',', $match[1]);
+
+			foreach ($conditions as $condition) {
+				$condition = trim($condition);
+				if ($condition === '') continue;
+
+				$condition = explode(':', $condition, 2);
+
+				if (count($condition) !== 2) {
+					continue;
+				}
+
+				$key = trim($condition[0]);
+				$value = trim($condition[1]);
+
+				if ($key === '' || $value === '') {
+					continue;
+				}
+
+				if ($key === '[products]') {
+					$rule['conditions'][0] = self::match_products($value);
+				} else {
+					$attr_id = Attributes::get_attribute_id($key);
+					if (!$attr_id) continue;
+
+					$taxonomy = Attributes::get_attribute_name($attr_id, true);
+					$term_ids = [];
+
+					if ($value !== '*') {
+						foreach (explode('|', $value) as $term_slug) {
+							$term_slug = trim($term_slug);
+							if ($term_slug === '') continue;
+
+							if ($term = get_term_by('slug', $term_slug, $taxonomy)) {
+								$term_ids[$term->term_id] = true;
+							}
+						}
+					}
+
+					$rule['conditions'][$attr_id] = array_keys($term_ids);
+				}
+			}
+
+			if (!empty($rule['conditions'])) {
+				if (isset($match[2]) && $match[2] !== '') {
+					$rule['multiplier'] = (float)$match[2];
+				}
+
+				$match_rules[] = $rule;
+			}
+		}
+
+		return $match_rules;
 	}
 
 	public static function match_components($data)
@@ -482,11 +567,45 @@ class Export
 		return $components;
 	}
 
-	public static function match_products($list)
+	public static function match_filters($str_data)
 	{
-		if (!$list) return [];
+		preg_match_all('/^(\w+):\s*(.+)$/m', $str_data, $matches, PREG_SET_ORDER);
 
-		$idents = self::list_to_array($list);
+		if (!$matches) {
+			return [];
+		}
+
+		$filters = [];
+
+		foreach ($matches as $match) {
+			if (empty($match[1]) || empty($match[2])) {
+				continue;
+			}
+
+			$key = $match[1];
+
+			switch ($key) {
+				case 'products':
+				case 'excl_products':
+					$filters[$key] = self::match_products($match[2]);
+					break;
+				case 'categories':
+				case 'excl_categories':
+					$filters[$key] = self::match_categories($match[2]);
+					break;
+				default:
+					$filters[$key] = self::str_list_to_array($match[2]);
+			}
+		}
+
+		return $filters;
+	}
+
+	public static function match_products($str_list)
+	{
+		if (!$str_list) return [];
+
+		$idents = self::str_list_to_array($str_list);
 		$product_ids = [];
 
 		foreach ($idents as $ident) {
@@ -494,12 +613,8 @@ class Export
 
 			$product_id = wc_get_product_id_by_sku($ident);
 
-			if (!$product_id) {
-				$post = get_page_by_path($ident, OBJECT, 'product') ?: get_page_by_path($ident, OBJECT, 'product_variation');
-
-				if ($post) {
-					$product_id = $post->ID;
-				}
+			if (!$product_id && $post = get_page_by_path($ident, OBJECT, 'product')) {
+				$product_id = $post->ID;
 			}
 
 			if (!$product_id) {
@@ -507,174 +622,48 @@ class Export
 
 				if ($parts[0] === (string)(int)$parts[0]) {
 					if (isset($parts[1]) && strlen($parts[1])) {
-						$post = get_page_by_path($parts[1], OBJECT, 'product') ?: get_page_by_path($parts[1], OBJECT, 'product_variation');
+						$post = get_page_by_path($parts[1], OBJECT, 'product');
 
 						if ($post) {
 							$product_id = $post->ID;
 						}
 					}
 
-					if (!$product_id && in_array(get_post_type($parts[0]), ['product', 'product_variation'])) {
+					if (!$product_id && get_post_type($parts[0]) === 'product') {
 						$product_id = (int)$parts[0];
 					}
 				}
 			}
 
 			if ($product_id > 0) {
-				$product_ids[] = $product_id;
+				$product_ids[$product_id] = true;
 			}
 		}
 
-		return $product_ids;
+		return array_keys($product_ids);
 	}
 
-	public static function match_categories($list)
+	public static function match_categories($str_list)
 	{
-		if (!$list) return [];
+		if (!$str_list) return [];
 
-		$cat_slugs = self::list_to_array($list);
+		$cat_slugs = self::str_list_to_array($str_list);
 		$cat_ids = [];
 
 		foreach ($cat_slugs as $cat_slug) {
-			if (!$cat_slug) continue;
-
-		    $cat_term = get_term_by('slug', $cat_slug, 'product_cat');
-
-		    if ($cat_term && !is_wp_error($cat_term)) {
-			    $cat_ids[] = $cat_term->term_id;
+		    if ($cat_slug && $cat_term = get_term_by('slug', $cat_slug, 'product_cat')) {
+			    $cat_ids[$cat_term->term_id] = true;
 		    }
 		}
 
-		return $cat_ids;
+		return array_keys($cat_ids);
 	}
 
-	public static function parse_match_rules($data)
-	{
-		$lines = preg_split('/[\n\r\/]/', strtolower(str_replace([' ',')'], '', $data)));
-		$match_rules = [];
-
-		foreach ($lines as $line) {
-			if (!$line) continue;
-
-			$rule = ['attr' => []];
-
-			if ($p = strrpos($line, '(')) {
-				$x = substr($line, $p + 1);
-				$line = substr($line, 0, $p);
-
-				if (is_numeric($x) && $x != 1) {
-					$rule['x'] = (float)$x;
-				}
-			}
-
-			if ($line) {
-				foreach (explode(',', $line) as $attr) {
-					$attr = explode(':', $attr, 2);
-
-					if (count($attr) !== 2) {
-						continue;
-					}
-
-					if ($attr[1] === '*') {
-						$attr[1] = '';
-					}
-
-					$rule['attr'][] = $attr;
-				}
-			}
-
-			$match_rules[] = $rule;
-		}
-
-		return $match_rules;
-	}
-
-	public static function find_match_rules($rule_data)
-	{
-		$match_rules = [];
-
-		foreach ($rule_data as $line) {
-			$match_rule = [];
-
-			foreach ($line['attr'] as $attr) {
-				$attr_id = Attributes::get_attribute_id($attr[0]);
-				if (!$attr_id) continue;
-
-				$taxonomy = Attributes::get_attribute_name($attr_id, true);
-				$term_ids = [];
-
-				if ($attr[1] !== '') {
-					foreach (explode('|', $attr[1]) as $term_slug) {
-						$term = get_term_by('slug', $term_slug, $taxonomy);
-
-						if ($term && !is_wp_error($term)) {
-							$term_ids[] = $term->term_id;
-						}
-					}
-				}
-
-				$match_rule['attributes'][$attr_id] = $term_ids;
-			}
-
-			if (isset($line['x'])) {
-				$match_rule['multiplier'] = $line['x'];
-			}
-
-			if ($match_rule) {
-				$match_rules[] = $match_rule;
-			}
-		}
-
-		return $match_rules;
-	}
-
-	public static function build_title_from_match_rules($match_rules)
-	{
-		$attributes = [];
-
-		foreach ($match_rules as $rule) {
-		    foreach ($rule['attributes'] as $attr_id => $term_ids) {
-			    if (!isset($attributes[$attr_id])) {
-				    $attributes[$attr_id] = [];
-				}
-
-				foreach ($term_ids as $term_id) {
-					$attributes[$attr_id][] = $term_id;
-				}
-		    }
-		}
-
-		$title = [];
-
-		foreach ($attributes as $attr_id => $term_ids) {
-			$title_attr = Attributes::get_attribute_label($attr_id);
-			$taxonomy = Attributes::get_attribute_name($attr_id, true);
-
-			if ($term_ids) {
-				$term_ids = array_keys(array_flip($term_ids));
-				$title_terms = [];
-
-				foreach ($term_ids as $term_id) {
-					$term = get_term($term_id, $taxonomy);
-					$title_terms[] = $term->name;
-				}
-
-				$title[] = $title_attr . ': ' . implode('|', $title_terms);
-			} else {
-				$title[] = $title_attr;
-			}
-		}
-
-		return implode(', ', $title);
-	}
-
-	public static function list_to_array($list)
+	public static function str_list_to_array($str_list, $sep = '[,|]')
 	{
 		$items = [];
 
-		foreach (explode(',', $list) as $item) {
-			$item = trim($item);
-
+		foreach (preg_split('/\s*' . $sep . '\s*/', $str_list) as $item) {
 			if ($item !== '') {
 				$items[] = $item;
 			}
@@ -685,6 +674,6 @@ class Export
 
 	public static function is_unset_value($value)
 	{
-	    return in_array($value, ['[]', '()']);
+	    return in_array($value, ['[]', '{}', '()'], true);
 	}
 }

@@ -9,6 +9,7 @@ use Mewz\QueryBuilder\Query;
 use Mewz\WCAS\Models\AttributeStock;
 use Mewz\WCAS\Util\Attributes;
 use Mewz\WCAS\Util\Components;
+use Mewz\WCAS\Util\Matches;
 use Mewz\WCAS\Util\Products;
 
 class StockList extends Aspect
@@ -64,6 +65,7 @@ class StockList extends Aspect
 		$columns['notes'] = __('Notes');
 		$columns['settings'] = __('Settings');
 		$columns['components'] = __('Components', 'woocommerce-attribute-stock');
+		$columns['products'] = __('Products', 'woocommerce');
 		$columns['attributes'] = __('Attributes', 'woocommerce');
 		$columns['filters'] = __('Filters', 'woocommerce-attribute-stock');
 		$columns['taglist'] = __('Tags', 'woocommerce');
@@ -142,9 +144,20 @@ class StockList extends Aspect
 			'components' => (clone $qb)
 				->join(Components::TABLE, 'c')->on('c.child_id = p.ID'),
 
+			'products' => (clone $qb)
+				->left_join(Matches::RULES_TABLE, 'r')->on('r.stock_id = p.ID')
+				->left_join(Matches::CONDITIONS_TABLE, 'c')->on('c.rule_id = r.id')
+				->where('c.type_id = 0')
+				->where('c.value_id > 0'),
+
+			'attributes' => (clone $qb)
+				->left_join(Matches::RULES_TABLE, 'r')->on('r.stock_id = p.ID')
+				->left_join(Matches::CONDITIONS_TABLE, 'c')->on('c.rule_id = r.id')
+				->where('c.type_id > 0'),
+
 			'filters' => (clone $qb)
 				->left_join('postmeta', 'pm')->on('pm.post_id = p.ID')
-				->where('pm.meta_key', ['_products', '_exclude_products', '_categories', '_exclude_categories', '_product_types'])
+				->where('pm.meta_key', '_filters')
 				->where_not('pm.meta_value', ['', 'a:0:{}']),
 
 			'taglist' => (clone $qb)
@@ -220,6 +233,10 @@ class StockList extends Aspect
 				$this->output_components_column($stock);
 				break;
 
+			case 'products':
+				$this->output_products_column($stock);
+				break;
+
 			case 'attributes':
 				$this->output_attributes_column($stock);
 				break;
@@ -266,13 +283,25 @@ class StockList extends Aspect
 			return;
 		}
 
-	    ?><span class="inline-edit-controls inline-edit-quantity" data-stock-id="<?= $stock->id() ?>" data-value="<?= Number::safe_decimal($stock->quantity()) ?>"><?php
+		// show inline quantity edit controls if allowed
+		if (current_user_can('edit_post', $stock->id()) && apply_filters('mewz_wcas_allow_stock_inline_edit', true, $stock)) {
+			?><span class="inline-edit-controls inline-edit-quantity" data-stock-id="<?= $stock->id() ?>" data-value="<?= Number::safe_decimal($stock->quantity()) ?>"><?php
+				?><button type="button" class="action-button edit-button edit-quantity-button" data-action="set_quantity" title="<?= esc_attr__('Edit Stock', 'woocommerce-attribute-stock') ?>"></button><?php
+				?><button type="button" class="action-button adjust-quantity-button" data-action="adjust_quantity" title="<?= esc_attr__('Add/Subtract Stock', 'woocommerce-attribute-stock') ?>"></button><?php
+			?></span><?php
+		}
 
-	      ?><button type="button" class="action-button edit-button edit-quantity-button" data-action="set_quantity" title="<?= esc_attr__('Edit Stock', 'woocommerce-attribute-stock') ?>"></button><?php
+		// show available stock from child components if present
+		$component_stock = Components::calc_quantity_from_components($stock->id());
 
-	      ?><button type="button" class="action-button adjust-quantity-button" data-action="adjust_quantity" title="<?= esc_attr__('Add/Subtract Stock', 'woocommerce-attribute-stock') ?>"></button><?php
-
-	    ?></span><?php
+		if ($component_stock !== false) {
+			$this->view->render('admin/stock/list-chips', [
+				'type' => 'component',
+				'chips' => [[
+					'value' => Number::local_format($component_stock, 0),
+				]],
+			]);
+		}
 	}
 
 	public function output_settings_column(AttributeStock $stock)
@@ -343,7 +372,7 @@ class StockList extends Aspect
 			}
 
 			if ($quantity !== '' && $quantity != 1) {
-				$quantity = Number::local_format($quantity);
+				$quantity = Number::local_format($quantity, 3);
 			} else {
 				$quantity = '';
 			}
@@ -362,6 +391,26 @@ class StockList extends Aspect
 		]);
 	}
 
+	public function output_products_column(AttributeStock $stock)
+	{
+		$match_rules = $stock->match_rules();
+		if (!$match_rules) return;
+
+		$product_ids = [];
+
+		foreach ($match_rules as $rule) {
+			if (!empty($rule['conditions'][0])) {
+				$product_ids[] = $rule['conditions'][0];
+			}
+		}
+
+		$product_ids = array_keys(array_flip(array_merge(...$product_ids)));
+
+		if ($product_ids) {
+			$this->render_product_filter_chips($product_ids);
+		}
+	}
+
 	public function output_attributes_column(AttributeStock $stock)
 	{
 		$match_rules = $stock->match_rules();
@@ -376,10 +425,10 @@ class StockList extends Aspect
 		$chips = [];
 
 		foreach ($match_rules as $rule) {
-			foreach ($rule['attributes'] as $attr_id => $term_ids) {
-				if (isset($attr_options[$attr_id], $attributes[$attr_id])) {
-					foreach ($term_ids ?: [0] as $term_id) {
-						$stock_attributes[$attr_id][$term_id] = true;
+			foreach ($rule['conditions'] as $type_id => $value_ids) {
+				if (isset($attr_options[$type_id], $attributes[$type_id])) {
+					foreach ($value_ids ?: [0] as $value_id) {
+						$stock_attributes[$type_id][$value_id] = true;
 					}
 				}
 			}
@@ -407,8 +456,8 @@ class StockList extends Aspect
 				if (count($term_names) > 1 || key($term_names) === 0) {
 					$url = "edit-tags.php?taxonomy={$taxonomy}&post_type=product";
 				} elseif (current_user_can('edit_product_terms')) {
-					$term_id = key($term_names);
-					$url = "term.php?taxonomy={$taxonomy}&tag_ID={$term_id}&post_type=product&wp_http_referer=%2Fwp-admin%2Fedit-tags.php%3Ftaxonomy%3D{$taxonomy}%26post_type%3Dproduct";
+					$value_id = key($term_names);
+					$url = "term.php?taxonomy={$taxonomy}&tag_ID={$value_id}&post_type=product&wp_http_referer=%2Fwp-admin%2Fedit-tags.php%3Ftaxonomy%3D{$taxonomy}%26post_type%3Dproduct";
 				}
 			}
 
@@ -447,13 +496,15 @@ class StockList extends Aspect
 
 	public function output_filters_column(AttributeStock $stock)
 	{
+		$filters = $stock->filters();
+
 		echo '<div class="mewz-wcas-chips">';
 
-		$this->render_product_filter_chips($stock->products());
-		$this->render_product_filter_chips($stock->exclude_products(), 'exclude');
-		$this->render_category_filter_chips($stock->categories());
-		$this->render_category_filter_chips($stock->exclude_categories(), 'exclude');
-		$this->render_product_types_filter_chips($stock->product_types());
+		$this->render_product_filter_chips($filters['products']);
+		$this->render_product_filter_chips($filters['excl_products'], 'exclude');
+		$this->render_category_filter_chips($filters['categories']);
+		$this->render_category_filter_chips($filters['excl_categories'], 'exclude');
+		$this->render_product_types_filter_chips($filters['product_types']);
 
 		echo '</div>';
 	}
@@ -469,7 +520,7 @@ class StockList extends Aspect
 			if (!$product) continue;
 
 			$chips[] = [
-				'value' => Products::get_formatted_product_name($product),
+				'value' => $product->get_name(),
 				'url' => get_edit_post_link($product->get_parent_id() ?: $product->get_id(), 'raw'),
 			];
 		}

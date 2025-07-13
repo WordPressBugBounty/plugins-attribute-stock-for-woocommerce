@@ -22,16 +22,20 @@ class AttributeStock extends PostModel
 		'lock_multipliers' => false,
 		'product_sku' => false,
 		'product_image' => false,
-		'products' => [],
-		'exclude_products' => [],
-		'categories' => [],
-		'exclude_categories' => [],
-		'product_types' => [],
+		'filters' => [],
 	];
 
 	protected static $alias_props = [
 		'image_id' => 'thumbnail_id',
 		'notes' => 'content',
+	];
+
+	protected const FILTERS = [
+		'products' => [],
+		'excl_products' => [],
+		'categories' => [],
+		'excl_categories' => [],
+		'product_types' => [],
 	];
 
 	/**
@@ -258,93 +262,41 @@ class AttributeStock extends PostModel
 	}
 
 	/**
-	 * @return array A list of product IDs
+	 * @return array{
+	 *     products: int[],
+	 *     excl_products: int[],
+	 *     categories: int[],
+	 *     excl_categories: int[],
+	 *     product_types: string[],
+	 * }
 	 */
-	public function products()
+	public function filters()
 	{
-		$value = $this->get('products');
+		$value = $this->get('filters');
 
-		return $value ? (array)$value : [];
+		if ($value && is_array($value)) {
+			return array_merge(self::FILTERS, $value);
+		} else {
+			return self::FILTERS;
+		}
 	}
 
 	/**
-	 * @param array $value A list of product IDs
+	 * @param array<string, array> $value
 	 */
-	public function set_products($value)
+	public function set_filters(array $value)
 	{
-		$this->set('products', array_map('intval', $value));
-	}
+		$value = array_filter($value);
 
-	/**
-	 * @return array A list of product IDs
-	 */
-	public function exclude_products()
-	{
-		$value = $this->get('exclude_products');
+		if ($value) {
+			foreach (['products', 'excl_products', 'categories', 'excl_categories'] as $key) {
+			    if (!empty($value[$key])) {
+				    $value[$key] = array_keys(array_flip($value[$key]));
+			    }
+			}
+		}
 
-		return $value ? (array)$value : [];
-	}
-
-	/**
-	 * @param array $value A list of product IDs
-	 */
-	public function set_exclude_products($value)
-	{
-		$this->set('exclude_products', array_map('intval', $value));
-	}
-
-	/**
-	 * @return array A list of product category IDs
-	 */
-	public function categories()
-	{
-		$value = $this->get('categories');
-
-		return $value ? (array)$value : [];
-	}
-
-	/**
-	 * @param array $value A list of product category IDs
-	 */
-	public function set_categories($value)
-	{
-		$this->set('categories', array_map('intval', $value));
-	}
-
-	/**
-	 * @return array A list of product category IDs
-	 */
-	public function exclude_categories()
-	{
-		$value = $this->get('exclude_categories');
-
-		return $value ? (array)$value : [];
-	}
-
-	/**
-	 * @param array $value A list of product category IDs
-	 */
-	public function set_exclude_categories($value)
-	{
-		$this->set('exclude_categories', array_map('intval', $value));
-	}
-
-	/**
-	 * @return array
-	 */
-	public function product_types()
-	{
-		$value = $this->get('product_types');
-
-		return $value ? (array)$value : [];
-	}
-
-	/**
-	 * @param array $value
-	 */
-	public function set_product_types($value)
-	{
-		$this->set('product_types', $value);
+		$this->set('filters', array_filter($value) ?: null);
 	}
 
 	/**
@@ -453,9 +405,9 @@ class AttributeStock extends PostModel
 		return '<span class="stock-quantity' . ($classes ? ' ' . implode(' ', $classes) : '') . '">' . $html . '</span>';
 	}
 
-	/*************************************************************************/
+	/****************************************************************************************************/
 	/* DEPRECATED METHODS
-	/*************************************************************************/
+	/****************************************************************************************************/
 
 	/**
 	 * @deprecated 2.0.0 Use internal()
@@ -503,5 +455,135 @@ class AttributeStock extends PostModel
 		_deprecated_function(__METHOD__, '2.0.0', __CLASS__ . '::set_multiplex');
 
 		$this->set_multiplex($value);
+	}
+
+	/**
+	 * @deprecated 2.2.0 Use filters()
+	 *
+	 * @return array A list of product IDs
+	 */
+	public function products()
+	{
+		_deprecated_function(__METHOD__, '2.2.0', __CLASS__ . '::filters');
+
+		return $this->filters()['products'];
+	}
+
+	/**
+	 * @deprecated 2.2.0 Use set_filters()
+	 *
+	 * @param array $value A list of product IDs
+	 */
+	public function set_products($value)
+	{
+		_deprecated_function(__METHOD__, '2.2.0', __CLASS__ . '::set_filters');
+
+		$filters = $this->filters();
+		$filters['products'] = is_array($value) ? $value : [];
+		$this->set_filters($filters);
+	}
+
+	/**
+	 * @deprecated 2.2.0 Use filters()
+	 *
+	 * @return array A list of product IDs
+	 */
+	public function exclude_products()
+	{
+		_deprecated_function(__METHOD__, '2.2.0', __CLASS__ . '::filters');
+
+		return $this->filters()['excl_products'];
+	}
+
+	/**
+	 * @deprecated 2.2.0 Use set_filters()
+	 *
+	 * @param array $value A list of product IDs
+	 */
+	public function set_exclude_products($value)
+	{
+		_deprecated_function(__METHOD__, '2.2.0', __CLASS__ . '::set_filters');
+
+		$filters = $this->filters();
+		$filters['excl_products'] = is_array($value) ? $value : [];
+		$this->set_filters($filters);
+	}
+
+	/**
+	 * @deprecated 2.2.0 Use filters()
+	 *
+	 * @return array A list of product category IDs
+	 */
+	public function categories()
+	{
+		_deprecated_function(__METHOD__, '2.2.0', __CLASS__ . '::filters');
+
+		return $this->filters()['categories'];
+	}
+
+	/**
+	 * @deprecated 2.2.0 Use set_filters()
+	 *
+	 * @param array $value A list of product category IDs
+	 */
+	public function set_categories($value)
+	{
+		_deprecated_function(__METHOD__, '2.2.0', __CLASS__ . '::set_filters');
+
+		$filters = $this->filters();
+		$filters['categories'] = is_array($value) ? $value : [];
+		$this->set_filters($filters);
+	}
+
+	/**
+	 * @deprecated 2.2.0 Use filters()
+	 *
+	 * @return array A list of product category IDs
+	 */
+	public function exclude_categories()
+	{
+		_deprecated_function(__METHOD__, '2.2.0', __CLASS__ . '::filters');
+
+		return $this->filters()['excl_categories'];
+	}
+
+	/**
+	 * @deprecated 2.2.0 Use set_filters()
+	 *
+	 * @param array $value A list of product category IDs
+	 */
+	public function set_exclude_categories($value)
+	{
+		_deprecated_function(__METHOD__, '2.2.0', __CLASS__ . '::set_filters');
+
+		$filters = $this->filters();
+		$filters['excl_categories'] = is_array($value) ? $value : [];
+		$this->set_filters($filters);
+	}
+
+	/**
+	 * @deprecated 2.2.0 Use filters()
+	 *
+	 * @return array
+	 */
+	public function product_types()
+	{
+		_deprecated_function(__METHOD__, '2.2.0', __CLASS__ . '::filters');
+
+		return $this->filters()['product_types'];
+	}
+
+	/**
+	 * @deprecated 2.2.0 Use set_filters()
+	 *
+	 * @param array $value
+	 */
+	public function set_product_types($value)
+	{
+		_deprecated_function(__METHOD__, '2.2.0', __CLASS__ . '::set_filters');
+
+		$filters = $this->filters();
+		$filters['product_types'] = is_array($value) ? $value : [];
+		$this->set_filters($filters);
 	}
 }

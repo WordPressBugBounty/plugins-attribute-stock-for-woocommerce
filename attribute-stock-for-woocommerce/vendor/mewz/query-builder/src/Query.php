@@ -511,7 +511,7 @@ class Query
 	/**
 	 * Efficiently checks if any records exist for the current query.
 	 *
-	 * Query example: SELECT EXISTS (SELECT * FROM ...)
+	 * Query example: SELECT EXISTS (SELECT * FROM ...) AS result
 	 *
 	 * @param int $limit
 	 *

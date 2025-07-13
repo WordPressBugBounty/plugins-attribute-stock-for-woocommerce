@@ -4,7 +4,7 @@ Tags: attribute stock, shared stock, variable stock, woocommerce, stock
 Requires at least: 5.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 2.1.2
+Stable tag: 2.2.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -28,14 +28,14 @@ This works fine when you're selling simple products, but as soon as you need to 
 
 #### How does Attribute Stock solve this?
 
-Attribute Stock extends WooCommerce's stock functionality by adding a few essential features like [stock items](https://wcas-docs.mewz.dev/attribute-stock) based on attributes instead of product listings, allowing them to be used easily across multiple products. And versatile [stock multipliers](https://wcas-docs.mewz.dev/stock-multipliers) to control the amount of stock deducted for each purchase of a product, variation, attribute term, or stock item.
+Attribute Stock extends WooCommerce's stock functionality by adding a few essential features like [rule-based stock items](https://wcas-docs.mewz.dev/attribute-stock) that can be easily shared between multiple products. And versatile [stock multipliers](https://wcas-docs.mewz.dev/stock-multipliers) to control the amount of stock deducted for each purchase of a product, variation, attribute term, or stock item.
 
-Whether you make use of powerful attribute stock items, or stick to using product stock with variable multipliers, your stock quantities will be accurately tracked, product availability will be appropriately displayed, and over-purchasing will be prevented.
+Whether you make use of powerful rule-based stock items, or simply add stock multipliers to your products, your stock levels will be accurately tracked, product availability will be appropriately displayed, and over-purchasing will be prevented.
 
 ### ✨ Plugin Features
 
-**Attribute-based Stock**
-Manage stock at the attribute level. Share stock between all products/variations with one or more attributes.
+**Rule-based Stock**
+Assign and share stock with products in any way you can imagine using simple and powerful rules.
 
 **Variable Stock**
 Deduct different quantities of product stock or attribute stock per sale with stock multipliers. Useful for measurements, weights, packs, etc.
@@ -75,13 +75,13 @@ Often your stock will have more than one attribute, such as t-shirts with differ
 
 #### Example #3 – Product Bundles ([Demo](https://wcas-demo.mewz.dev/wp-admin/post.php?post=369&action=edit))
 
-Sometimes you'll want to sell several **individual products** as well as a **bundle** of these products for a discount. Since attributes can be added to products as variation or non-variation attributes, you can easily create stock items that are shared between all types of products.
+Sometimes you'll want to sell several **individual products** as well as a **bundle** of these products for a discount. Stock items can be assigned easily to any number of simple products or product variations, seamlessly sharing stock between them.
 
 #### Example #4 – Component Stock ([Demo](https://wcas-demo.mewz.dev/wp-admin/edit.php?s=candle&post_type=attribute_stock))
 
 In some cases you might need to track stock items made from other stock items. For example, let's say you design and sell hand-painted candles. By setting your plain candle stock as a component of your painted candle stock, you can track and sell each separately while allowing your painted candles to use the additional stock quantity of your plain candles.
 
-Component stock is a powerful feature that can be used for many other advanced stock requirements such as batches and even stock from multiple suppliers. Learn more about how it works in our documentation below.
+Component stock is a powerful feature that can be used for many other advanced stock requirements such as batches of inventory, composed products, and even stock from multiple suppliers. Learn more about how it works in our documentation below.
 
 ### 📖 Documentation
 
@@ -108,6 +108,13 @@ Email support is offered via [CodeCanyon](https://codecanyon.net/item/woocommerc
 The full version is available to purchase on [CodeCanyon](https://codecanyon.net/item/woocommerce-attribute-stock/25796765).
 
 == Changelog ==
+
+= 2.2.0 (2025-07-13) =
+- WooCommerce 9.9 compatibility.
+- Added products to match rules. Stock items can now match products directly without attributes.
+- Added display of available stock from child components to the stock item list.
+- Merged stock item filter metadata into a single property (API change).
+- Fixed a permission issue with Webhooks.
 
 = 2.1.2 (2025-05-07) =
 - WordPress 6.8 compatibility.

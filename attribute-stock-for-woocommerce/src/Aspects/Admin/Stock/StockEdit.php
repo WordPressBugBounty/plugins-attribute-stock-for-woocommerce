@@ -109,7 +109,7 @@ class StockEdit extends Aspect
 		$stock = AttributeStock::instance($post, 'edit');
 
 		$tabs = [
-			'attributes' => __('Attributes', 'woocommerce'),
+			'rules' => __('Rules', 'woocommerce-attribute-stock'),
 			'filters' => __('Filters', 'woocommerce-attribute-stock'),
 		];
 
@@ -159,11 +159,12 @@ class StockEdit extends Aspect
 		]);
 	}
 
-	public function matches_panel_attributes(AttributeStock $stock, $tab)
+	public function matches_panel_rules(AttributeStock $stock, $tab)
 	{
 		$this->scripts->export_data('matchRules', [
 			'name' => 'mewz_wcas_rules',
-			'attributes' => $this->get_attribute_data(),
+			'products' => $this->get_match_rule_product_data($stock),
+			'attributes' => $this->get_match_rule_attribute_data(),
 			'rules' => $this->get_match_rule_data($stock),
 			'locale' => str_replace('_', '-', get_bloginfo('language')),
 			'i18n' => $this->get_match_rules_i18n(),
@@ -172,16 +173,34 @@ class StockEdit extends Aspect
 
 	public function matches_panel_filters(AttributeStock $stock, $tab)
 	{
+		$filters = $stock->filters();
+
 		$this->view->render('admin/stock/panel-filters', [
 			'stock' => $stock,
-			'products' => $this->get_product_options($stock->products()),
-			'exclude_products' => $this->get_product_options($stock->exclude_products()),
+			'filters' => $filters,
+			'products' => $this->get_product_options($filters['products']),
+			'exclude_products' => $this->get_product_options($filters['excl_products']),
 			'categories' => Admin::get_category_options(),
 			'product_types' => Products::get_product_types(),
 		]);
 	}
 
-	public function get_attribute_data()
+	public function get_match_rule_product_data(AttributeStock $stock)
+	{
+		$product_ids = [];
+
+		foreach ($stock->match_rules() as $rule) {
+			if (!empty($rule['conditions'][0])) {
+				$product_ids[] = $rule['conditions'][0];
+			}
+		}
+
+		$product_ids = array_keys(array_flip(array_merge(...$product_ids)));
+
+		return $this->get_product_options($product_ids);
+	}
+
+	public function get_match_rule_attribute_data()
 	{
 		$attributes = Attributes::get_attributes();
 		$term_options = Attributes::get_term_options($attributes);
@@ -217,13 +236,13 @@ class StockEdit extends Aspect
 		$rules = array_values($stock->match_rules());
 
 		foreach ($rules as &$rule) {
-			$attributes = [];
+			$conditions = [];
 
-		    foreach ($rule['attributes'] as $attr_id => $term_ids) {
-			    $attributes[] = [$attr_id, $term_ids];
+		    foreach ($rule['conditions'] as $type_id => $value_ids) {
+			    $conditions[] = [$type_id, $value_ids];
 		    }
 
-			$rule['attributes'] = $attributes;
+			$rule['conditions'] = $conditions;
 		}
 
 		return $rules;
@@ -232,10 +251,10 @@ class StockEdit extends Aspect
 	public function get_match_rules_i18n()
 	{
 	    return apply_filters('mewz_wcas_edit_match_rules_i18n', [
-		    'addAttribute'         => __('Add attribute', 'woocommerce'),
+		    'addCondition'         => __('Add condition', 'woocommerce-attribute-stock'),
 		    'any'                  => __('Any', 'woocommerce-attribute-stock'),
 		    'anyOption'            => __('Any %s', 'woocommerce'),
-		    'attributePlaceholder' => __('Attribute', 'woocommerce') . '...',
+		    'conditionPlaceholder' => __('Condition', 'woocommerce-attribute-stock') . '...',
 		    'closeAll'             => __('Close all', 'woocommerce'),
 		    'dragTip'              => __('Drag to re-order', 'woocommerce-attribute-stock'),
 		    'duplicateRule'        => __('Duplicate', 'woocommerce'),
@@ -244,13 +263,15 @@ class StockEdit extends Aspect
 		    'multiplierLabel'      => __('Stock multiplier', 'woocommerce-attribute-stock'),
 		    'multiplierTip'        => __('The amount of stock reduced per item purchased. Can be set to 0 to force out of stock, or to -1 to stop matching.', 'woocommerce-attribute-stock'),
 		    'newRule'              => __('New rule', 'woocommerce-attribute-stock'),
-		    'newRuleTip'           => __('Attribute rules are matched against products from top to bottom in order. Only the first matched rule will be used, unless <strong>Multiplex matching</strong> is enabled. A product or variation must have all attributes in a rule to match.', 'woocommerce-attribute-stock'),
-		    'removeAttribute'      => __('Remove'),
+		    'newRuleTip'           => __('Match products by selecting products, attributes, or both.<br><br> <strong>All conditions</strong> in a rule must be fulfilled. <strong>Any value</strong> can match to fulfil a condition.<br><br> Rules are matched from <strong>top to bottom</strong>. Only the first matched rule will be used, unless <strong>Multiplex matching</strong> is enabled.<br><br> <strong>Child components</strong> will be used regardless of match rules.', 'woocommerce-attribute-stock'),
+			'products'             => __('Products', 'woocommerce'),
+			'productPlaceholder'   => __('Search products…', 'woocommerce'),
+		    'removeCondition'      => __('Remove'),
 		    'removeRule'           => __('Remove'),
 		    'restoreRule'          => __('Restore last removed rule', 'woocommerce-attribute-stock'),
 			'ruleTitle'            => __('Rule #%s', 'woocommerce-attribute-stock'),
 			'stopRuleTip'          => __('Stop rule — When matched, excludes this and subsequent rules from matching,', 'woocommerce-attribute-stock'),
-		    'termPlaceholder'      => '...',
+		    'valuePlaceholder'     => '...',
 	    ]);
 	}
 
@@ -308,9 +329,11 @@ class StockEdit extends Aspect
 
 		foreach ($product_ids as $product_id) {
 			if ($product = wc_get_product($product_id)) {
-				$options[$product_id] = htmlspecialchars(Products::get_formatted_product_name($product));
+				$options[$product_id] = htmlspecialchars($product->get_formatted_name());
 			}
 		}
+
+		asort($options);
 
 		return $options;
 	}

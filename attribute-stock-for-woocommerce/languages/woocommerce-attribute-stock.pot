@@ -2,16 +2,16 @@
 # This file is distributed under the same license as the WooCommerce Attribute Stock plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: WooCommerce Attribute Stock 2.1.2\n"
+"Project-Id-Version: WooCommerce Attribute Stock 2.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/woocommerce-attribute-stock\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-05-08T00:03:49+02:00\n"
+"POT-Creation-Date: 2025-07-13T16:16:24+02:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.11.0\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: woocommerce-attribute-stock\n"
 
 #. Plugin Name of the plugin
@@ -40,6 +40,7 @@ msgid "https://mewz.dev/"
 msgstr ""
 
 #: includes/activation.php:43
+#, php-format
 msgid "A different version of \"%s\" is already installed. Please deactivate and uninstall it first. Your attribute stock data will not be deleted."
 msgstr ""
 
@@ -75,6 +76,7 @@ msgid "Get support"
 msgstr ""
 
 #: src/Aspects/Admin/Plugin/PluginHelp.php:36
+#, php-format
 msgid "Want to learn more about %s? Check out the official online documentation."
 msgstr ""
 
@@ -173,6 +175,7 @@ msgid "The maximum number of levels to query for stock item components. E.g. for
 msgstr ""
 
 #: src/Aspects/Admin/Stock/StockActions.php:160
+#, php-format
 msgid "Attribute stock \"%s\" has been duplicated."
 msgstr ""
 
@@ -181,12 +184,14 @@ msgid "Invalid attribute stock ID."
 msgstr ""
 
 #: src/Aspects/Admin/Stock/StockBulkActions.php:84
+#, php-format
 msgid "%d attribute stock enabled."
 msgid_plural "%d attribute stocks enabled."
 msgstr[0] ""
 msgstr[1] ""
 
 #: src/Aspects/Admin/Stock/StockBulkActions.php:86
+#, php-format
 msgid "%d attribute stock disabled."
 msgid_plural "%d attribute stocks disabled."
 msgstr[0] ""
@@ -201,6 +206,7 @@ msgid "No enabled attribute stocks to disable."
 msgstr ""
 
 #: src/Aspects/Admin/Stock/StockBulkActions.php:114
+#, php-format
 msgid "%d attribute stock duplicated."
 msgid_plural "%d attribute stocks duplicated."
 msgstr[0] ""
@@ -215,30 +221,35 @@ msgid "No attribute stock items to export."
 msgstr ""
 
 #: src/Aspects/Admin/Stock/StockBulkActions.php:145
+#, php-format
 msgid "%d attribute stock updated."
 msgid_plural "%d attribute stocks updated."
 msgstr[0] ""
 msgstr[1] ""
 
 #: src/Aspects/Admin/Stock/StockBulkActions.php:146
+#, php-format
 msgid "%d attribute stock not updated, somebody is editing it."
 msgid_plural "%d attribute stocks not updated, somebody is editing them."
 msgstr[0] ""
 msgstr[1] ""
 
 #: src/Aspects/Admin/Stock/StockBulkActions.php:147
+#, php-format
 msgid "%d attribute stock permanently deleted."
 msgid_plural "%d attribute stocks permanently deleted."
 msgstr[0] ""
 msgstr[1] ""
 
 #: src/Aspects/Admin/Stock/StockBulkActions.php:148
+#, php-format
 msgid "%d attribute stock moved to the Trash."
 msgid_plural "%d attribute stocks moved to the Trash."
 msgstr[0] ""
 msgstr[1] ""
 
 #: src/Aspects/Admin/Stock/StockBulkActions.php:149
+#, php-format
 msgid "%d attribute stock restored from the Trash."
 msgid_plural "%d attribute stocks restored from the Trash."
 msgstr[0] ""
@@ -253,31 +264,43 @@ msgid "Match rules"
 msgstr ""
 
 #: src/Aspects/Admin/Stock/StockEdit.php:86
-#: src/Aspects/Admin/Stock/StockList.php:66
+#: src/Aspects/Admin/Stock/StockList.php:67
 msgid "Components"
 msgstr ""
 
+#: src/Aspects/Admin/Stock/StockEdit.php:112
+msgid "Rules"
+msgstr ""
+
 #: src/Aspects/Admin/Stock/StockEdit.php:113
-#: src/Aspects/Admin/Stock/StockList.php:68
+#: src/Aspects/Admin/Stock/StockList.php:70
 msgid "Filters"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:236
-#: src/Aspects/Admin/Stock/StockList.php:374
+#: src/Aspects/Admin/Stock/StockEdit.php:254
+msgid "Add condition"
+msgstr ""
+
+#: src/Aspects/Admin/Stock/StockEdit.php:255
+#: src/Aspects/Admin/Stock/StockList.php:423
 #: src/Util/Attributes.php:197
 msgid "Any"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:240
+#: src/Aspects/Admin/Stock/StockEdit.php:257
+msgid "Condition"
+msgstr ""
+
+#: src/Aspects/Admin/Stock/StockEdit.php:259
 msgid "Drag to re-order"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:243
+#: src/Aspects/Admin/Stock/StockEdit.php:262
 #: templates/admin/products/variation-toolbar.php:13
 msgid "Stock multiplier inherited from attribute terms"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:244
+#: src/Aspects/Admin/Stock/StockEdit.php:263
 #: templates/admin/attributes/add-fields.php:48
 #: templates/admin/attributes/edit-fields.php:150
 #: templates/admin/products/product-fields.php:24
@@ -285,129 +308,134 @@ msgstr ""
 msgid "Stock multiplier"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:245
+#: src/Aspects/Admin/Stock/StockEdit.php:264
 msgid "The amount of stock reduced per item purchased. Can be set to 0 to force out of stock, or to -1 to stop matching."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:246
+#: src/Aspects/Admin/Stock/StockEdit.php:265
 msgid "New rule"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:247
-msgid "Attribute rules are matched against products from top to bottom in order. Only the first matched rule will be used, unless <strong>Multiplex matching</strong> is enabled. A product or variation must have all attributes in a rule to match."
+#: src/Aspects/Admin/Stock/StockEdit.php:266
+msgid "Match products by selecting products, attributes, or both.<br><br> <strong>All conditions</strong> in a rule must be fulfilled. <strong>Any value</strong> can match to fulfil a condition.<br><br> Rules are matched from <strong>top to bottom</strong>. Only the first matched rule will be used, unless <strong>Multiplex matching</strong> is enabled.<br><br> <strong>Child components</strong> will be used regardless of match rules."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:250
+#: src/Aspects/Admin/Stock/StockEdit.php:271
 msgid "Restore last removed rule"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:251
+#: src/Aspects/Admin/Stock/StockEdit.php:272
+#, php-format
 msgid "Rule #%s"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:252
+#: src/Aspects/Admin/Stock/StockEdit.php:273
 msgid "Stop rule — When matched, excludes this and subsequent rules from matching,"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:261
+#: src/Aspects/Admin/Stock/StockEdit.php:282
 #: src/Aspects/Admin/Stock/StockListFilters.php:165
 #: templates/admin/stock/panel-components.php:11
 msgid "Parent components"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:262
+#: src/Aspects/Admin/Stock/StockEdit.php:283
 msgid "Parent components are stock items that use this stock item as a component."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:263
+#: src/Aspects/Admin/Stock/StockEdit.php:284
 msgid "Add parent component..."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:264
-#: src/Aspects/Admin/Stock/StockEdit.php:270
+#: src/Aspects/Admin/Stock/StockEdit.php:285
+#: src/Aspects/Admin/Stock/StockEdit.php:291
 msgid "Child quantity per parent"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:267
+#: src/Aspects/Admin/Stock/StockEdit.php:288
 #: src/Aspects/Admin/Stock/StockListFilters.php:169
 #: templates/admin/stock/panel-components.php:26
 msgid "Child components"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:268
+#: src/Aspects/Admin/Stock/StockEdit.php:289
 msgid "Child components are stock items that this stock item uses as components."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:269
+#: src/Aspects/Admin/Stock/StockEdit.php:290
 msgid "Add child component..."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:326
-#: src/Aspects/Admin/Stock/StockEdit.php:329
-#: src/Aspects/Admin/Stock/StockEdit.php:331
-#: src/Aspects/Admin/Stock/StockEdit.php:339
+#: src/Aspects/Admin/Stock/StockEdit.php:349
+#: src/Aspects/Admin/Stock/StockEdit.php:352
+#: src/Aspects/Admin/Stock/StockEdit.php:354
+#: src/Aspects/Admin/Stock/StockEdit.php:362
 msgid "Attribute stock updated."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:327
+#: src/Aspects/Admin/Stock/StockEdit.php:350
 msgid "Attribute stock field updated."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:328
+#: src/Aspects/Admin/Stock/StockEdit.php:351
 msgid "Attribute stock field deleted."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:332
+#: src/Aspects/Admin/Stock/StockEdit.php:355
 msgid "Attribute stock saved."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:333
+#: src/Aspects/Admin/Stock/StockEdit.php:356
 msgid "Attribute stock submitted."
 msgstr ""
 
 #. translators: %s: date
-#: src/Aspects/Admin/Stock/StockEdit.php:336
+#: src/Aspects/Admin/Stock/StockEdit.php:359
+#, php-format
 msgid "Attribute stock scheduled for: %s."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:355
-#: src/Aspects/Admin/Stock/StockEdit.php:387
+#: src/Aspects/Admin/Stock/StockEdit.php:378
+#: src/Aspects/Admin/Stock/StockEdit.php:410
 msgid "Back to attribute stock"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:359
+#: src/Aspects/Admin/Stock/StockEdit.php:382
+#, php-format
 msgid "Back to \"%s\" attribute term"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:361
+#: src/Aspects/Admin/Stock/StockEdit.php:384
 msgid "Back to attribute term"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:366
+#: src/Aspects/Admin/Stock/StockEdit.php:389
+#, php-format
 msgid "Back to \"%s\" attribute terms"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:368
+#: src/Aspects/Admin/Stock/StockEdit.php:391
 msgid "Back to attribute terms"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:373
+#: src/Aspects/Admin/Stock/StockEdit.php:396
+#, php-format
 msgid "Back to \"%s\" attribute"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:375
+#: src/Aspects/Admin/Stock/StockEdit.php:398
 msgid "Back to attribute"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:379
+#: src/Aspects/Admin/Stock/StockEdit.php:402
 msgid "Back to attributes"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:382
+#: src/Aspects/Admin/Stock/StockEdit.php:405
 msgid "Back to stock report"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockEdit.php:421
+#: src/Aspects/Admin/Stock/StockEdit.php:444
 msgid "Circular reference detected in component tree. Component stock will be disabled until you've resolved this."
 msgstr ""
 
@@ -421,18 +449,21 @@ msgid "The uploaded CSV file is invalid and cannot be imported."
 msgstr ""
 
 #: src/Aspects/Admin/Stock/StockExport.php:88
+#, php-format
 msgid "%d attribute stock item was added successfully."
 msgid_plural "%d attribute stock items were added successfully."
 msgstr[0] ""
 msgstr[1] ""
 
 #: src/Aspects/Admin/Stock/StockExport.php:92
+#, php-format
 msgid "%d attribute stock item was updated successfully."
 msgid_plural "%d attribute stock items were updated successfully."
 msgstr[0] ""
 msgstr[1] ""
 
 #: src/Aspects/Admin/Stock/StockExport.php:96
+#, php-format
 msgid "%d row was skipped."
 msgid_plural "%d rows were skipped."
 msgstr[0] ""
@@ -442,42 +473,45 @@ msgstr[1] ""
 msgid "No attribute stock items were imported. Please check the file and try again."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockList.php:45
+#: src/Aspects/Admin/Stock/StockList.php:46
+#, php-format
 msgid "Stock management is disabled in your <a href=\"%s\">WooCommerce settings</a>. Attribute stock won't function unless stock management is enabled."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockList.php:271
+#: src/Aspects/Admin/Stock/StockList.php:289
 msgid "Edit Stock"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockList.php:273
+#: src/Aspects/Admin/Stock/StockList.php:290
 msgid "Add/Subtract Stock"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockList.php:284
+#: src/Aspects/Admin/Stock/StockList.php:313
+#, php-format
 msgid "Backorders: %s"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockList.php:287
+#: src/Aspects/Admin/Stock/StockList.php:316
 msgid "Component stock"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockList.php:291
+#: src/Aspects/Admin/Stock/StockList.php:320
 #: templates/admin/stock/panel-settings.php:52
 msgid "Internal stock"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockList.php:292
+#: src/Aspects/Admin/Stock/StockList.php:321
 #: templates/admin/stock/panel-settings.php:63
 msgid "Multiplex matching"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockList.php:293
+#: src/Aspects/Admin/Stock/StockList.php:322
 #: templates/admin/stock/panel-settings.php:72
 msgid "Lock multipliers"
 msgstr ""
 
 #: src/Aspects/Admin/Stock/StockListFilters.php:68
+#, php-format
 msgctxt "filter placeholder"
 msgid "# %s"
 msgstr ""
@@ -491,40 +525,45 @@ msgid "Missing \"id\", \"sku\", or \"title\" attribute for shortcode [attribute_
 msgstr ""
 
 #: src/Aspects/Common/StockNotifications.php:49
+#, php-format
 msgid "Out of stock - %s"
 msgstr ""
 
 #: src/Aspects/Common/StockNotifications.php:50
+#, php-format
 msgid "%s is out of stock."
 msgstr ""
 
 #: src/Aspects/Common/StockNotifications.php:70
+#, php-format
 msgid "Low in stock - %s"
 msgstr ""
 
 #: src/Aspects/Common/StockNotifications.php:71
+#, php-format
 msgid "%s is low in stock. There is %f left."
 msgid_plural "%s is low in stock. There are %f left."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Aspects/Common/Webhooks.php:32
+#: src/Aspects/Common/Webhooks.php:33
 msgid "Attribute Stock created"
 msgstr ""
 
-#: src/Aspects/Common/Webhooks.php:33
+#: src/Aspects/Common/Webhooks.php:34
 msgid "Attribute Stock updated"
 msgstr ""
 
-#: src/Aspects/Common/Webhooks.php:34
+#: src/Aspects/Common/Webhooks.php:35
 msgid "Attribute Stock deleted"
 msgstr ""
 
-#: src/Aspects/Common/Webhooks.php:35
+#: src/Aspects/Common/Webhooks.php:36
 msgid "Attribute Stock restored"
 msgstr ""
 
 #: src/Aspects/Front/CartItems.php:268
+#, php-format
 msgid "%d (Shared)"
 msgstr ""
 
@@ -574,15 +613,16 @@ msgstr ""
 msgid "Use as stock image"
 msgstr ""
 
-#: src/Util/Export.php:43
+#: src/Util/Export.php:39
 msgid "Request headers have already been sent. This usually happens when PHP warnings or notices are being displayed. Please fix these and try again."
 msgstr ""
 
-#: src/Util/Export.php:49
+#: src/Util/Export.php:45
 msgid "Writing to PHP's output stream (php://output) has been disabled. Unable to output CSV file download."
 msgstr ""
 
 #: src/Util/Orders.php:467
+#, php-format
 msgctxt "order note line format"
 msgid "%1$s: %2$s&rarr;%3$s"
 msgstr ""
@@ -660,47 +700,47 @@ msgstr ""
 msgid "Select components that this stock item uses."
 msgstr ""
 
-#: templates/admin/stock/panel-filters.php:19
-msgid "Filter matching to the selected products only. Leave blank to allow all products."
+#: templates/admin/stock/panel-filters.php:20
+msgid "Filter matches to the selected products only. Leave blank to allow all products.<br><br> Prefer using product conditions in your match rules if it makes sense to do so."
 msgstr ""
 
-#: templates/admin/stock/panel-filters.php:25
+#: templates/admin/stock/panel-filters.php:26
 msgid "All products"
 msgstr ""
 
-#: templates/admin/stock/panel-filters.php:36
-msgid "Filter matching to exclude the selected products."
+#: templates/admin/stock/panel-filters.php:37
+msgid "Filter matches to exclude the selected products."
 msgstr ""
 
-#: templates/admin/stock/panel-filters.php:42
+#: templates/admin/stock/panel-filters.php:43
 msgid "No products excluded"
 msgstr ""
 
-#: templates/admin/stock/panel-filters.php:55
-msgid "Filter matching to products in the selected categories only. Leave blank to allow products in any category."
+#: templates/admin/stock/panel-filters.php:56
+msgid "Filter matches to products in the selected categories only. Leave blank to allow products in any category."
 msgstr ""
 
-#: templates/admin/stock/panel-filters.php:61
+#: templates/admin/stock/panel-filters.php:62
 msgid "All categories"
 msgstr ""
 
-#: templates/admin/stock/panel-filters.php:70
-msgid "Filter matching to exclude all products in the selected categories."
+#: templates/admin/stock/panel-filters.php:71
+msgid "Filter matches to exclude all products in the selected categories."
 msgstr ""
 
-#: templates/admin/stock/panel-filters.php:76
+#: templates/admin/stock/panel-filters.php:77
 msgid "No categories excluded"
 msgstr ""
 
-#: templates/admin/stock/panel-filters.php:83
+#: templates/admin/stock/panel-filters.php:84
 msgid "Product types"
 msgstr ""
 
-#: templates/admin/stock/panel-filters.php:87
-msgid "Filter matching to products of the selected types only. Leave blank to allow products of any valid type."
+#: templates/admin/stock/panel-filters.php:88
+msgid "Filter matches to products of the selected types only. Leave blank to allow products of any valid type."
 msgstr ""
 
-#: templates/admin/stock/panel-filters.php:93
+#: templates/admin/stock/panel-filters.php:94
 msgid "All product types"
 msgstr ""
 
@@ -725,6 +765,7 @@ msgid "When stock reaches this amount or less, you will be notified by email (if
 msgstr ""
 
 #: templates/admin/stock/panel-settings.php:37
+#, php-format
 msgid "Allow or disallow backorders on matched products that do not have stock management enabled. Defaults to the global \"%s\" setting."
 msgstr ""
 

@@ -240,10 +240,10 @@ class StockListQuery extends Aspect
 		if (!empty($_REQUEST['attribute'])) {
 			$filter_term = isset($_REQUEST['term']) && $_REQUEST['term'] !== '';
 
-			$db_query = Matches::query()->where('a.attribute_id', (int)$_REQUEST['attribute']);
+			$db_query = Matches::query()->where('c.type_id', (int)$_REQUEST['attribute']);
 
 			if ($filter_term) {
-				$db_query->where('a.term_id', (int)$_REQUEST['term']);
+				$db_query->where('c.value_id', (int)$_REQUEST['term']);
 			}
 
 			$stock_ids = $db_query->col('r.stock_id');

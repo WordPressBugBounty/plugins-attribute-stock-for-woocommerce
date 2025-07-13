@@ -230,17 +230,45 @@ class Components
 	}
 
 	/**
+	 * Calculate the total available stock from all child components of a stock item.
+	 * Does not include the stock quantity of the stock item itself.
+	 *
+	 * @param int $stock_id
+	 * @param bool $check_exists Check if components are enabled and exist before doing full query
+	 *
+	 * @return int|float|false
+	 */
+	public static function calc_quantity_from_components($stock_id, $check_exists = true)
+	{
+		$stock_items[$stock_id] = [
+			'stock_id' => $stock_id,
+			'stock_qty' => 0,
+			'multiplier' => 1,
+		];
+
+		$comp_tree = self::get_sorted_tree($stock_items, $check_exists);
+
+		if (!$comp_tree || $comp_tree instanceof \WP_Error) {
+			return false;
+		}
+
+		return self::calc_limit_quantity($comp_tree);
+	}
+
+	/**
 	 * Get a full topologically sorted list of stock items and components.
 	 *
 	 * @param array $stock_items
-	 * @param bool $check_exists Check if components are enabled and exist before doing full query.
+	 * @param bool $check_exists Check if components are enabled and exist before doing full query
 	 *
 	 * @return array|false|\WP_Error
 	 */
 	public static function get_sorted_tree($stock_items, $check_exists = true)
 	{
-		// the majority of stores won't use components, so we want to make sure to have the absolute
-		// minimum amount of overhead for checking *every* product for component stock
+		/**
+		 * The majority of stores won't use components, so we want to make sure to have the absolute
+		 * minimum amount of overhead for checking *every* product for component stock.
+		 */
 		if ($check_exists && (!self::using_components() || !self::has_components(array_keys($stock_items)))) {
 			return false;
 		}
@@ -442,7 +470,7 @@ class Components
 		$limit_qty = 0;
 
 		for (;;) {
-			$deduct = 999999999999;
+			$deduct = INF;
 			$deduct_ids = [];
 
 			foreach ($sorted_tree as $stock_id => &$stock) {

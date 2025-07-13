@@ -60,11 +60,7 @@ class StockSave extends Aspect
 		}
 
 		// save empty multiselect lists
-		empty($data['products']) && $data['products'] = [];
-		empty($data['exclude_products']) && $data['exclude_products'] = [];
-		empty($data['categories']) && $data['categories'] = [];
-		empty($data['exclude_categories']) && $data['exclude_categories'] = [];
-		empty($data['product_types']) && $data['product_types'] = [];
+		empty($data['filters']) && $data['filters'] = [];
 
 		$stock->bind($data);
 

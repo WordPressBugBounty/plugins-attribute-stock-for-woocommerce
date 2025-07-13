@@ -144,7 +144,7 @@ function equality_safe_not_equal(a, b) {
  * @param {unknown} b
  * @returns {boolean}
  */
-function equality_not_equal(a, b) {
+function not_equal(a, b) {
 	return a !== b;
 }
 
@@ -6566,32 +6566,32 @@ function if_block(node, fn, [root_index, hydrate_index] = [0, 0]) {
  * @returns {void}
  */
 function key_block(node, get_key, render_fn) {
-	if (hydrating) {
-		hydrate_next();
+	if (hydration_hydrating) {
+		hydration_hydrate_next();
 	}
 
 	var anchor = node;
 
 	/** @type {V | typeof UNINITIALIZED} */
-	var key = UNINITIALIZED;
+	var key = constants_UNINITIALIZED;
 
 	/** @type {Effect} */
 	var effect;
 
-	var changed = is_runes() ? not_equal : safe_not_equal;
+	var changed = context_is_runes() ? not_equal : equality_safe_not_equal;
 
-	block(() => {
+	effects_block(() => {
 		if (changed(key, (key = get_key()))) {
 			if (effect) {
-				pause_effect(effect);
+				effects_pause_effect(effect);
 			}
 
-			effect = branch(() => render_fn(anchor));
+			effect = effects_branch(() => render_fn(anchor));
 		}
 	});
 
-	if (hydrating) {
-		anchor = hydrate_node;
+	if (hydration_hydrating) {
+		anchor = hydration_hydrate_node;
 	}
 }
 
@@ -12977,7 +12977,8 @@ function shift(node, {
   delay = 0,
   duration = 200,
   easing = cubicOut,
-  side = 'bottom'
+  side = 'bottom',
+  zIndex = 0
 }) {
   if (duration <= 0) {
     return false;
@@ -13007,9 +13008,10 @@ function shift(node, {
   margins[0] = parseFloat(margins[0]) || 0;
   margins[1] = parseFloat(margins[1]) || 0;
   const total = height + margins[0] + margins[1];
+  zIndex = typeof zIndex === 'number' ? `z-index: ${zIndex};` : '';
   function css(t, u) {
     const m = margins[0] - total * u;
-    return `margin-${side}: ${m}px; opacity: ${t}; z-index: 0;`;
+    return `margin-${side}: ${m}px; opacity: ${t}; ${zIndex}`;
   }
   return {
     delay,
@@ -13028,6 +13030,23 @@ function shift(node, {
 var root = template(`<select></select>`);
 
 function Select2($$anchor, $$props) {
+	const $$sanitized_props = legacy_rest_props($$props, [
+		'children',
+		'$$slots',
+		'$$events',
+		'$$legacy'
+	]);
+
+	const $$restProps = legacy_rest_props($$sanitized_props, [
+		'handler',
+		'name',
+		'data',
+		'multiple',
+		'disabled',
+		'placeholder',
+		'options'
+	]);
+
 	push($$props, false);
 
 	let handler = prop($$props, 'handler', 13);
@@ -13043,17 +13062,56 @@ function Select2($$anchor, $$props) {
 
 	onMount(() => {
 		handler(jQuery(runtime_get(select)));
-		handler().addClass('wc-enhanced-select');
+		handler().addClass($$restProps.class ? $$restProps.class : 'wc-enhanced-select');
 		handler().data('data', data());
 		handler().data('placeholder', placeholder());
 		handler().data('width', 'resolve');
 
-		if (options()) {
-			handler().data(options());
+		if (options().focus) {
+			options(options().ready = true, true);
+
+			handler().one('select2:ready', () => {
+				const focus = typeof options().focus === 'function' ? options().focus(handler()) : options().focus;
+
+				if (focus) {
+					if (focus === 'open') {
+						handler().selectWoo('open');
+					} else {
+						handler().focus();
+					}
+				}
+			});
 		}
 
-		if (options().init !== false) {
-			initSelectWoo(options().init !== true);
+		if (options().optionLabel) {
+			options(options().ready = true, true);
+			options(options().templateResult = options().optionLabel, true);
+
+			handler().on('select2:ready select2:updated', () => {
+				updateSelectionLabel(handler().selectWoo('data')[0]);
+			});
+
+			handler().on('select2:select', (e) => {
+				updateSelectionLabel(e.params.data);
+			});
+		}
+
+		if (options().ready) {
+			jQuery(document.body).one('wc-enhanced-select-init', () => {
+				const poll = setInterval(
+					() => {
+						if (handler().data('select2')) {
+							clearInterval(poll);
+							handler().trigger('select2:ready');
+						}
+					},
+					10
+				);
+			});
+		}
+
+		if (options()) {
+			handler().data(options());
 		}
 
 		handler().on('change', (event) => {
@@ -13075,6 +13133,12 @@ function Select2($$anchor, $$props) {
 			});
 		}
 
+		if (options().action) {
+			handler().on('select2:close', () => {
+				handler().data('select2').results.clear();
+			});
+		}
+
 		if (options().fixPosition) {
 			let reopening = false;
 
@@ -13085,6 +13149,10 @@ function Select2($$anchor, $$props) {
 				handler().selectWoo('open');
 				reopening = false;
 			});
+		}
+
+		if (options().init !== false) {
+			initSelectWoo(options().init !== true);
 		}
 
 		setTimeout(() => {
@@ -13098,19 +13166,28 @@ function Select2($$anchor, $$props) {
 	});
 
 	function updateData(newData) {
-		if (!mounted) return;
+		if (!mounted || options().action) {
+			return;
+		}
 
 		if (options().replaceData || !newData || !handler().data('data') || newData.length !== handler().data('data').length || newData.length && newData[0].id !== handler().data('data')[0].id) {
 			handler().empty().trigger('change.select2');
 			handler().data('data', newData);
 			handler().selectWoo();
+			handler().trigger('select2:updated');
 			return;
 		}
 
 		let changed = false;
 
-		handler().find('option').each((i, el) => {
-			if (!newData[i]) return false;
+		handler().find('option, optgroup').each((i, el) => {
+			if (!newData[i]) {
+				return false;
+			}
+
+			if (el.tagName === 'OPTGROUP') {
+				return;
+			}
 
 			const opt = jQuery(el);
 			const selected = newData[i].selected === true;
@@ -13130,6 +13207,7 @@ function Select2($$anchor, $$props) {
 		if (changed) {
 			handler().trigger('change.select2');
 			handler().selectWoo();
+			handler().trigger('select2:updated');
 		}
 	}
 
@@ -13145,6 +13223,21 @@ function Select2($$anchor, $$props) {
 		if (options) {
 			handler().data(options);
 			handler().selectWoo();
+		}
+	}
+
+	function updateSelectionLabel(selectionData) {
+		let selection = handler().data('select2').$selection.find('> .select2-selection__rendered');
+		const output = options().optionLabel(selectionData, selection, true);
+
+		if (output === false) {
+			return;
+		}
+
+		if (output.jquery) {
+			selection.html(output);
+		} else {
+			selection.text(output);
 		}
 	}
 
@@ -14128,54 +14221,109 @@ function getFromTouchList(touchList, identifier) {
 var MatchRule_svelte_root_1 = template(`<span class="toolbar-label toolbar-label-title"> </span> <span class="sep">&mdash;</span>`, 1);
 var MatchRule_svelte_root_3 = template(`<span class="name"> </span>`);
 var MatchRule_svelte_root_2 = template(`<span><!> <span class="value"> </span></span>`);
-var MatchRule_svelte_root_4 = template(`<div class="attribute-row"><div class="attribute-row-inner"><div class="select-attribute"><!></div> <div class="select-terms"><input type="hidden" value=""> <!></div> <div class="attribute-row-actions"><button type="button" class="icon-button row-remove-button"></button></div></div></div>`);
-var root_5 = template(`<div class="attribute-list-actions"><button type="button" class="row-add-button">Add attribute</button></div>`);
-var MatchRule_svelte_root = template(`<div><div class="match-rule-toolbar"><div class="toolbar-labels"><!> <!></div> <span class="match-rule-toolbar-actions"><span class="toolbar-action icon-button expand-button"></span> <button type="button" class="toolbar-action icon-button drag-button"></button> <button type="button" class="toolbar-action icon-button duplicate-button"></button> <button type="button" class="toolbar-action icon-button remove-button"></button></span></div> <div class="match-rule-body"><div class="match-rule-body-inner"><div class="attribute-list"><div class="attribute-rows"></div> <!></div> <div class="match-rule-options"><div class="option option-multiplier"><label> <span class="woocommerce-help-tip"></span></label> <input type="number" step="any" min="-1"></div></div></div></div></div>`);
+var root_7 = template(`<input type="hidden" value=""> <!>`, 1);
+var MatchRule_svelte_root_4 = template(`<div class="condition-row"><div class="condition-row-inner"><div class="select-condition"><!></div> <div><!></div> <div class="condition-row-actions"><button type="button" class="icon-button row-remove-button"></button></div></div></div>`);
+var root_10 = template(`<div class="condition-list-actions"><button type="button" class="row-add-button"> </button></div>`);
+var MatchRule_svelte_root = template(`<div><div class="match-rule-toolbar"><div class="toolbar-labels"><!> <!></div> <span class="match-rule-toolbar-actions"><span class="toolbar-action icon-button expand-button"></span> <button type="button" class="toolbar-action icon-button drag-button"></button> <button type="button" class="toolbar-action icon-button duplicate-button"></button> <button type="button" class="toolbar-action icon-button remove-button"></button></span></div> <div class="match-rule-body"><div class="match-rule-body-inner"><div class="condition-list"><div class="condition-rows"></div> <!></div> <div class="match-rule-options"><div class="option option-multiplier"><label> <span class="woocommerce-help-tip"></span></label> <input type="number" step="any" min="-1"></div></div></div></div></div>`);
 
 function MatchRule($$anchor, $$props) {
 	push($$props, false);
 
-	const selectedAttr = sources_mutable_source();
+	const selectedConditions = sources_mutable_source();
 	let index = prop($$props, 'index', 8);
-	let attributes = prop($$props, 'attributes', 12);
+	let conditions = prop($$props, 'conditions', 12);
 	let multiplier = prop($$props, 'multiplier', 12, '');
 	let mounted = prop($$props, 'mounted', 8, false);
 	let open = prop($$props, 'open', 12, true);
 	let draggable = prop($$props, 'draggable', 8, true);
 	let ruleCount = prop($$props, 'ruleCount', 8, 1);
-	const data = getContext('data');
-	const i18n = data.i18n;
-	const totalAttributes = Object.keys(data.attributes).length;
+	const data = sources_mutable_source(getContext('data'));
+	const i18n = runtime_get(data).i18n;
+	const maxConditions = Object.keys(runtime_get(data).attributes).length + 1;
 	const dispatch = createEventDispatcher();
 	const onePlaceholder = formatNumber(1, true);
 	let ruleEl = sources_mutable_source();
 	let dragging = sources_mutable_source(false);
+	let focusSelect = sources_mutable_source(false);
+	let selectedProductLabels = sources_mutable_source(getProductLabels());
 
 	onMount(() => {
 		initTooltips('.mewz-wcas-match-rule .woocommerce-help-tip');
 	});
 
-	function getSelectedAttr(attributes) {
+	function getSelectedConditions(conditions) {
 		const selected = {};
 
-		for (const attr of attributes) {
-			if (attr[0]) {
-				selected[attr[0]] = true;
+		for (const cond of conditions) {
+			if (cond[0] >= 0) {
+				selected[cond[0]] = true;
 			}
 		}
 
 		return selected;
 	}
 
-	function getAttributeOptions(attrId) {
-		const options = [{ id: '', text: '' }];
+	function getProductLabels(productIds) {
+		const labels = [];
 
-		for (const [id, text] of data.attributeOptions) {
+		if (productIds === undefined) {
+			for (const cond of conditions()) {
+				if (cond[0] === 0) {
+					productIds = cond[1];
+					break;
+				}
+			}
+		}
+
+		if (productIds && productIds.length) {
+			for (const productId of productIds) {
+				const label = runtime_get(data).products[productId] ? runtime_get(data).products[productId].replace(/\s*\([^)]*\)$/g, '') : `#${productId}`;
+
+				labels.push(label);
+			}
+
+			if (labels.length > 1) {
+				labels.sort((a, b) => a.localeCompare(b));
+			}
+		}
+
+		return labels;
+	}
+
+	function onProductsSelected(e) {
+		const productIds = [];
+
+		for (const selected of e.detail.handler.selectWoo('data')) {
+			const productId = +selected.id;
+
+			productIds.push(productId);
+
+			if (!runtime_get(data).products[productId]) {
+				mutate(data, runtime_get(data).products[productId] = selected.text);
+			}
+		}
+
+		sources_set(selectedProductLabels, getProductLabels(productIds));
+	}
+
+	function getConditionTypeOptions(cond) {
+		const options = [
+			{ id: '', text: '' },
+			{ id: 0, text: i18n.products }
+		];
+
+		if (cond[0] === 0) {
+			options[1].selected = true;
+		} else if (runtime_get(selectedConditions)[0]) {
+			options[1].disabled = true;
+		}
+
+		for (const [id, text] of runtime_get(data).attributeOptions) {
 			const opt = { id, text };
 
-			if (id === attrId) {
+			if (id === cond[0]) {
 				opt.selected = true;
-			} else if (runtime_get(selectedAttr)[id]) {
+			} else if (runtime_get(selectedConditions)[id]) {
 				opt.disabled = true;
 			}
 
@@ -14185,63 +14333,98 @@ function MatchRule($$anchor, $$props) {
 		return options;
 	}
 
-	function getTermOptions(attr) {
-		if (!attr[0]) {
+	function getConditionValueOptions(cond) {
+		if (cond[0] === '') {
 			return [];
 		}
 
-		const terms = data.attributes[attr[0]].terms;
 		const options = [];
-		const termIds = {};
 
-		for (const termId of attr[1]) {
-			termIds[termId] = true;
-		}
-
-		for (const [id, text] of terms) {
-			const opt = { id, text };
-
-			if (termIds[id]) {
-				opt.selected = true;
+		if (cond[0] === 0) {
+			for (const valueId of cond[1]) {
+				if (runtime_get(data).products[valueId]) {
+					options.push({
+						id: valueId,
+						text: runtime_get(data).products[valueId],
+						selected: true
+					});
+				}
 			}
 
-			options.push(opt);
+			options.sort((a, b) => a.text.localeCompare(b.text));
+		} else {
+			const selected = {};
+
+			for (const valueId of cond[1]) {
+				selected[valueId] = true;
+			}
+
+			for (const [id, text] of runtime_get(data).attributes[cond[0]].terms) {
+				const opt = { id, text };
+
+				if (selected[id]) {
+					opt.selected = true;
+				}
+
+				options.push(opt);
+			}
 		}
 
 		return options;
 	}
 
-	function buildRuleLabels(attributes, multiplier) {
-		const labels = [];
+	function modifyConditionTypeOptionLabel(state, element, isSelection) {
+		if (isSelection && (!state.selected || state.id === '')) {
+			return false;
+		}
 
-		for (const [attrId, termIds] of attributes) {
-			if (!attrId || !termIds) {
+		let labelType = state.id === '0' ? 'products' : 'attribute';
+
+		return jQuery(`<span class="condition-type-option-label condition-type-${labelType}">${state.text}</span>`);
+	}
+
+	function buildRuleLabels(
+		conditions,
+		multiplier,
+		selectedProductLabels
+	) {
+		const labels = [];
+		const productLabels = [];
+
+		for (const [typeId, valueIds] of conditions) {
+			if (typeId === '' || !valueIds) {
 				continue;
 			}
 
-			const termLabels = [];
+			if (typeId === 0 && selectedProductLabels.length) {
+				for (const productLabel of selectedProductLabels) {
+					productLabels.push({ type: 'product', value: productLabel });
+				}
+			} else if (typeId > 0) {
+				const termLabels = [];
 
-			if (termIds.length) {
-				for (const term of data.attributes[attrId].terms) {
-					if (termIds.includes(term[0])) {
-						termLabels.push(term[1]);
+				if (valueIds.length) {
+					for (const term of runtime_get(data).attributes[typeId].terms) {
+						if (valueIds.includes(term[0])) {
+							termLabels.push(term[1]);
 
-						if (termLabels.length === termIds.length) {
-							break;
+							if (termLabels.length === valueIds.length) {
+								break;
+							}
 						}
 					}
 				}
-			}
 
-			labels.push({
-				type: 'attribute',
-				name: data.attributes[attrId].label,
-				value: termLabels.length ? termLabels.join(', ') : i18n.any
-			});
+				labels.push({
+					type: 'attribute',
+					name: runtime_get(data).attributes[typeId].label,
+					value: termLabels.length ? termLabels.join(', ') : i18n.any
+				});
+			}
 		}
 
-		if (!labels.length) {
-			labels.push({ type: 'attribute', value: '...' });
+		if (!labels.length && !productLabels.length) {
+			labels.push({ type: 'none', value: '...' });
 		}
 
 		if (multiplier != null && multiplier !== '' && +multiplier !== 1) {
@@ -14255,7 +14438,7 @@ function MatchRule($$anchor, $$props) {
 				});
 			}
 		} else if (+multiplier !== 1) {
-			const multiplier = getAttributeMultiplier(attributes);
+			const multiplier = getAttributeMultiplier(conditions);
 
 			if (multiplier != null) {
 				let value;
@@ -14275,57 +14458,42 @@ function MatchRule($$anchor, $$props) {
 			}
 		}
 
-		return labels;
+		return productLabels.concat(labels);
 	}
 
-	function addAttributeRow() {
-		const row = [0, []];
+	function addCondition() {
+		const row = ['', []];
 
-		if (attributes()) {
-			attributes().push(row);
-			attributes(attributes());
+		if (conditions()) {
+			conditions().push(row);
+			conditions(conditions());
 		} else {
-			attributes([row]);
+			conditions([row]);
 		}
 
 		if (mounted()) {
 			setTimeout(
 				() => {
-					const select = runtime_get(ruleEl).querySelector('.attribute-row:last-child .select-attribute select');
-
-					if (select) jQuery(select).focus();
+					jQuery(runtime_get(ruleEl)).find('.condition-row:last-child .select-condition select').selectWoo('open');
 				},
-				150
+				50
 			);
 		}
 	}
 
-	function removeAttributeRow(rowIndex) {
-		attributes().splice(rowIndex, 1);
-
-		if (attributes().length) {
-			attributes(attributes());
-		} else {
-			addAttributeRow();
-		}
-	}
-
-	function attrFieldName(ruleIndex, rowIndex, name, suffix) {
-		return `${data.name}[${ruleIndex}][attributes][${rowIndex}][${name}]${suffix}`;
-	}
-
-	function optionFieldName(ruleIndex, name) {
-		return `${data.name}[${ruleIndex}][${name}]`;
-	}
-
-	function isAttributeSelected(attrId, exclRowIndex) {
-		for (let i = 0; i < attributes().length; i++) {
-			if (i !== exclRowIndex && attributes()[i][0] && attributes()[i][0] === attrId) {
-				return true;
-			}
+	function removeCondition(condIndex) {
+		if (conditions()[condIndex] && conditions()[condIndex][0] === 0) {
+			sources_set(selectedProductLabels, []);
 		}
 
-		return false;
+		if (condIndex === 0 && conditions().length === 1) {
+			conditions(conditions()[0][0] = '', true);
+			conditions(conditions()[0][1] = [], true);
+			return;
+		}
+
+		conditions().splice(condIndex, 1);
+		conditions(conditions());
 	}
 
 	function onToolbarClick(e) {
@@ -14516,19 +14684,21 @@ function MatchRule($$anchor, $$props) {
 		return offset;
 	}
 
-	function getAttributeMultiplier(attributes) {
+	function getAttributeMultiplier(conditions) {
 		const attrTermIds = {};
 
-		for (const row of attributes) {
-			attrTermIds[row[0]] = row[1];
+		for (const cond of conditions) {
+			if (cond[0] > 0) {
+				attrTermIds[cond[0]] = cond[1];
+			}
 		}
 
-		for (const [attrId] of data.attributeOptions) {
+		for (const [attrId] of runtime_get(data).attributeOptions) {
 			const termIds = attrTermIds[attrId];
 
 			if (!termIds) continue;
 
-			const attribute = data.attributes[attrId];
+			const attribute = runtime_get(data).attributes[attrId];
 
 			if (termIds.length === 1) {
 				for (const term of attribute.terms) {
@@ -14569,8 +14739,8 @@ function MatchRule($$anchor, $$props) {
 		return null;
 	}
 
-	function getMultiplierPlaceholder(attributes) {
-		const multiplier = getAttributeMultiplier(attributes);
+	function getMultiplierPlaceholder(conditions) {
+		const multiplier = getAttributeMultiplier(conditions);
 
 		if (multiplier == null) {
 			return onePlaceholder;
@@ -14589,7 +14759,7 @@ function MatchRule($$anchor, $$props) {
 				maximumFractionDigits: 20
 			};
 
-		return number.toLocaleString(data.locale, formatOpts);
+		return number.toLocaleString(runtime_get(data).locale, formatOpts);
 	}
 
 	function css(dragging) {
@@ -14598,14 +14768,25 @@ function MatchRule($$anchor, $$props) {
 		}
 	}
 
-	legacy_pre_effect(() => (deep_read_state(attributes())), () => {
-		if (!attributes().length) {
-			addAttributeRow();
+	function focusSelectInput(handler) {
+		if (!runtime_get(focusSelect)) return;
+		sources_set(focusSelect, false);
+
+		const value = handler.val();
+
+		if (value === '' || Array.isArray(value) && !value.length) {
+			return 'open';
+		}
+	}
+
+	legacy_pre_effect(() => (deep_read_state(conditions())), () => {
+		if (!conditions().length) {
+			addCondition();
 		}
 	});
 
-	legacy_pre_effect(() => (deep_read_state(attributes())), () => {
-		sources_set(selectedAttr, getSelectedAttr(attributes()));
+	legacy_pre_effect(() => (deep_read_state(conditions())), () => {
+		sources_set(selectedConditions, getSelectedConditions(conditions()));
 	});
 
 	legacy_pre_effect_reset();
@@ -14644,7 +14825,7 @@ function MatchRule($$anchor, $$props) {
 
 	var node_1 = sibling(node, 2);
 
-	each(node_1, 3, () => buildRuleLabels(attributes(), multiplier()), (label, i) => i + label.type, ($$anchor, label) => {
+	each(node_1, 3, () => buildRuleLabels(conditions(), multiplier(), runtime_get(selectedProductLabels)), (label, i) => i + label.type, ($$anchor, label) => {
 		var span_1 = MatchRule_svelte_root_2();
 		var node_2 = child(span_1);
 
@@ -14702,14 +14883,15 @@ function MatchRule($$anchor, $$props) {
 	var div_5 = child(div_4);
 	var div_6 = child(div_5);
 
-	each(div_6, 7, attributes, (row) => row, ($$anchor, row, rowIndex) => {
+	each(div_6, 7, conditions, (cond) => cond, ($$anchor, cond, condIndex) => {
 		var div_7 = MatchRule_svelte_root_4();
-		const name = derived_safe_equal(() => `${data.name}[${index()}][attributes][${runtime_get(row)[0]}]`);
+		const typeId = derived_safe_equal(() => runtime_get(cond)[0]);
+		const name = derived_safe_equal(() => `${runtime_get(data).name}[${index()}][conditions][${runtime_get(typeId)}]`);
 		var div_8 = child(div_7);
 		var div_9 = child(div_8);
 		var node_3 = child(div_9);
-		const expression = derived_safe_equal(() => getAttributeOptions(runtime_get(row)[0]));
-		const expression_1 = derived_safe_equal(() => ({ id: '', text: i18n.attributePlaceholder }));
+		const expression = derived_safe_equal(() => getConditionTypeOptions(runtime_get(cond)));
+		const expression_1 = derived_safe_equal(() => ({ id: '', text: i18n.conditionPlaceholder }));
 
 		Select2(node_3, {
 			get data() {
@@ -14718,46 +14900,133 @@ function MatchRule($$anchor, $$props) {
 			get placeholder() {
 				return runtime_get(expression_1);
 			},
-			options: { init: true, fixPosition: true },
+			options: {
+				init: true,
+				fixPosition: true,
+				optionLabel: modifyConditionTypeOptionLabel
+			},
 			$$events: {
-				change: (e) => (
-					runtime_get(row)[0] = +e.detail.handler.val(),
-					invalidate_inner_signals(() => (attributes()))
-				)
+				change: (e) => {
+					(
+						runtime_get(cond)[0] = +e.detail.handler.val(),
+						invalidate_inner_signals(() => (conditions()))
+					);
+
+					sources_set(focusSelect, true);
+				}
 			}
 		});
 
 		hydration_reset(div_9);
 
 		var div_10 = sibling(div_9, 2);
-		var input = child(div_10);
-		var node_4 = sibling(input, 2);
-		const expression_2 = derived_safe_equal(() => getTermOptions(runtime_get(row)));
-		const expression_3 = derived_safe_equal(() => runtime_get(row)[0] ? i18n.anyOption.replace('%s', data.attributes[runtime_get(row)[0]].label) : i18n.termPlaceholder);
-		const expression_4 = derived_safe_equal(() => !runtime_get(row)[0]);
+		let classes_1;
+		var node_4 = child(div_10);
 
-		Select2(node_4, {
-			get name() {
-				return `${runtime_get(name) ?? ''}[]`;
-			},
-			multiple: true,
-			get data() {
-				return runtime_get(expression_2);
-			},
-			get placeholder() {
-				return runtime_get(expression_3);
-			},
-			get disabled() {
-				return runtime_get(expression_4);
-			},
-			options: { init: true, width: 'auto', fixPosition: true },
-			$$events: {
-				change: (e) => (
-					runtime_get(row)[1] = e.detail.handler.val().map(Number),
-					invalidate_inner_signals(() => (attributes()))
-				)
-			}
-		});
+		{
+			var consequent_2 = ($$anchor) => {
+				const expression_2 = derived_safe_equal(() => getConditionValueOptions(runtime_get(cond)));
+
+				Select2($$anchor, {
+					get name() {
+						return `${runtime_get(name) ?? ''}[]`;
+					},
+					class: 'wc-product-search',
+					multiple: true,
+					get data() {
+						return runtime_get(expression_2);
+					},
+					get placeholder() {
+						return i18n.productPlaceholder;
+					},
+					options: {
+						init: true,
+						fixPosition: true,
+						ready: true,
+						width: 'auto',
+						focus: focusSelectInput,
+						action: 'woocommerce_json_search_products',
+						exclude_type: 'grouped,external'
+					},
+					$$events: {
+						change: (e) => {
+							(
+								runtime_get(cond)[1] = e.detail.handler.val().map(Number),
+								invalidate_inner_signals(() => (conditions()))
+							);
+
+							onProductsSelected(e);
+						}
+					}
+				});
+			};
+
+			var alternate = ($$anchor, $$elseif) => {
+				{
+					var consequent_3 = ($$anchor) => {
+						var fragment_2 = root_7();
+						var input = first_child(fragment_2);
+						var node_5 = sibling(input, 2);
+
+						key_block(node_5, () => runtime_get(typeId), ($$anchor) => {
+							const expression_3 = derived_safe_equal(() => getConditionValueOptions(runtime_get(cond)));
+							const expression_4 = derived_safe_equal(() => i18n.anyOption.replace('%s', runtime_get(data).attributes[runtime_get(typeId)].label));
+
+							Select2($$anchor, {
+								get name() {
+									return `${runtime_get(name) ?? ''}[]`;
+								},
+								multiple: true,
+								get data() {
+									return runtime_get(expression_3);
+								},
+								get placeholder() {
+									return runtime_get(expression_4);
+								},
+								options: {
+									init: true,
+									fixPosition: true,
+									width: 'auto',
+									focus: focusSelectInput
+								},
+								$$events: {
+									change: (e) => (
+										runtime_get(cond)[1] = e.detail.handler.val().map(Number),
+										invalidate_inner_signals(() => (conditions()))
+									)
+								}
+							});
+						});
+
+						template_effect(() => set_attribute(input, 'name', runtime_get(name)));
+						append($$anchor, fragment_2);
+					};
+
+					var alternate_1 = ($$anchor) => {
+						Select2($$anchor, {
+							multiple: true,
+							disabled: true,
+							get placeholder() {
+								return i18n.valuePlaceholder;
+							},
+							options: { init: true, fixPosition: true, width: 'auto' }
+						});
+					};
+
+					if_block(
+						$$anchor,
+						($$render) => {
+							if (runtime_get(typeId) !== '') $$render(consequent_3); else $$render(alternate_1, false);
+						},
+						$$elseif
+					);
+				}
+			};
+
+			if_block(node_4, ($$render) => {
+				if (runtime_get(typeId) === 0) $$render(consequent_2); else $$render(alternate, false);
+			});
+		}
 
 		hydration_reset(div_10);
 
@@ -14768,34 +15037,42 @@ function MatchRule($$anchor, $$props) {
 		hydration_reset(div_8);
 		hydration_reset(div_7);
 
-		template_effect(() => {
-			set_attribute(input, 'name', runtime_get(name));
-			set_attribute(button_3, 'title', i18n.removeAttribute);
-			button_3.disabled = attributes().length === 1 && !runtime_get(row).attribute;
-		});
+		template_effect(
+			($0) => {
+				classes_1 = class_set_class(div_10, 1, 'select-values', null, classes_1, $0);
+				set_attribute(button_3, 'title', i18n.removeCondition);
+			},
+			[() => ({ pending: runtime_get(typeId) === '' })],
+			derived_safe_equal
+		);
 
-		events_event('click', button_3, () => removeAttributeRow(runtime_get(rowIndex)));
+		events_event('click', button_3, () => removeCondition(runtime_get(condIndex)));
 		transition(3, div_7, () => shift, () => ({ duration: 130 }));
+		events_event('introstart', div_7, (e) => e.target.classList.add('transition-in'));
+		events_event('introend', div_7, (e) => e.target.classList.remove('transition-in'));
 		append($$anchor, div_7);
 	});
 
 	hydration_reset(div_6);
 
-	var node_5 = sibling(div_6, 2);
+	var node_6 = sibling(div_6, 2);
 
 	{
-		var consequent_2 = ($$anchor) => {
-			var div_12 = root_5();
+		var consequent_4 = ($$anchor) => {
+			var div_12 = root_10();
 			var button_4 = child(div_12);
+			var text_4 = child(button_4, true);
 
+			hydration_reset(button_4);
 			hydration_reset(div_12);
-			events_event('click', button_4, () => addAttributeRow());
+			template_effect(() => set_text(text_4, i18n.addCondition));
+			events_event('click', button_4, () => addCondition());
 			transition(3, div_12, () => slide, () => ({ duration: 100 }));
 			append($$anchor, div_12);
 		};
 
-		if_block(node_5, ($$render) => {
-			if (attributes().length < totalAttributes) $$render(consequent_2);
+		if_block(node_6, ($$render) => {
+			if (conditions().length < maxConditions) $$render(consequent_4);
 		});
 	}
 
@@ -14804,8 +15081,8 @@ function MatchRule($$anchor, $$props) {
 	var div_13 = sibling(div_5, 2);
 	var div_14 = child(div_13);
 	var label_1 = child(div_14);
-	var text_4 = child(label_1);
-	var span_5 = sibling(text_4);
+	var text_5 = child(label_1);
+	var span_5 = sibling(text_5);
 
 	hydration_reset(label_1);
 
@@ -14821,17 +15098,17 @@ function MatchRule($$anchor, $$props) {
 	bind_this(div, ($$value) => sources_set(ruleEl, $$value), () => runtime_get(ruleEl));
 
 	template_effect(
-		($0, $1, $2, $3) => {
+		($0, $1, $2) => {
 			classes = class_set_class(div, 1, 'mewz-wcas-match-rule', null, classes, $0);
 			style_set_style(div, $1);
 			set_attribute(button, 'title', i18n.dragTip);
 			set_attribute(button_1, 'title', i18n.duplicateRule);
 			set_attribute(button_2, 'title', i18n.removeRule);
-			set_text(text_4, `${i18n.multiplierLabel ?? ''} `);
+			set_text(text_5, `${i18n.multiplierLabel ?? ''} `);
 			set_attribute(span_5, 'title', i18n.multiplierTip);
-			set_attribute(input_1, 'name', $2);
-			set_attribute(input_1, 'placeholder', $3);
-			set_attribute(input_1, 'lang', data.locale);
+			set_attribute(input_1, 'name', `${runtime_get(data).name ?? ''}[${index() ?? ''}][multiplier]`);
+			set_attribute(input_1, 'placeholder', $2);
+			set_attribute(input_1, 'lang', runtime_get(data).locale);
 		},
 		[
 			() => ({
@@ -14842,8 +15119,7 @@ function MatchRule($$anchor, $$props) {
 				released: runtime_get(dragging) && runtime_get(dragging).released
 			}),
 			() => css(runtime_get(dragging)),
-			() => optionFieldName(index(), 'multiplier'),
-			() => getMultiplierPlaceholder(attributes())
+			() => getMultiplierPlaceholder(conditions())
 		],
 		derived_safe_equal
 	);
@@ -14920,13 +15196,13 @@ function MatchRules($$anchor, $$props) {
 	mutate(data, runtime_get(data).attributeOptions = attrOptions.sort((a, b) => a[1].localeCompare(b[1])));
 
 	onMount(() => {
-		initTooltips('.mewz-wcas-attribute-rules .main-toolbar .woocommerce-help-tip');
+		initTooltips('.mewz-wcas-match-rules .main-toolbar .woocommerce-help-tip');
 		detectFieldChanges(runtime_get(container), runtime_get(data).name + '[', (v) => sources_set(changed, v));
 		sources_set(mounted, true);
 	});
 
 	function newRule() {
-		const rule = { attributes: [], multiplier: '', open: true };
+		const rule = { conditions: [], multiplier: '', open: true };
 
 		runtime_get(rules).push(rule);
 		sources_set(rules, runtime_get(rules));
@@ -15012,8 +15288,8 @@ function MatchRules($$anchor, $$props) {
 	}
 
 	function ruleHasData(rule) {
-		for (const row of rule.attributes) {
-			if (row[0]) {
+		for (const cond of rule.conditions) {
+			if (cond[0] > 0 || cond[0] === 0 && cond[1] && cond[1].length) {
 				return true;
 			}
 		}
@@ -15022,7 +15298,7 @@ function MatchRules($$anchor, $$props) {
 	}
 
 	legacy_pre_effect(() => (runtime_get(rules)), () => {
-		mewzWcas.setTabIndicator('attributes', runtime_get(rules).filter(ruleHasData).length);
+		mewzWcas.setTabIndicator('rules', runtime_get(rules).filter(ruleHasData).length);
 	});
 
 	legacy_pre_effect_reset();
@@ -15086,12 +15362,12 @@ function MatchRules($$anchor, $$props) {
 			set mounted($$value) {
 				sources_set(mounted, $$value);
 			},
-			get attributes() {
-				return runtime_get(rule).attributes;
+			get conditions() {
+				return runtime_get(rule).conditions;
 			},
-			set attributes($$value) {
+			set conditions($$value) {
 				(
-					runtime_get(rule).attributes = $$value,
+					runtime_get(rule).conditions = $$value,
 					invalidate_inner_signals(() => (runtime_get(rules)))
 				);
 			},
@@ -15143,7 +15419,7 @@ function MatchRules($$anchor, $$props) {
 
 	template_effect(
 		($0, $1, $2) => {
-			classes = class_set_class(div, 1, 'mewz-wcas-attribute-rules', null, classes, $0);
+			classes = class_set_class(div, 1, 'mewz-wcas-match-rules', null, classes, $0);
 			set_text(text, runtime_get(data).i18n.newRule);
 			set_attribute(span, 'title', runtime_get(data).i18n.newRuleTip);
 			class_set_class(button_2, 1, `button toggle-button ${$1 ?? ''}`);
@@ -15182,7 +15458,7 @@ mount(Components, {
   }
 });
 mount(MatchRules, {
-  target: document.getElementById('attributes_panel'),
+  target: document.getElementById('rules_panel'),
   props: {
     data: mewzWcas.matchRules
   }

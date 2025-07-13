@@ -48,12 +48,12 @@ class AttributeTermList extends Aspect
 			return [];
 		}
 
-		$show_columns['stock'] = Matches::query('left_join')
+		$show_columns['stock'] = Matches::query(true)
 			->left_join('posts', 'p')->on('p.ID = r.stock_id')
 			->where('p.post_type', AttributeStock::POST_TYPE)
 			->where('p.post_status', 'publish')
-			->where('a.attribute_id', $attribute_id)
-			->where('a.term_id', '>', 0)
+			->where('c.type_id', $attribute_id)
+			->where('c.value_id', '>', 0)
 			->clear('distinct')
 			->exists();
 

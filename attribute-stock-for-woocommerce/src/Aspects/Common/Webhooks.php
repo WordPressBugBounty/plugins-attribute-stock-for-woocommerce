@@ -1,6 +1,7 @@
 <?php
 namespace Mewz\WCAS\Aspects\Common;
 
+use Automattic\WooCommerce\Utilities\RestApiUtil;
 use Mewz\Framework\Base\Aspect;
 use Mewz\WCAS\Models\AttributeStock;
 
@@ -63,14 +64,16 @@ class Webhooks extends Aspect
 		return $topics;
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public static function webhook_payload($payload, $resource, $resource_id, $webhook_id) {
 
-		if ($resource === AttributeStock::POST_TYPE && $resource_id && !$payload) {
-			$request = new \WP_REST_Request('GET', "/wc/v3/attribute-stock/{$resource_id}");
-			$response = rest_do_request($request);
-			$server = rest_get_server();
-			$payload = wp_json_encode($server->response_to_data($response, false));
-			$payload = json_decode($payload, true);
+		if ($resource === AttributeStock::POST_TYPE && $resource_id && !$payload && $webhook = wc_get_webhook($webhook_id)) {
+			$current_user = get_current_user_id();
+			wp_set_current_user($webhook->get_user_id());
+			$payload = wc_get_container()->get(RestApiUtil::class)->get_endpoint_data("/wc/v3/attribute-stock/{$resource_id}");
+			wp_set_current_user($current_user);
 		}
 
 		return $payload;
