@@ -1,7 +1,7 @@
 <?php
 use Mewz\Framework\Util\Number;
 
-defined('ABSPATH') or die;
+defined('ABSPATH') || die;
 
 /**
  * @var \WP_Post $post
@@ -15,9 +15,8 @@ $multiplier_desc = __('Set a multiplier for stock quantities. Applies to product
 if (MEWZ_WCAS_LITE) {
 	$multiplier_desc .= '<br><br> ' . __('LITE VERSION: Multipliers will only apply to attribute stock. The full version is required for product stock multipliers.', 'woocommerce-attribute-stock');
 }
-?>
 
-<?php woocommerce_wp_text_input([
+woocommerce_wp_text_input([
 	'id' => "variable_mewz_wcas_multiplier{$index}",
 	'name' => "variable_mewz_wcas_multiplier[{$index}]",
 	'value' => Number::safe_decimal(get_post_meta($post->ID, '_mewz_wcas_multiplier', true)),
@@ -27,4 +26,4 @@ if (MEWZ_WCAS_LITE) {
 	'wrapper_class' => 'form-row form-row-full',
 	'type' => 'number',
 	'custom_attributes' => ['step' => 'any', 'lang' => $lang],
-]); ?>
+]);

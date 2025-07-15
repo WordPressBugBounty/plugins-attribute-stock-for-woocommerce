@@ -163,13 +163,13 @@ class Date
 				$format = get_option('time_format');
 				break;
 			case 'admin-full':
-				$format = __('M j, Y @ H:i');
+				$format = __('M j, Y @ H:i', 'default');
 				break;
 			case 'admin-short':
-				$format = __('Y/m/d g:i:s a');
+				$format = __('Y/m/d g:i:s a', 'default');
 				break;
 			case 'admin-date':
-				$format = __('Y/m/d');
+				$format = __('Y/m/d', 'default');
 				break;
 		}
 
@@ -181,13 +181,13 @@ class Date
 	public static function i18n_number_of($num, $type)
 	{
 	    switch ($type) {
-		    case 'second': return sprintf(_n('%s second', '%s seconds', $num), $num);
-		    case 'min': return sprintf(_n('%s min', '%s mins', $num), $num);
-		    case 'hour': return sprintf(_n('%s hour', '%s hours', $num), $num);
-		    case 'day': return sprintf(_n('%s day', '%s days', $num), $num);
-		    case 'week': return sprintf(_n('%s week', '%s weeks', $num), $num);
-		    case 'month': return sprintf(_n('%s month', '%s months', $num), $num);
-		    case 'year': return sprintf(_n('%s year', '%s years', $num), $num);
+		    case 'second': return sprintf(_n('%s second', '%s seconds', $num, 'default'), $num);
+		    case 'min': return sprintf(_n('%s min', '%s mins', $num, 'default'), $num);
+		    case 'hour': return sprintf(_n('%s hour', '%s hours', $num, 'default'), $num);
+		    case 'day': return sprintf(_n('%s day', '%s days', $num, 'default'), $num);
+		    case 'week': return sprintf(_n('%s week', '%s weeks', $num, 'default'), $num);
+		    case 'month': return sprintf(_n('%s month', '%s months', $num, 'default'), $num);
+		    case 'year': return sprintf(_n('%s year', '%s years', $num, 'default'), $num);
 		    default: return false;
 	    }
 	}

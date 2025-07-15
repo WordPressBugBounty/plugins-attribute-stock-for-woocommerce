@@ -133,9 +133,8 @@ class StockListFilters extends Aspect
 		global $wpdb;
 
 		$components_table = DB::prefix(Components::TABLE);
-		$post_type = AttributeStock::POST_TYPE;
 
-		$results = $wpdb->get_results("
+		$results = $wpdb->get_results(DB::bind("
 			SELECT
 				c.parent_id,
 				c.child_id,
@@ -152,11 +151,11 @@ class StockListFilters extends Aspect
 			LEFT JOIN {$wpdb->postmeta} ppm ON ppm.post_id = pp.ID AND ppm.meta_key = '_sku'
 			LEFT JOIN {$wpdb->postmeta} pcm ON pcm.post_id = pc.ID AND pcm.meta_key = '_sku'
 			
-			WHERE pp.post_type = '{$post_type}' AND pc.post_type = '{$post_type}'
+			WHERE pp.post_type = ? AND pc.post_type = ?
 			  AND pp.post_status IN ('publish', 'draft') AND pc.post_status IN ('publish', 'draft')
 			
 			ORDER BY pp.post_title
-		");
+		", AttributeStock::POST_TYPE));
 
 		if (!$results) return;
 
@@ -197,17 +196,17 @@ class StockListFilters extends Aspect
 	{
 		global $wpdb;
 
-		$tags = $wpdb->get_results("
+		$tags = $wpdb->get_results(DB::bind("
 			SELECT DISTINCT t.name, t.slug
 			FROM {$wpdb->terms} t
 			LEFT JOIN {$wpdb->term_taxonomy} tt ON tt.term_id = t.term_id
 			LEFT JOIN {$wpdb->term_relationships} tr ON tr.term_taxonomy_id = tt.term_taxonomy_id
 			LEFT JOIN {$wpdb->posts} p ON p.ID = tr.object_id
 			WHERE tt.taxonomy = 'product_tag'
-			  AND p.post_type = '" . AttributeStock::POST_TYPE . "'
+			  AND p.post_type = ?
 			  AND p.post_status != 'auto-draft'
 			ORDER BY t.name
-		");
+		", AttributeStock::POST_TYPE));
 
 		if (!$tags) return;
 

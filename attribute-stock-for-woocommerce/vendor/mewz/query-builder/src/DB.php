@@ -135,7 +135,7 @@ class DB
 		}
 
 		if ($values) {
-			if (!isset($values[1])) {
+			if (count($values) === 1) {
 				return str_replace('?', $values[0], $expr);
 			} else {
 				return sprintf(str_replace(['%', '?'], ['%%', '%s'], $expr), ...$values);

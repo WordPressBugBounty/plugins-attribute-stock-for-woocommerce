@@ -1,7 +1,8 @@
 <?php
-defined('ABSPATH') or die;
+defined('ABSPATH') || die;
 
 /**
+ * @var Mewz\Framework\Services\View $this
  * @var array $js_data
  * @var string $inline_script
  */
@@ -10,13 +11,15 @@ if (empty($js_data) || empty($inline_script)) {
 	return;
 }
 
-if ($data = json_encode($js_data)) {
+if ($data = wp_json_encode($js_data)) {
 	$data = addcslashes($data, "\\'");
+} else {
+	return;
 }
 ?>
 
 <script type="text/javascript">
-	// WooCommerce Attribute Stock: Expand product variations dynamically
+	// <?= $this->plugin->name ?>: Expand product variations dynamically
 	(() => {
 		const variableData = JSON.parse('<?= $data ?>');
 

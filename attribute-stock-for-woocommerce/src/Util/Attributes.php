@@ -298,16 +298,15 @@ class Attributes
 			return self::$multipliers = $cache;
 		}
 
-		$query = "
+		$results = $wpdb->get_results("
 			SELECT tt.taxonomy, tm.term_id, 0+tm.meta_value multiplier
 			FROM {$wpdb->termmeta} tm
 			LEFT JOIN {$wpdb->term_taxonomy} tt ON tt.term_id = tm.term_id
 			WHERE tm.meta_key = 'mewz_wcas_multiplier'
 		      AND tm.meta_value != ''
 			ORDER BY tt.taxonomy, multiplier
-		";
+		");
 
-		$results = $wpdb->get_results($query);
 		$multipliers = [];
 
 		foreach ($results as $row) {
@@ -333,25 +332,15 @@ class Attributes
 	 */
 	public static function match_rule_multipliers($rule_ids, $attribute_id_sets)
 	{
-		global $wpdb;
-
 		$term_multipliers = self::get_term_multipliers();
 		if (!$term_multipliers) return [];
 
-		$rule_conds_table = DB::prefix(Matches::CONDITIONS_TABLE);
-		$attributes_table = DB::prefix('woocommerce_attribute_taxonomies');
+		$results = DB::table(Matches::CONDITIONS_TABLE, 'c')
+			->select('c.rule_id, c.type_id, c.value_id')
+			->join('woocommerce_attribute_taxonomies', 'a')->on('a.attribute_id = c.type_id')
+			->where('c.rule_id', $rule_ids)
+			->orderby('a.attribute_name');
 
-		$rule_ids = implode(',', $rule_ids);
-
-		$query = "
-			SELECT c.rule_id, c.type_id, c.value_id
-			FROM {$rule_conds_table} c
-			JOIN {$attributes_table} a ON a.attribute_id = c.type_id
-			WHERE c.rule_id IN ($rule_ids)
-			ORDER BY a.attribute_name
-		";
-
-		$results = $wpdb->get_results($query);
 		if (!$results) return [];
 
 		$multipliers = [];

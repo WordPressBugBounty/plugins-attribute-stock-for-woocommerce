@@ -15,6 +15,8 @@
  * @since 2.0.0
  */
 
+defined('ABSPATH') || die;
+
 if (defined('MEWZ_WCAS_VERSION')) {
 	if (defined('WP_SANDBOX_SCRAPING') && WP_SANDBOX_SCRAPING && !empty($_SERVER['REQUEST_URI'])) {
 		deactivate_plugins([
@@ -22,7 +24,7 @@ if (defined('MEWZ_WCAS_VERSION')) {
 			'woocommerce-attribute-stock/woocommerce-attribute-stock.php',
 		], true);
 
-		wp_redirect($_SERVER['REQUEST_URI']);
+		wp_safe_redirect($_SERVER['REQUEST_URI']);
 		die;
 	}
 

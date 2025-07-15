@@ -2,7 +2,7 @@
 use Mewz\Framework\Util\Number;
 use Mewz\WCAS\Util\Settings;
 
-defined('ABSPATH') or die;
+defined('ABSPATH') || die;
 
 /**
  * @var Mewz\Framework\Services\View $this
@@ -37,7 +37,7 @@ $backorder_options = wc_get_product_backorder_options();
 		'description' => sprintf(__('Allow or disallow backorders on matched products that do not have stock management enabled. Defaults to the global "%s" setting.', 'woocommerce-attribute-stock'), $backorders_label),
 		'desc_tip' => true,
 		'options' => [
-			'' => sprintf(_x('Default: %s', 'color'), $backorder_options[Settings::allow_backorders()])
+			'' => sprintf(_x('Default: %s', 'color', 'default'), $backorder_options[Settings::allow_backorders()])
 		] + $backorder_options,
 		'value' => MEWZ_WCAS_LITE ? '' : $stock->backorders(),
 		'custom_attributes' => MEWZ_WCAS_LITE ? ['disabled' => 'disabled'] : [],

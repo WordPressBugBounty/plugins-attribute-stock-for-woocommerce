@@ -7,9 +7,10 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/framework",
-                "reference": "e0b60997f7fcefe2a9c0b18112f2d7af1175c632"
+                "reference": "a8cfdf88133c22542ba3bd9f08b5a069d227abb5"
             },
             "require": {
+                "mewz/query-builder": "dev-master",
                 "php": ">=7.4"
             },
             "type": "library",

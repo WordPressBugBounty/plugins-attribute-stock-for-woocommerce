@@ -1,0 +1,26 @@
+{
+  "name": "mewz/woocommerce-attribute-stock",
+  "description": "Take your stock to the next level. Set up complex stock configurations with ease. Shared stock, variable quantities, the possibilities are endless.",
+  "type": "wordpress-plugin",
+  "license": "GPL-3.0",
+  "authors": [
+    {
+      "name": "Saul Fautley",
+      "email": "saul@mewz.dev"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Mewz\\WCAS\\": "src/"
+    }
+  },
+  "repositories": [
+    {"type": "path", "url": "./packages/framework"},
+    {"type": "path", "url": "./packages/query-builder"}
+  ],
+  "require": {
+    "php": ">=7.4",
+    "mewz/framework": "dev-master",
+    "mewz/query-builder": "dev-master"
+  }
+}

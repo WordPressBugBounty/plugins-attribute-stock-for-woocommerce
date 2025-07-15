@@ -1,5 +1,5 @@
 <?php
-defined('ABSPATH') or die;
+defined('ABSPATH') || die;
 
 /**
  * @var Mewz\WCAS\Models\AttributeStock $stock

@@ -1,7 +1,7 @@
 <?php
 use Mewz\Framework\Util\Number;
 
-defined('ABSPATH') or die;
+defined('ABSPATH') || die;
 
 /** @var Mewz\WCAS\Models\AttributeStock $stock */
 
@@ -29,7 +29,7 @@ woocommerce_wp_text_input([
 ]);
 
 woocommerce_wp_textarea_input([
-	'label' => __('Notes'),
+	'label' => __('Notes', 'default'),
 	'id' => 'mewz_wcas_notes',
 	'name' => 'mewz_wcas[notes]',
 	'rows' => 3,

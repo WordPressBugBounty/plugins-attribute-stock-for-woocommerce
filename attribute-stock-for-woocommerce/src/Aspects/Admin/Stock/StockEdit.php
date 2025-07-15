@@ -39,7 +39,7 @@ class StockEdit extends Aspect
 	public function title_placeholder($placeholder, $post)
 	{
 		if ($post->post_type === AttributeStock::POST_TYPE) {
-			$placeholder = __('Title');
+			$placeholder = __('Title', 'default');
 	    }
 
 		return $placeholder;
@@ -49,7 +49,7 @@ class StockEdit extends Aspect
 	{
 		global $wp_meta_boxes;
 
-		add_meta_box('mewz-wcas-status-metabox', __('Status'), [$this, 'display_status_metabox'], AttributeStock::POST_TYPE, 'side', 'high');
+		add_meta_box('mewz-wcas-status-metabox', __('Status', 'default'), [$this, 'display_status_metabox'], AttributeStock::POST_TYPE, 'side', 'high');
 		add_meta_box('mewz-wcas-details-metabox', __('Stock details', 'woocommerce-attribute-stock'), [$this, 'display_details_metabox'], AttributeStock::POST_TYPE, 'normal', 'high');
 		add_meta_box('mewz-wcas-matches-metabox', __('Match rules', 'woocommerce-attribute-stock'), [$this, 'display_matches_metabox'], AttributeStock::POST_TYPE, 'normal');
 
@@ -61,7 +61,7 @@ class StockEdit extends Aspect
 		    foreach ($a as &$b) {
 			    foreach ($b as $key => &$metabox) {
 				    if ($metabox && $key === 'tagsdiv-product_tag') {
-					    $metabox['title'] = __('Tags');
+					    $metabox['title'] = __('Tags', 'default');
 						break;
 				    }
 			    }
@@ -82,7 +82,7 @@ class StockEdit extends Aspect
 
 		$tabs = [
 			'inventory' => __('Inventory', 'woocommerce'),
-			'settings' => __('Settings'),
+			'settings' => __('Settings', 'default'),
 			'components' => __('Components', 'woocommerce-attribute-stock'),
 		];
 
@@ -266,8 +266,8 @@ class StockEdit extends Aspect
 		    'newRuleTip'           => __('Match products by selecting products, attributes, or both.<br><br> <strong>All conditions</strong> in a rule must be fulfilled. <strong>Any value</strong> can match to fulfil a condition.<br><br> Rules are matched from <strong>top to bottom</strong>. Only the first matched rule will be used, unless <strong>Multiplex matching</strong> is enabled.<br><br> <strong>Child components</strong> will be used regardless of match rules.', 'woocommerce-attribute-stock'),
 			'products'             => __('Products', 'woocommerce'),
 			'productPlaceholder'   => __('Search products…', 'woocommerce'),
-		    'removeCondition'      => __('Remove'),
-		    'removeRule'           => __('Remove'),
+		    'removeCondition'      => __('Remove', 'default'),
+		    'removeRule'           => __('Remove', 'default'),
 		    'restoreRule'          => __('Restore last removed rule', 'woocommerce-attribute-stock'),
 			'ruleTitle'            => __('Rule #%s', 'woocommerce-attribute-stock'),
 			'stopRuleTip'          => __('Stop rule — When matched, excludes this and subsequent rules from matching,', 'woocommerce-attribute-stock'),
@@ -290,7 +290,7 @@ class StockEdit extends Aspect
 				'addPlaceholder' => __('Add child component...', 'woocommerce-attribute-stock'),
 				'quantityTip'    => __('Child quantity per parent', 'woocommerce-attribute-stock'),
 			],
-			'remove'             => __('Remove'),
+			'remove'             => __('Remove', 'default'),
 			'disabled'           => __('Disabled', 'woocommerce'),
 		]);
 	}
@@ -442,7 +442,7 @@ class StockEdit extends Aspect
 				trigger_error($tree->get_error_message(), E_USER_WARNING);
 
 				$message = __('Circular reference detected in component tree. Component stock will be disabled until you\'ve resolved this.', 'woocommerce-attribute-stock');
-				Admin::display_notice('warning', '<p><strong>' . __('Warning:') . '</strong> ' . $message . '</p>', true, true);
+				Admin::display_notice('warning', '<p><strong>' . __('Warning:', 'default') . '</strong> ' . $message . '</p>', true, true);
 			}
 		}
 	}

@@ -1,0 +1,24 @@
+{
+	"name": "mewz/framework",
+	"description": "Mewz internal framework for rapid development of WordPress plugins.",
+	"type": "library",
+	"license": "GPL-3.0",
+	"authors": [
+		{
+			"name": "Saul Fautley",
+			"email": "saul@mewz.dev"
+		}
+	],
+	"autoload": {
+		"psr-4": {
+			"Mewz\\Framework\\": "src/"
+		}
+	},
+	"repositories": [
+		{"type": "path", "url": "../packages/query-builder"}
+	],
+	"require": {
+		"php": ">=7.4",
+		"mewz/query-builder": "dev-master"
+	}
+}

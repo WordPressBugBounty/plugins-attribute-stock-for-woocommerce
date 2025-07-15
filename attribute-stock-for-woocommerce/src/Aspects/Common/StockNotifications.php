@@ -68,7 +68,7 @@ class StockNotifications extends Aspect
 		$args = [
 			'recipient' => get_option('woocommerce_stock_email_recipient'),
 			'subject' => $this->get_subject_prefix() . sprintf(__('Low in stock - %s', 'woocommerce-attribute-stock'), $this->get_stock_title($stock)),
-			'message' => $this->wrap_message(sprintf(_n('%s is low in stock. There is %f left.', '%s is low in stock. There are %f left.', $quantity, 'woocommerce-attribute-stock'), $this->get_stock_title($stock, true), Number::local_format($quantity))),
+			'message' => $this->wrap_message(sprintf(_n('%1$s is low in stock. There is %2$f left.', '%1$s is low in stock. There are %2$f left.', $quantity, 'woocommerce-attribute-stock'), $this->get_stock_title($stock, true), Number::local_format($quantity))),
 			'headers' => ['Content-type: text/html; charset: utf8'],
 			'attachments' => [],
 		];

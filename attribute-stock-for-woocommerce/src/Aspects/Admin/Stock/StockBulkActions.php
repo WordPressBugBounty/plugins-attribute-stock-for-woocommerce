@@ -36,7 +36,7 @@ class StockBulkActions extends Aspect
 			$custom_actions['duplicate'] = __('Duplicate', 'woocommerce');
 
 			if (current_user_can('export')) {
-				$custom_actions['export'] = __('Export');
+				$custom_actions['export'] = __('Export', 'default');
 			}
 
 			$actions = $custom_actions + $actions;

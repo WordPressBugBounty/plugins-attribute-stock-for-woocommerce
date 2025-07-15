@@ -233,7 +233,7 @@ function confirmations_load() {
 }
 function onTableListClick(e) {
   const title = confirmations_$(this).closest('tr').find('td.column-title .row-title').text();
-  const message = sprintf(__('Are you sure you want to delete %s?'), `"${title}"`);
+  const message = sprintf(__('Are you sure you want to delete %s?', 'default'), `"${title}"`);
   if (!confirm(message)) {
     e.preventDefault();
   }

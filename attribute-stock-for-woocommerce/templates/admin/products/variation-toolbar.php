@@ -1,7 +1,7 @@
 <?php
 use Mewz\Framework\Util\Number;
 
-defined('ABSPATH') or die;
+defined('ABSPATH') || die;
 
 /**
  * @var \WP_Post $post

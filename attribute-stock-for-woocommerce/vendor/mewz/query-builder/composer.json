@@ -1,0 +1,20 @@
+{
+	"name": "mewz/query-builder",
+	"description": "An intuitive, light-weight query builder for WordPress. Inspired by Laravel's Query Builder.",
+	"type": "library",
+	"license": "GPL-3.0",
+	"authors": [
+		{
+			"name": "Saul Fautley",
+			"email": "saul@mewz.dev"
+		}
+	],
+	"autoload": {
+		"psr-4": {
+			"Mewz\\QueryBuilder\\": "src/"
+		}
+	},
+	"require": {
+		"php": ">=7.4"
+	}
+}

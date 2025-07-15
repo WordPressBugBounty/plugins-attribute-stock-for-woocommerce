@@ -24,7 +24,7 @@ class Admin
 			$url .= $sep . $params;
 		}
 
-		wp_redirect($url); die;
+		wp_safe_redirect($url); die;
 	}
 
 	/**

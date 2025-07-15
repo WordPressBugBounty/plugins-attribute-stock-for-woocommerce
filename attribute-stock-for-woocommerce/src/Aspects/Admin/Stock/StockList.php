@@ -56,14 +56,14 @@ class StockList extends Aspect
 
 		$columns = [
 			'cb' => $cb,
-			'image' => __('Image'),
+			'image' => __('Image', 'default'),
 		] + $columns;
 
 		$columns['actions'] = __('Actions', 'woocommerce');
 		$columns['sku'] = __('SKU', 'woocommerce');
 		$columns['quantity'] = __('Stock', 'woocommerce');
-		$columns['notes'] = __('Notes');
-		$columns['settings'] = __('Settings');
+		$columns['notes'] = __('Notes', 'default');
+		$columns['settings'] = __('Settings', 'default');
 		$columns['components'] = __('Components', 'woocommerce-attribute-stock');
 		$columns['products'] = __('Products', 'woocommerce');
 		$columns['attributes'] = __('Attributes', 'woocommerce');
@@ -250,11 +250,11 @@ class StockList extends Aspect
 				break;
 
 			case 'created':
-				echo '<abbr title="' . $stock->created(false, 'admin-full') . '">' . esc_html($stock->created(false, 'admin-date')) . '</abbr>';
+				echo '<abbr title="' . esc_attr($stock->created(false, 'admin-full')) . '">' . esc_html($stock->created(false, 'admin-date')) . '</abbr>';
 				break;
 
 			case 'modified':
-				echo '<abbr title="' . $stock->modified(false, 'admin-full') . '">' . esc_html($stock->modified(false, 'admin-date')) . '</abbr>';
+				echo '<abbr title="' . esc_attr($stock->modified(false, 'admin-full')) . '">' . esc_html($stock->modified(false, 'admin-date')) . '</abbr>';
 				break;
 		}
 	}
@@ -342,7 +342,7 @@ class StockList extends Aspect
 				$title = $titles[$key];
 				$letter = strtoupper($title[0]);
 
-				echo '<span class="mewz-wcas-settings-badge setting-' . $key . '" title="' . esc_attr($title) . '" rel="tiptip">' . $letter . '</span>';
+				echo '<span class="mewz-wcas-settings-badge setting-' . esc_attr($key) . '" title="' . esc_attr($title) . '" rel="tiptip">' . esc_html($letter) . '</span>';
 			}
 
 			echo '</div>';

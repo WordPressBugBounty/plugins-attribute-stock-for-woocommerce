@@ -233,7 +233,7 @@ class Installer extends Core\Installer
 			$new_table = $names[$old_table];
 
 			if (!DB::table($new_table, true)->exists()) {
-				DB::query("INSERT INTO $new_table SELECT * FROM $old_table");
+				DB::query("INSERT INTO {$new_table} SELECT * FROM {$old_table}");
 				DB::table($old_table, true)->drop();
 			}
 		}

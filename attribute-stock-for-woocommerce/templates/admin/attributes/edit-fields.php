@@ -2,7 +2,7 @@
 use Mewz\Framework\Util\Number;
 use Mewz\WCAS\Util\Matches;
 
-defined('ABSPATH') or die;
+defined('ABSPATH') || die;
 
 /**
  * @var Mewz\WCAS\Models\AttributeStock[] $stocks
@@ -34,7 +34,7 @@ if (count($stocks) > 1) {
 			<table class="mewz-wcas-associated-table widefat striped">
 				<thead>
 				<tr>
-					<th scope="col" class="column-title"><?= esc_html__('Title') ?></th>
+					<th scope="col" class="column-title"><?= esc_html__('Title', 'default') ?></th>
 					<?php if ($sku_column): ?>
 						<th scope="col" class="column-sku"><?= esc_html__('SKU', 'woocommerce') ?></th>
 					<?php endif; ?>

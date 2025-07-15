@@ -1,5 +1,5 @@
 <?php
-defined('ABSPATH') or die;
+defined('ABSPATH') || die;
 
 /**
  * @var string $import_url
@@ -9,15 +9,15 @@ defined('ABSPATH') or die;
  */
 
 if (!empty($import_url)) {
-	?><button type="button" class="page-title-action mewz-wcas-import-button" id="mewz-wcas-import-button" data-action="<?= esc_url($import_url) ?>"><?= esc_html__('Import') ?></button><?php
+	?><button type="button" class="page-title-action mewz-wcas-import-button" id="mewz-wcas-import-button" data-action="<?= esc_url($import_url) ?>"><?= esc_html__('Import', 'default') ?></button><?php
 }
 
 if (!empty($export_url)) {
-	?><a href="<?= esc_url($export_url) ?>" class="page-title-action mewz-wcas-export-button"><?= esc_html__('Export') ?></a><?php
+	?><a href="<?= esc_url($export_url) ?>" class="page-title-action mewz-wcas-export-button"><?= esc_html__('Export', 'default') ?></a><?php
 }
 
 if (!empty($settings_url)) {
-	?><a href="<?= esc_url($settings_url) ?>" class="page-title-action mewz-wcas-settings-button"><?= esc_html__('Settings') ?></a><?php
+	?><a href="<?= esc_url($settings_url) ?>" class="page-title-action mewz-wcas-settings-button"><?= esc_html__('Settings', 'default') ?></a><?php
 }
 
 if (!empty($duplicate_url)) {

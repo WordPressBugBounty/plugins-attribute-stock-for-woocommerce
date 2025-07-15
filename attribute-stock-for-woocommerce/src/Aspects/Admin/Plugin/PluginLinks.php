@@ -20,7 +20,7 @@ class PluginLinks extends Aspect
 			}
 
 			if (!MEWZ_WCAS_LITE && current_user_can('manage_woocommerce')) {
-				$add_links['settings'] = '<a href="' . esc_url(admin_url('admin.php?page=wc-settings&tab=products&section=inventory#mewz-wcas-settings')) . '">' . esc_html__('Settings') . '</a>';
+				$add_links['settings'] = '<a href="' . esc_url(admin_url('admin.php?page=wc-settings&tab=products&section=inventory#mewz-wcas-settings')) . '">' . esc_html__('Settings', 'default') . '</a>';
 			}
 
 			if (!empty($add_links)) {
@@ -34,12 +34,12 @@ class PluginLinks extends Aspect
 	public function plugin_meta_links($meta_links, $plugin_basename, $plugin_data, $status)
 	{
 		if ($plugin_basename === $this->plugin->basename) {
-			$meta_links[] = '<a href="' . esc_url($this->plugin->docs_url()) . '" target="_blank">' . esc_html__('Documentation') . '</a>';
+			$meta_links[] = '<a href="' . esc_url($this->plugin->docs_url()) . '" target="_blank">' . esc_html__('Documentation', 'default') . '</a>';
 
 			if (MEWZ_WCAS_LITE) {
 				$meta_links[] = '<a href="' . esc_url($this->plugin->sale_url()) . '" target="_blank">' . esc_html__('Purchase', 'woocommerce') . '</a>';
 			} else {
-				$meta_links[] = '<a href="' . esc_url($this->plugin->support_url()) . '" target="_blank">' . esc_html__('Support') . '</a>';
+				$meta_links[] = '<a href="' . esc_url($this->plugin->support_url()) . '" target="_blank">' . esc_html__('Support', 'default') . '</a>';
 			}
 		}
 

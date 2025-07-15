@@ -316,20 +316,20 @@ class Components
 			$table_posts = DB::$wpdb->posts;
 
 			$select = 'p1.ID parent_id, p0.ID child_id, c1.quantity';
-			$join[] = "FROM $table_components c1";
-			$join[] = "JOIN $table_posts p0 ON c1.child_id = p0.ID AND p0.post_status = 'publish'";
-			$join[] = "JOIN $table_posts p1 ON c1.parent_id = p1.ID AND p1.post_status = 'publish'";
+			$join[] = "FROM {$table_components} c1";
+			$join[] = "JOIN {$table_posts} p0 ON c1.child_id = p0.ID AND p0.post_status = 'publish'";
+			$join[] = "JOIN {$table_posts} p1 ON c1.parent_id = p1.ID AND p1.post_status = 'publish'";
 			$parents[] = 'p1.ID';
 
 			for ($i = 2; $i <= $max_depth; $i++) {
 				$p = $i - 1;
-				$join[] = "LEFT JOIN $table_components c$i ON p$p.ID IS NOT NULL AND c$p.parent_id = c$i.child_id";
-				$join[] = "LEFT JOIN $table_posts p$i ON c$i.parent_id = p$i.ID AND p$i.post_status = 'publish'";
+				$join[] = "LEFT JOIN {$table_components} c$i ON p$p.ID IS NOT NULL AND c$p.parent_id = c$i.child_id";
+				$join[] = "LEFT JOIN {$table_posts} p$i ON c$i.parent_id = p$i.ID AND p$i.post_status = 'publish'";
 				$parents[] = "p$i.ID";
 			}
 
 			$parents = implode(', ', $parents);
-			$join[] = "JOIN $table_components s ON s.parent_id IN ($parents) AND s.parent_ID IN ";
+			$join[] = "JOIN {$table_components} s ON s.parent_id IN ({$parents}) AND s.parent_ID IN ";
 			$join = implode("\n", $join);
 
 			$query[$max_depth] = "SELECT DISTINCT $select $join";

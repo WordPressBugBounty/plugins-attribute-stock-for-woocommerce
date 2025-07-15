@@ -1,5 +1,5 @@
 <?php
-defined('ABSPATH') or die;
+defined('ABSPATH') || die;
 
 /** @var Mewz\WCAS\Models\AttributeStock $stock */
 
@@ -38,13 +38,13 @@ $can_delete = current_user_can('delete_post', $stock->id());
 	<section class="status-metabox-foot">
 		<?php if ($can_delete): ?>
 			<div class="foot-left">
-				<a class="submitdelete deletion" href="<?= esc_url(get_delete_post_link($stock->id())) ?>"><?= esc_html__('Move to Trash') ?></a>
+				<a class="submitdelete deletion" href="<?= esc_url(get_delete_post_link($stock->id())) ?>"><?= esc_html__('Move to Trash', 'default') ?></a>
 			</div>
 		<?php endif; ?>
 
 		<div class="foot-right">
 			<span class="spinner"></span>
-			<?php submit_button($stock->exists() ? __('Update') : __('Create'), 'primary', 'submit', false) ?>
+			<?php submit_button($stock->exists() ? __('Update', 'default') : __('Create', 'default'), 'primary', 'submit', false) ?>
 		</div>
 	</section>
 

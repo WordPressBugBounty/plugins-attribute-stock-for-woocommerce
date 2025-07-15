@@ -120,14 +120,14 @@ class StockActions extends Aspect
 		if (isset($this->row_actions['trash'])) {
 			$actions['trash'] = [
 				'url' => get_delete_post_link($stock->id()),
-				'title' => _x('Trash', 'verb'),
+				'title' => _x('Trash', 'verb', 'default'),
 			];
 		}
 
 		if (isset($this->row_actions['untrash'])) {
 			$actions['untrash'] = [
 				'url' => wp_nonce_url(admin_url('post.php?post=' . $stock->id() . '&amp;action=untrash'), 'untrash-post_' . $stock->id()),
-				'title' => __('Restore'),
+				'title' => __('Restore', 'default'),
 			];
 		}
 
@@ -170,7 +170,7 @@ class StockActions extends Aspect
 			return false;
 		}
 
-		$action = MEWZ_WCAS_PREFIX . '_' . $action;
+		$action = $this->plugin->prefix . '_' . $action;
 		$nonce = wp_create_nonce($action . '_' . $stock_id);
 		$params = ['action' => $action, '_wpnonce' => $nonce];
 
@@ -179,10 +179,10 @@ class StockActions extends Aspect
 
 	public function validate_action($action, $post_id, $capability = 'edit_post')
 	{
-		check_admin_referer(MEWZ_WCAS_PREFIX . '_' . $action . '_' . $post_id);
+		check_admin_referer($this->plugin->prefix . '_' . $action . '_' . $post_id);
 
 		if (!current_user_can($capability, $post_id)) {
-			wp_die(__('Sorry, you are not allowed to do that.'));
+			wp_die(__('Sorry, you are not allowed to do that.', 'default'));
 		}
 	}
 }

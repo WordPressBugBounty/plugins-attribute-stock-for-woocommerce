@@ -13,7 +13,7 @@ class AttributeStockReport extends \WC_Report_Stock
 	public function get_columns()
 	{
 		return apply_filters('mewz_wcas_stock_report_columns', [
-			'title' => __('Title'),
+			'title' => __('Title', 'default'),
 			'sku' => __('SKU', 'woocommerce'),
 			'quantity' => __('Stock', 'woocommerce'),
 			'wc_actions' => __('Actions', 'woocommerce'),

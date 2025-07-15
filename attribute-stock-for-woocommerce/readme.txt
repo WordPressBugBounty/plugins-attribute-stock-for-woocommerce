@@ -1,10 +1,10 @@
-=== WooCommerce Attribute Stock - Shared Stock & Variable Quantities (Lite Version) ===
+=== Attribute Stock for WooCommerce - Shared Stock & Variable Quantities (Lite Version) ===
 Contributors: mewz
 Tags: attribute stock, shared stock, variable stock, woocommerce, stock
 Requires at least: 5.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -12,7 +12,7 @@ Set up complex stock configurations with ease. Shared stock, variable quantities
 
 == Description ==
 
-**WooCommerce Attribute Stock** gives your stock superpowers by allowing you to share inventories between multiple products/variations, or deduct different amounts of stock for each purchase of a product, variation, or attribute.
+**Attribute Stock for WooCommerce** gives your stock superpowers by allowing you to share inventories between multiple products/variations, or deduct different amounts of stock for each purchase of a product, variation, or attribute.
 
 Easily track and manage shared stock, variable quantities, product addons, combo packs, measurements, components, and much more!
 
@@ -85,7 +85,7 @@ Component stock is a powerful feature that can be used for many other advanced s
 
 ### 📖 Documentation
 
-Want to learn more about WooCommerce Attribute Stock? Head over to the [online documentation](https://wcas-docs.mewz.dev/).
+Want to learn more about Attribute Stock for WooCommerce? Head over to the [online documentation](https://wcas-docs.mewz.dev/).
 
 Be sure to look through the [FAQ & Troubleshooting](https://wcas-docs.mewz.dev/faq-troubleshooting.html) section if you're running into any issues.
 
@@ -108,6 +108,12 @@ Email support is offered via [CodeCanyon](https://codecanyon.net/item/woocommerc
 The full version is available to purchase on [CodeCanyon](https://codecanyon.net/item/woocommerce-attribute-stock/25796765).
 
 == Changelog ==
+
+= 2.2.1 (2025-07-15) =
+- WooCommerce 10.0 compatibility.
+- Fixed naming issue on WordPress plugin directory.
+- Fixed several WordPress coding standard issues.
+- Fixed a bug causing normal variations to be ignored when alongside "Any" variations.
 
 = 2.2.0 (2025-07-13) =
 - WooCommerce 9.9 compatibility.

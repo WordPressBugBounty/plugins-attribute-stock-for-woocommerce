@@ -269,11 +269,9 @@ class Scripts
 
 		$data = $this->export_data;
 
-		if ($data && $data = json_encode($data)) {
+		if ($data && $data = wp_json_encode($data)) {
 			$data = addcslashes($data, "\\'");
-		}
-
-		if (!$data) {
+		} else {
 			return false;
 		}
 

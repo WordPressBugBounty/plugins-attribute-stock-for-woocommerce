@@ -760,7 +760,7 @@ abstract class PostModel extends Model
 				if ($result) {
 					clean_post_cache($this->id);
 				} else {
-					$result = new \WP_Error('db_update_error', __('Could not update post in the database'), DB::$wpdb->last_error);
+					$result = new \WP_Error('db_update_error', __('Could not update post in the database', 'default'), DB::$wpdb->last_error);
 				}
 			} else {
 				$result = wp_update_post($data['post'], true);

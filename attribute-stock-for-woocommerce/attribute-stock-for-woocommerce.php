@@ -1,11 +1,12 @@
 <?php
 /**
- * Plugin Name: WooCommerce Attribute Stock (Lite)
+ * Plugin Name: Attribute Stock for WooCommerce (Lite)
  * Plugin URI:  https://codecanyon.net/item/woocommerce-attribute-stock/25796765
  * Description: Take your stock to the next level. Set up complex stock configurations with ease. Shared stock, variable quantities, the possibilities are endless.
- * Version:     2.2.0
+ * Version:     2.2.1
  * Author:      Mewz
  * Author URI:  https://mewz.dev/
+ * License:     GPLv3 or later
  * Text Domain: woocommerce-attribute-stock
  * Domain Path: /languages
  *
@@ -13,17 +14,17 @@
  * Requires PHP: 7.4
  * Requires Plugins: woocommerce
  * WC requires at least: 6.0
- * WC tested up to: 9.9
+ * WC tested up to: 10.0
  */
 
-defined('ABSPATH') or die;
+defined('ABSPATH') || die;
 
 if (require __DIR__ . '/includes/activation.php') {
 	return;
 }
 
-const MEWZ_WCAS_VERSION = '2.2.0';
-const MEWZ_WCAS_NAME = 'WooCommerce Attribute Stock';
+const MEWZ_WCAS_VERSION = '2.2.1';
+const MEWZ_WCAS_NAME = 'Attribute Stock for WooCommerce';
 const MEWZ_WCAS_SLUG = 'woocommerce-attribute-stock';
 const MEWZ_WCAS_PREFIX = 'mewz_wcas';
 

@@ -198,25 +198,16 @@ class Matches
 			return false;
 		}
 
-		if ($product_ids) {
-			if (is_array($product_ids)) {
-				$product_ids = array_keys(array_flip($product_ids));
-				sort($product_ids);
-			} else {
-				$product_ids = [(int)$product_ids];
-			}
-		}
-
 		$conditions = [];
 
-		if ($product_ids) {
+		if ($product_ids && $product_ids = Number::to_id_list($product_ids)) {
 			$product_ids = implode(',', $product_ids);
 			$conditions[] = "(c.type_id = 0 AND c.value_id IN ($product_ids))";
 		}
 
 		if ($attribute_id_sets) {
-			$attribute_ids = implode(',', array_keys($attribute_id_sets));
-			$term_ids = implode(',', array_keys(array_flip(array_merge([0], ...$attribute_id_sets))));
+			$attribute_ids = implode(',', Number::to_id_list(array_keys($attribute_id_sets)));
+			$term_ids = implode(',', Number::to_id_list(array_merge([0], ...$attribute_id_sets)));
 			$conditions[] = "(c.type_id IN ($attribute_ids) AND c.value_id IN ($term_ids))";
 		}
 
@@ -229,7 +220,7 @@ class Matches
 		$rules_table = DB::prefix(self::RULES_TABLE);
 		$conds_table = DB::prefix(self::CONDITIONS_TABLE);
 		$posts_table = DB::prefix('posts');
-		$post_type = AttributeStock::POST_TYPE;
+		$post_type = DB::value(AttributeStock::POST_TYPE);
 
 		if (!$select) {
 			$select = 'r.stock_id, r.id rule_id, r.multiplier';
@@ -240,7 +231,7 @@ class Matches
 			FROM {$rules_table} r
 			LEFT JOIN {$posts_table} p ON p.ID = r.stock_id
 			LEFT JOIN {$conds_table} c ON c.rule_id = r.id
-			WHERE p.post_type = '{$post_type}'
+			WHERE p.post_type = {$post_type}
 			  AND p.post_status = 'publish'
 			GROUP BY r.id
 			HAVING COUNT(DISTINCT IF(\n{$conditions}\n, c.type_id, NULL)) = COUNT(DISTINCT c.type_id)
@@ -807,8 +798,11 @@ class Matches
 	 */
 	public static function query_stock($attribute, $term_id = null, $context = 'view', $return = 'object')
 	{
-		$attribute_id = Attributes::get_attribute_id($attribute);
-		if (!$attribute_id) return [];
+		$attribute_id = (int)Attributes::get_attribute_id($attribute);
+
+		if ($attribute_id <= 0) {
+			return [];
+		}
 
 		$cache_key = "query_stock_{$attribute_id}_{$term_id}_{$context}";
 		$cache_tags = ['stock', 'match_rules', 'attribute_level'];
@@ -1012,12 +1006,12 @@ class Matches
 	 */
 	public static function query_matching_variations($stock_ids, $parent_ids)
 	{
-		global $wpdb;
-
 		$parent_list = [];
 		$pv_values = [];
 
 		foreach ((array)$parent_ids as $parent_id) {
+			$parent_id = (int)$parent_id;
+
 			$attributes = get_post_meta($parent_id, '_product_attributes', true);
 			if (!$attributes) continue;
 
@@ -1026,7 +1020,7 @@ class Matches
 			foreach ($attributes as $taxonomy => $attr) {
 				if (!empty($attr['is_taxonomy']) && !empty($attr['is_variation'])) {
 					$pv_values[] = $parent_id;
-					$pv_values[] = $taxonomy;
+					$pv_values[] = DB::esc($taxonomy);
 				}
 			}
 		}
@@ -1034,6 +1028,7 @@ class Matches
 		// no parent products have any variation attributes, so no variations to find
 		if (!$pv_values) return false;
 
+		$db = DB::$wpdb;
 		$joins = [];
 		$match_cond = [];
 
@@ -1052,12 +1047,13 @@ class Matches
 					}
 
 					$taxonomy = Attributes::get_attribute_name($type_id, true);
+					$tax_value = DB::value($taxonomy);
 
 					$pv_alias = 'pv_' . $type_id;
 					$attr_alias = 'attr_' . $type_id;
 
 					if (!isset($joins[$type_id])) {
-						$joins[$pv_alias] = "LEFT JOIN __mewz_wcas_pv {$pv_alias} ON ({$pv_alias}.parent_id = p.post_parent AND {$pv_alias}.taxonomy = '{$taxonomy}')";
+						$joins[$pv_alias] = "LEFT JOIN __mewz_wcas_pv {$pv_alias} ON ({$pv_alias}.parent_id = p.post_parent AND {$pv_alias}.taxonomy = {$tax_value})";
 					}
 
 					if ($term_ids) {
@@ -1070,22 +1066,23 @@ class Matches
 						$term_slugs = DB::value($term_slugs);
 						$term_ids = DB::value($term_ids);
 
-						$joins[$attr_alias] = "LEFT JOIN {$wpdb->postmeta} {$attr_alias} ON ({$attr_alias}.post_id = p.ID AND {$attr_alias}.meta_key = 'attribute_{$taxonomy}')";
+						$attr_meta_key = DB::value("attribute_{$taxonomy}");
+						$joins[$attr_alias] = "LEFT JOIN {$db->postmeta} {$attr_alias} ON ({$attr_alias}.post_id = p.ID AND {$attr_alias}.meta_key = {$attr_meta_key})";
 
 						$rule_matches[] = "IF(
 					        {$pv_alias}.parent_id IS NOT NULL,
 					        {$attr_alias}.meta_value IS NULL OR {$attr_alias}.meta_value IN {$term_slugs},
 					        EXISTS(
-								SELECT tr.term_taxonomy_id FROM {$wpdb->term_relationships} tr
-								LEFT JOIN {$wpdb->term_taxonomy} tt ON (tt.term_taxonomy_id = tr.term_taxonomy_id)
-								WHERE tr.object_id = p.post_parent AND tt.taxonomy = '{$taxonomy}' AND tt.term_id IN {$term_ids}
+								SELECT tr.term_taxonomy_id FROM {$db->term_relationships} tr
+								LEFT JOIN {$db->term_taxonomy} tt ON (tt.term_taxonomy_id = tr.term_taxonomy_id)
+								WHERE tr.object_id = p.post_parent AND tt.taxonomy = {$tax_value} AND tt.term_id IN {$term_ids}
 							)
 					    )";
 					} else {
 						$rule_matches[] = "EXISTS(
-							SELECT tr.term_taxonomy_id FROM {$wpdb->term_relationships} tr
-							LEFT JOIN {$wpdb->term_taxonomy} tt ON (tt.term_taxonomy_id = tr.term_taxonomy_id)
-							WHERE tr.object_id = p.post_parent AND tt.taxonomy = '{$taxonomy}'
+							SELECT tr.term_taxonomy_id FROM {$db->term_relationships} tr
+							LEFT JOIN {$db->term_taxonomy} tt ON (tt.term_taxonomy_id = tr.term_taxonomy_id)
+							WHERE tr.object_id = p.post_parent AND tt.taxonomy = {$tax_value}
 						)";
 					}
 				}
@@ -1105,7 +1102,7 @@ class Matches
 
 		unset($pv_values); // allow memory to be freed
 
-		$pv_created = $wpdb->query("
+		$pv_created = $db->query("
 			CREATE TEMPORARY TABLE __mewz_wcas_pv (
 			    parent_id INT UNSIGNED NOT NULL,
 			    taxonomy VARCHAR(32),
@@ -1114,15 +1111,15 @@ class Matches
 		");
 
 		if ($pv_created === false) {
-			mewz_wcas_log('Failed to create temporary table in Matches::query_matching_variations(): ' . $wpdb->last_error, \WC_Log_Levels::ERROR);
+			mewz_wcas_log('Failed to create temporary table in Matches::query_matching_variations(): ' . $db->last_error, \WC_Log_Levels::ERROR);
 			return false;
 		}
 
-		$wpdb->query("INSERT INTO __mewz_wcas_pv (parent_id, taxonomy) VALUES {$pv_insert}");
+		$db->query("INSERT INTO __mewz_wcas_pv (parent_id, taxonomy) VALUES {$pv_insert}");
 
-		$results = $wpdb->get_results("
+		$results = $db->get_results("
 			SELECT DISTINCT p.ID AS variation_id, p.post_parent AS parent_id
-			FROM {$wpdb->posts} as p
+			FROM {$db->posts} as p
 			{$joins}
 			WHERE p.post_type = 'product_variation'
 			  AND p.post_status IN ('publish', 'private')
@@ -1133,7 +1130,7 @@ class Matches
 			ORDER BY p.ID
 		");
 
-		$wpdb->query("DROP TEMPORARY TABLE __mewz_wcas_pv");
+		$db->query("DROP TEMPORARY TABLE __mewz_wcas_pv");
 
 		if (!$results) return false;
 

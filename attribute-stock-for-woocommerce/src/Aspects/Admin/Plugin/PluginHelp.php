@@ -30,10 +30,10 @@ class PluginHelp extends Aspect
 
 		$screen->add_help_tab([
 			'id' => 'mewz_wcas_documentation',
-			'title' => __('Documentation'),
+			'title' => __('Documentation', 'default'),
 			'content' => '
-		        <h2>' . esc_html__('Documentation') . '</h2>
-		        <p>' . sprintf(esc_html__('Want to learn more about %s? Check out the official online documentation.', 'woocommerce-attribute-stock'), MEWZ_WCAS_NAME) . '</p>
+		        <h2>' . esc_html__('Documentation', 'default') . '</h2>
+		        <p>' . sprintf(esc_html__('Want to learn more about %s? Check out the official online documentation.', 'woocommerce-attribute-stock'), $this->plugin->name) . '</p>
 		        <p>
 			        <a href="' . esc_url($this->plugin->docs_url()) . '" class="button button-primary" target="_blank">' . esc_html__('Online documentation', 'woocommerce-attribute-stock') . '</a>
 		        </p>
