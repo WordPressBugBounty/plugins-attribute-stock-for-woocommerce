@@ -112,6 +112,7 @@ class StockList extends Aspect
 		$qb = DB::table('posts', 'p')
 			->where('p.post_type', AttributeStock::POST_TYPE)
 			->where_not('p.post_status', 'auto-draft')
+			->select('1')
 			->limit(1);
 
 		if (get_query_var('post_status') !== 'trash') {

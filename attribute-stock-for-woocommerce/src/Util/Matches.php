@@ -637,15 +637,26 @@ class Matches
 
 	/**
 	 * @param int $stock_id
-	 * @param int|string $attribute
-	 * @param int $term_id
+	 * @param int $type_id
+	 * @param int $value_id
 	 * @param string|float $multiplier
 	 *
-	 * @return array [rule_id, rule_attr_id]
+	 * @return array|false [rule_id, rule_attr_id]
 	 */
-	public static function add_single_rule($stock_id, $attribute, $term_id = 0, $multiplier = '')
+	public static function add_single_rule($stock_id, $type_id, $value_id, $multiplier = '')
 	{
-		$attribute_id = Attributes::get_attribute_id($attribute);
+		$stock_id = (int)$stock_id;
+		$type_id = (int)$type_id;
+		$value_id = (int)$value_id;
+
+		if ($type_id < 0 || $value_id < 0 || $type_id === 0 && $value_id === 0) {
+			return false;
+		}
+
+		if ($type_id > 0) {
+			$type_id = Attributes::get_attribute_id($type_id);
+			if (!$type_id) return false;
+		}
 
 		$max_priority = DB::table(self::RULES_TABLE)
 			->where('stock_id', $stock_id)
@@ -657,21 +668,25 @@ class Matches
 			$multiplier = Number::safe_decimal($multiplier);
 		}
 
-		$rule_id = DB::insert(self::RULES_TABLE, [
+		$rule_id = (int)DB::insert(self::RULES_TABLE, [
 			'stock_id' => $stock_id,
 			'multiplier' => $multiplier,
 			'priority' => $priority,
 		]);
 
-		$rule_attr_id = DB::insert(self::CONDITIONS_TABLE, [
+		if (!$rule_id) {
+			return false;
+		}
+
+		$condition_id = DB::insert(self::CONDITIONS_TABLE, [
 			'rule_id' => $rule_id,
-			'attribute_id' => $attribute_id,
-			'term_id' => $term_id,
+			'type_id' => $type_id,
+			'value_id' => $value_id,
 		]);
 
 		Mewz_WCAS()->cache->invalidate('match_rules');
 
-		return compact('rule_id', 'rule_attr_id');
+		return compact('rule_id', 'condition_id');
 	}
 
 	/**

@@ -4,7 +4,7 @@ Tags: attribute stock, shared stock, variable stock, woocommerce, stock
 Requires at least: 5.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 2.2.1
+Stable tag: 2.2.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -108,6 +108,10 @@ Email support is offered via [CodeCanyon](https://codecanyon.net/item/woocommerc
 The full version is available to purchase on [CodeCanyon](https://codecanyon.net/item/woocommerce-attribute-stock/25796765).
 
 == Changelog ==
+
+= 2.2.2 (2025-07-25) =
+- Added enable/disable actions to stock item list.
+- Fixed enabling stock on attributes.
 
 = 2.2.1 (2025-07-15) =
 - WooCommerce 10.0 compatibility.

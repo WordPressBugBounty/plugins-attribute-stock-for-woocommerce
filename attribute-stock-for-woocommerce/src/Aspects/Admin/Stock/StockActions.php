@@ -25,6 +25,8 @@ class StockActions extends Aspect
 
 		// custom actions
 		add_action('post_action_mewz_wcas_duplicate', [$this, 'action_duplicate']);
+		add_action('post_action_mewz_wcas_enable', [$this, 'action_enable']);
+		add_action('post_action_mewz_wcas_disable', [$this, 'action_disable']);
 	}
 
 	public function __scripts()
@@ -51,7 +53,7 @@ class StockActions extends Aspect
 		elseif ($this->context->screen_id === AttributeStock::POST_TYPE) {
 			global $post;
 
-			$params['duplicate_url'] = $this->get_action_url($post->ID, 'duplicate');
+			$params['duplicate_url'] = $this->get_action_url($post->ID, 'duplicate', 'edit_post');
 
 			$this->scripts->export_data('headerActions', [
 				'html' => trim($this->view->render('admin/stock/header-actions', $params, true)),
@@ -112,9 +114,21 @@ class StockActions extends Aspect
 
 		if (!$stock->trashed()) {
 			$actions['duplicate'] = [
-				'url' => $this->get_action_url($stock->id(), 'duplicate'),
+				'url' => $this->get_action_url($stock->id(), 'duplicate', 'edit_post'),
 				'title' => __('Duplicate', 'woocommerce'),
 			];
+
+			if ($stock->enabled()) {
+				$actions['disable'] = [
+					'url' => $this->get_action_url($stock->id(), 'disable', 'publish_post'),
+					'title' => __('Disable', 'default'),
+				];
+			} else {
+				$actions['enable'] = [
+					'url' => $this->get_action_url($stock->id(), 'enable', 'publish_post'),
+					'title' => __('Enable', 'default'),
+				];
+			}
 		}
 
 		if (isset($this->row_actions['trash'])) {
@@ -122,9 +136,7 @@ class StockActions extends Aspect
 				'url' => get_delete_post_link($stock->id()),
 				'title' => _x('Trash', 'verb', 'default'),
 			];
-		}
-
-		if (isset($this->row_actions['untrash'])) {
+		} elseif (isset($this->row_actions['untrash'])) {
 			$actions['untrash'] = [
 				'url' => wp_nonce_url(admin_url('post.php?post=' . $stock->id() . '&amp;action=untrash'), 'untrash-post_' . $stock->id()),
 				'title' => __('Restore', 'default'),
@@ -147,7 +159,7 @@ class StockActions extends Aspect
 
 	public function action_duplicate($post_id)
 	{
-		$this->validate_action('duplicate', $post_id);
+		$this->validate_action('duplicate', $post_id, 'edit_post');
 
 		$stock = AttributeStock::instance($post_id, 'edit');
 
@@ -162,11 +174,47 @@ class StockActions extends Aspect
 		Admin::redirect($copy->edit_url(), ['success' => $message]);
 	}
 
-	public function get_action_url($stock_id, $action, $capability = 'edit_post')
+	public function action_enable($post_id)
+	{
+		$this->validate_action('enable', $post_id, 'publish_post');
+
+		$stock = AttributeStock::instance($post_id, 'edit');
+		$params = [];
+
+		if ($stock->enabled()) {
+			$params['info'] = sprintf(__('Attribute stock "%s" is already enabled.', 'woocommerce-attribute-stock'), $stock->title());
+		} else {
+			$stock->set_enabled();
+			$stock->save();
+			$params['success'] = sprintf(__('Attribute stock "%s" is now enabled.', 'woocommerce-attribute-stock'), $stock->title());
+		}
+
+		Admin::redirect(wp_get_referer(), $params);
+	}
+
+	public function action_disable($post_id)
+	{
+		$this->validate_action('disable', $post_id, 'publish_post');
+
+		$stock = AttributeStock::instance($post_id, 'edit');
+		$params = [];
+
+		if (!$stock->enabled()) {
+			$params['info'] = sprintf(__('Attribute stock "%s" is already disabled.', 'woocommerce-attribute-stock'), $stock->title());
+		} else {
+			$stock->set_enabled(false);
+			$stock->save();
+			$params['success'] = sprintf(__('Attribute stock "%s" is now disabled.', 'woocommerce-attribute-stock'), $stock->title());
+		}
+
+		Admin::redirect(wp_get_referer(), $params);
+	}
+
+	public function get_action_url($stock_id, $action, $capability)
 	{
 		$post_type_object = get_post_type_object(AttributeStock::POST_TYPE);
 
-		if (!$post_type_object || !$post_type_object->_edit_link || ($capability && !current_user_can($capability, $stock_id))) {
+		if (!$post_type_object || !$post_type_object->_edit_link || !current_user_can($capability, $stock_id)) {
 			return false;
 		}
 
@@ -177,7 +225,7 @@ class StockActions extends Aspect
 		return add_query_arg($params, sprintf($post_type_object->_edit_link, $stock_id));
 	}
 
-	public function validate_action($action, $post_id, $capability = 'edit_post')
+	public function validate_action($action, $post_id, $capability)
 	{
 		check_admin_referer($this->plugin->prefix . '_' . $action . '_' . $post_id);
 

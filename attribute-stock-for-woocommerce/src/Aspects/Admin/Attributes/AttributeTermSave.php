@@ -88,7 +88,7 @@ class AttributeTermSave extends Aspect
 						$this->cache->invalidate('attribute_level');
 					}
 
-					Matches::add_single_rule($stock->id(), $attribute_id);
+					Matches::add_single_rule($stock->id(), $attribute_id, 0);
 				} else {
 					Matches::add_single_rule($stock->id(), $attribute_id, $term_id);
 				}

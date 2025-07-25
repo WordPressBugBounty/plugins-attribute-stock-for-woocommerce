@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WooCommerce Attribute Stock 2.2.1\n"
+"Project-Id-Version: WooCommerce Attribute Stock 2.2.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/woocommerce-attribute-stock\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-15T17:42:59+02:00\n"
+"POT-Creation-Date: 2025-07-25T15:04:47+02:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: woocommerce-attribute-stock\n"
@@ -174,9 +174,29 @@ msgstr ""
 msgid "The maximum number of levels to query for stock item components. E.g. for A > B > C, component C is at a depth of 2. Try to set this as low as possible to maximize performance. A depth of 0 effectively disables all component stock relationships."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockActions.php:160
+#: src/Aspects/Admin/Stock/StockActions.php:172
 #, php-format
 msgid "Attribute stock \"%s\" has been duplicated."
+msgstr ""
+
+#: src/Aspects/Admin/Stock/StockActions.php:185
+#, php-format
+msgid "Attribute stock \"%s\" is already enabled."
+msgstr ""
+
+#: src/Aspects/Admin/Stock/StockActions.php:189
+#, php-format
+msgid "Attribute stock \"%s\" is now enabled."
+msgstr ""
+
+#: src/Aspects/Admin/Stock/StockActions.php:203
+#, php-format
+msgid "Attribute stock \"%s\" is already disabled."
+msgstr ""
+
+#: src/Aspects/Admin/Stock/StockActions.php:207
+#, php-format
+msgid "Attribute stock \"%s\" is now disabled."
 msgstr ""
 
 #: src/Aspects/Admin/Stock/StockAjax.php:23
@@ -282,7 +302,7 @@ msgid "Add condition"
 msgstr ""
 
 #: src/Aspects/Admin/Stock/StockEdit.php:255
-#: src/Aspects/Admin/Stock/StockList.php:423
+#: src/Aspects/Admin/Stock/StockList.php:424
 #: src/Util/Attributes.php:197
 msgid "Any"
 msgstr ""
@@ -478,34 +498,34 @@ msgstr ""
 msgid "Stock management is disabled in your <a href=\"%s\">WooCommerce settings</a>. Attribute stock won't function unless stock management is enabled."
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockList.php:289
+#: src/Aspects/Admin/Stock/StockList.php:290
 msgid "Edit Stock"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockList.php:290
+#: src/Aspects/Admin/Stock/StockList.php:291
 msgid "Add/Subtract Stock"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockList.php:313
+#: src/Aspects/Admin/Stock/StockList.php:314
 #, php-format
 msgid "Backorders: %s"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockList.php:316
+#: src/Aspects/Admin/Stock/StockList.php:317
 msgid "Component stock"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockList.php:320
+#: src/Aspects/Admin/Stock/StockList.php:321
 #: templates/admin/stock/panel-settings.php:52
 msgid "Internal stock"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockList.php:321
+#: src/Aspects/Admin/Stock/StockList.php:322
 #: templates/admin/stock/panel-settings.php:63
 msgid "Multiplex matching"
 msgstr ""
 
-#: src/Aspects/Admin/Stock/StockList.php:322
+#: src/Aspects/Admin/Stock/StockList.php:323
 #: templates/admin/stock/panel-settings.php:72
 msgid "Lock multipliers"
 msgstr ""

@@ -206,7 +206,7 @@
   visibility: hidden;
 }
 .post-type-attribute_stock .wp-list-table .action-button + .action-button {
-  margin-left: 5px;
+  margin-left: 2px;
 }
 .post-type-attribute_stock .wp-list-table tr:hover .action-button {
   visibility: visible;
@@ -225,9 +225,13 @@
   box-shadow: none !important;
 }
 .post-type-attribute_stock .wp-list-table .action-button::before {
-  display: block;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
   font-family: dashicons;
   text-indent: 0;
+  line-height: 20px;
+  vertical-align: top;
 }
 .post-type-attribute_stock .wp-list-table .action-button.action-trash {
   color: #ef6c6c;
@@ -264,6 +268,37 @@
 }
 .post-type-attribute_stock .wp-list-table .action-button.action-duplicate::before {
   content: '\f105';
+}
+.post-type-attribute_stock .wp-list-table .action-button.action-enable {
+  color: #15bb14;
+}
+.post-type-attribute_stock .wp-list-table .action-button.action-enable:hover {
+  color: #13a812;
+}
+.post-type-attribute_stock .wp-list-table .action-button.action-enable:active {
+  color: #0f830e;
+}
+.post-type-attribute_stock .wp-list-table .action-button.action-enable::before {
+  content: '';
+}
+.post-type-attribute_stock .wp-list-table .action-button.action-disable {
+  color: #ffaf4a;
+}
+.post-type-attribute_stock .wp-list-table .action-button.action-disable:hover {
+  color: #ffa029;
+}
+.post-type-attribute_stock .wp-list-table .action-button.action-disable:active {
+  color: #e68100;
+}
+.post-type-attribute_stock .wp-list-table .action-button.action-disable::before {
+  content: '';
+}
+.post-type-attribute_stock .wp-list-table .action-button.action-enable::before,
+.post-type-attribute_stock .wp-list-table .action-button.action-disable::before {
+  -webkit-mask: url("../../img/icon-power.svg") no-repeat center/contain;
+          mask: url("../../img/icon-power.svg") no-repeat center/contain;
+  background-color: currentColor;
+  transform: scale(0.9);
 }
 .post-type-attribute_stock .wp-list-table .action-button.edit-button {
   color: #008ec5;

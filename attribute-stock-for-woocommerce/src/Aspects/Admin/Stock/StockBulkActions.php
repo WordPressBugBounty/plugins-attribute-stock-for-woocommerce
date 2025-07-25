@@ -25,11 +25,11 @@ class StockBulkActions extends Aspect
 
 			if (current_user_can('publish_attribute_stock')) {
 				if ($post_status !== 'publish') {
-					$custom_actions['enable'] = __('Enable', 'woocommerce');
+					$custom_actions['enable'] = __('Enable', 'default');
 				}
 
 				if ($post_status !== 'draft') {
-					$custom_actions['disable'] = __('Disable', 'woocommerce');
+					$custom_actions['disable'] = __('Disable', 'default');
 				}
 			}
 
