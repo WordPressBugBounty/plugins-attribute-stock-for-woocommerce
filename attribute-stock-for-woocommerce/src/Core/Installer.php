@@ -85,6 +85,8 @@ class Installer extends Core\Installer
 	{
 		$db_version = $this->plugin->db_version;
 
+		$this->clean_before_migrations();
+
 		if (version_compare($db_version, '1.6.0', '<')) {
 			$this->migrate_skus_to_metadata();
 		}
@@ -192,6 +194,32 @@ class Installer extends Core\Installer
 	}
 
 	// MIGRATIONS
+
+	public function clean_before_migrations()
+	{
+		// ensure no dangling, empty or invalid rules/conditions
+		DB::table(Matches::CONDITIONS_TABLE, 'c')
+			->left_join(Matches::RULES_TABLE, 'r')->on('r.id = c.rule_id')
+			->where('r.id IS NULL OR (c.type_id = 0 AND c.value_id = 0)')
+			->delete();
+
+		DB::table(Matches::RULES_TABLE, 'r')
+			->left_join(Matches::CONDITIONS_TABLE, 'c')->on('c.rule_id = r.id')
+			->left_join('posts', 'p')->on('p.ID = r.stock_id')
+			->where('c.id IS NULL OR p.ID IS NULL')
+			->delete();
+
+		// invalidate/delete any existing object cache
+		$this->plugin->cache->invalidate(
+			'stock',
+			'match_rules',
+			'components',
+			'multipliers',
+			'attribute_level'
+		);
+
+		$this->plugin->cache->delete('term_multipliers');
+	}
 
 	public function migrate_skus_to_metadata()
 	{

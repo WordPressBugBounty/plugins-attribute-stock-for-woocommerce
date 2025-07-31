@@ -233,6 +233,7 @@ class Matches
 			LEFT JOIN {$conds_table} c ON c.rule_id = r.id
 			WHERE p.post_type = {$post_type}
 			  AND p.post_status = 'publish'
+			  AND c.id IS NOT NULL
 			GROUP BY r.id
 			HAVING COUNT(DISTINCT IF(\n{$conditions}\n, c.type_id, NULL)) = COUNT(DISTINCT c.type_id)
 			ORDER BY r.stock_id, r.priority
@@ -407,7 +408,7 @@ class Matches
 			}
 		}
 
-		$results = self::query(true)
+		$results = self::query()
 			->select('r.id rule_id, r.multiplier, c.type_id, c.value_id')
 			->where('r.stock_id', $stock_id)
 			->asc('r.priority')
@@ -452,11 +453,11 @@ class Matches
 				: $a <=> $b;
 
 			foreach ($rules as $rule_id => &$rule) {
-				$row_count = count($rule['conditions']);
+				$cond_count = count($rule['conditions']);
 
-				if ($row_count === 0) {
+				if ($cond_count === 0) {
 					unset($rules[$rule_id]);
-				} elseif ($row_count > 1) {
+				} elseif ($cond_count > 1) {
 					uksort($rule['conditions'], $sort_callback);
 				}
 			}
@@ -482,7 +483,7 @@ class Matches
 
 		if ($rules && is_array($rules)) {
 			foreach ($rules as $i => $rule) {
-				if (isset($rule['conditions'][0]) && !$rule['conditions'][0]) {
+				if (isset($rule['conditions'][0]) && (!$rule['conditions'][0] || $rule['conditions'][0] === [0])) {
 					unset($rules[$i]['conditions'][0]);
 				}
 
@@ -495,12 +496,6 @@ class Matches
 		if (!$rules) {
 			DB::table(self::RULES_TABLE)
 				->where('stock_id', $stock_id)
-				->delete();
-
-			DB::table(self::CONDITIONS_TABLE, 'c')
-				->left_join(self::RULES_TABLE, 'r')->on('r.id = c.rule_id')
-				->is_null('r.id')
-				->or()->where('c.type_id = 0 AND c.value_id = 0')
 				->delete();
 
 			do_action('mewz_wcas_match_rules_saved', $stock_id, false);
@@ -586,8 +581,8 @@ class Matches
 					}
 				}
 
-				foreach ($existing['conditions'] as $attr) {
-					array_push($delete_conds, ...$attr);
+				foreach ($existing['conditions'] as $conds) {
+					array_push($delete_conds, ...$conds);
 				}
 
 				unset($existing_rules[$i]);
@@ -613,12 +608,6 @@ class Matches
 		if ($existing_rules) {
 			DB::table(self::RULES_TABLE)
 				->where('id', array_column($existing_rules, 'rule_id'))
-				->delete();
-
-			DB::table(self::CONDITIONS_TABLE, 'c')
-				->left_join(self::RULES_TABLE, 'r')->on('r.id = c.rule_id')
-				->is_null('r.id')
-				->or()->where('c.type_id = 0 AND c.value_id = 0')
 				->delete();
 		}
 
@@ -735,7 +724,7 @@ class Matches
 				->is_null('c.id')
 				->delete();
 
-			Mewz_WCAS()->cache->invalidate('match_rules');
+			do_action('mewz_wcas_clean_match_rules');
 		}
 
 		// trash the stock items with no remaining match rules

@@ -2,6 +2,7 @@
 namespace Mewz\WCAS\Aspects\Common;
 
 use Mewz\Framework\Base\Aspect;
+use Mewz\QueryBuilder\DB;
 use Mewz\WCAS\Models\AttributeStock;
 use Mewz\WCAS\Util;
 
@@ -16,7 +17,8 @@ class CleanUp extends Aspect
 		add_action('update_option_mewz_wcas_limit_product_stock', [$this, 'clear_stock_cache']);
 		add_action('update_option_mewz_wcas_allow_backorders', [$this, 'clear_stock_cache']);
 		add_action('update_option_mewz_wcas_unmatched_any_variations', [$this, 'clear_stock_cache']);
-		add_action('mewz_wcas_match_rules_saved', [$this, 'clear_match_rules_cache']);
+		add_action('mewz_wcas_match_rules_saved', [$this, 'clean_match_rules']);
+		add_action('mewz_wcas_clean_match_rules', [$this, 'clean_match_rules']);
 		add_action('mewz_wcas_components_saved', [$this, 'clear_components_cache']);
 		add_action('added_term_meta', [$this, 'clear_term_meta_cache'], 10, 4);
 		add_action('updated_term_meta', [$this, 'clear_term_meta_cache'], 10, 4);
@@ -70,8 +72,20 @@ class CleanUp extends Aspect
 		}
 	}
 
-	public function clear_match_rules_cache()
+	public function clean_match_rules()
 	{
+		// ensure no dangling, empty or invalid rules/conditions
+		DB::table(Util\Matches::CONDITIONS_TABLE, 'c')
+			->left_join(Util\Matches::RULES_TABLE, 'r')->on('r.id = c.rule_id')
+			->where('r.id IS NULL OR (c.type_id = 0 AND c.value_id = 0)')
+			->delete();
+
+		DB::table(Util\Matches::RULES_TABLE, 'r')
+			->left_join(Util\Matches::CONDITIONS_TABLE, 'c')->on('c.rule_id = r.id')
+			->left_join('posts', 'p')->on('p.ID = r.stock_id')
+			->where('c.id IS NULL OR p.ID IS NULL')
+			->delete();
+
 		$this->cache->invalidate('match_rules');
 	}
 

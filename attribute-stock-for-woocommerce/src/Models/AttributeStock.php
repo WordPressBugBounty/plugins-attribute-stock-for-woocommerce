@@ -284,19 +284,20 @@ class AttributeStock extends PostModel
 	/**
 	 * @param array<string, array> $value
 	 */
-	public function set_filters(array $value)
+	public function set_filters($value)
 	{
-		$value = array_filter($value);
+		$value = is_array($value) ? array_filter($value) : [];
 
 		if ($value) {
+			// ensure lists of integer IDs
 			foreach (['products', 'excl_products', 'categories', 'excl_categories'] as $key) {
-			    if (!empty($value[$key])) {
+			    if (isset($value[$key])) {
 				    $value[$key] = array_keys(array_flip($value[$key]));
 			    }
 			}
 		}
 
-		$this->set('filters', array_filter($value) ?: null);
+		$this->set('filters', $value ?: null);
 	}
 
 	/**

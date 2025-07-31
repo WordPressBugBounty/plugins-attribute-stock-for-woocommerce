@@ -264,8 +264,15 @@ class Export
 		$data = [];
 		$match_rules = null;
 
+		$list_keys = [
+			'components',
+			'match_rules',
+			'filters',
+			'tags',
+		];
+
 		foreach ($row as $key => $value) {
-			if ($value === '' || in_array($key, ['components', 'match_rules', 'tags'], true)) {
+			if ($value === '' || in_array($key, $list_keys, true)) {
 				continue;
 			}
 
@@ -306,6 +313,16 @@ class Export
 			return false;
 		}
 
+		if (!empty($row['filters'])) {
+			if (self::is_unset_value($row['filters'])) {
+				$data['filters'] = [];
+			} elseif ($row['filters'][0] === '{' && $filters = json_decode($row['filters'], true)) {
+				$data['filters'] = $filters;
+			} elseif ($filters = self::match_filters($row['filters'])) {
+				$data['filters'] = $filters;
+			}
+		}
+
 		$bool_keys = [
 			'enabled',
 			'internal',
@@ -318,16 +335,6 @@ class Export
 		foreach ($bool_keys as $key) {
 			if (isset($data[$key])) {
 				$data[$key] = wc_string_to_bool($data[$key]);
-			}
-		}
-
-		if (!empty($row['filters'])) {
-			if (self::is_unset_value($row['filters'])) {
-				$data['filters'] = [];
-			} elseif ($row['filters'][0] === '{' && $filters = json_decode($row['filters'], true)) {
-				$data['filters'] = $filters;
-			} elseif ($filters = self::match_filters($row['filters'])) {
-				$data['filters'] = $filters;
 			}
 		}
 
