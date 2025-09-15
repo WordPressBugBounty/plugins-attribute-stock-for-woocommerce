@@ -4,7 +4,7 @@ Tags: attribute stock, shared stock, variable stock, woocommerce, stock
 Requires at least: 5.4
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 2.2.3
+Stable tag: 2.2.4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -108,6 +108,10 @@ Email support is offered via [CodeCanyon](https://codecanyon.net/item/woocommerc
 The full version is available to purchase on [CodeCanyon](https://codecanyon.net/item/woocommerce-attribute-stock/25796765).
 
 == Changelog ==
+
+= 2.2.4 (2025-09-15) =
+- Fixed match rules being removed during plugin upgrade in some case.
+- Fixed PHP warnings in some cases.
 
 = 2.2.3 (2025-07-31) =
 - Fixed empty/dangling rules causing issues with matching.

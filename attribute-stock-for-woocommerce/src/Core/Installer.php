@@ -85,8 +85,6 @@ class Installer extends Core\Installer
 	{
 		$db_version = $this->plugin->db_version;
 
-		$this->clean_before_migrations();
-
 		if (version_compare($db_version, '1.6.0', '<')) {
 			$this->migrate_skus_to_metadata();
 		}
@@ -111,6 +109,8 @@ class Installer extends Core\Installer
 			$this->migrate_conditions_table();
 			$this->migrate_stock_filters();
 		}
+
+		$this->clean_after_migrations();
 	}
 
 	public function uninstall()
@@ -195,7 +195,7 @@ class Installer extends Core\Installer
 
 	// MIGRATIONS
 
-	public function clean_before_migrations()
+	public function clean_after_migrations()
 	{
 		// ensure no dangling, empty or invalid rules/conditions
 		DB::table(Matches::CONDITIONS_TABLE, 'c')
@@ -319,15 +319,23 @@ class Installer extends Core\Installer
 		$attr_table = DB::prefix('wcas_rule_attributes');
 		$cond_table = DB::prefix('wcas_rule_conditions');
 
-		if (DB::table($attr_table, true)->exists()) {
+		$attr_count = DB::table($attr_table, true)->count();
+		$cond_count = 0;
+
+		if ($attr_count > 0) {
 			DB::query("
 				INSERT INTO {$cond_table} (id, rule_id, type_id, value_id)
 				SELECT id, rule_id, attribute_id, term_id
 				FROM {$attr_table}
 			");
+
+			$cond_count = DB::table($cond_table, true)->count();
 		}
 
-		DB::table($attr_table, true)->drop();
+		// only drop old table if counts match, just in case
+		if ($attr_count === $cond_count) {
+			DB::table($attr_table, true)->drop();
+		}
 	}
 
 	public function migrate_stock_filters()

@@ -23,6 +23,7 @@ use Mewz\Framework\Plugin;
  * @property string $logged_in
  * @property string $screen_id
  */
+
 #[\AllowDynamicProperties]
 class Context
 {

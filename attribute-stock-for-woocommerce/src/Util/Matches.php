@@ -1313,7 +1313,9 @@ class Matches
 		$attribute_id_sets = Attributes::get_attribute_id_sets($attributes);
 		if (!$attribute_id_sets) return false;
 
-		$match_data = [];
+		$match_data = [
+			'attributes' => [],
+		];
 
 		if ($term_multipliers = Attributes::get_term_multipliers()) {
 			$multipliers = [];
