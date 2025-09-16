@@ -339,7 +339,8 @@ class Attributes
 			->select('c.rule_id, c.type_id, c.value_id')
 			->join('woocommerce_attribute_taxonomies', 'a')->on('a.attribute_id = c.type_id')
 			->where('c.rule_id', $rule_ids)
-			->orderby('a.attribute_name');
+			->orderby('a.attribute_name')
+			->get();
 
 		if (!$results) return [];
 
