@@ -342,6 +342,10 @@ class Export
 
 		$stock->bind($data);
 
+		if (!empty($data['add_quantity'])) {
+			$stock->adjust_quantity($data['add_quantity']);
+		}
+
 		if ($stock->save() === false) {
 			return false;
 		}
@@ -622,6 +626,10 @@ class Export
 
 			if (!$product_id && $post = get_page_by_path($ident, OBJECT, 'product')) {
 				$product_id = $post->ID;
+			}
+
+			if (!$product_id) {
+				$product_id = Products::get_product_id_by_title($ident);
 			}
 
 			if (!$product_id) {

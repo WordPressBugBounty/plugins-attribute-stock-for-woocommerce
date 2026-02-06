@@ -23,6 +23,7 @@ class CleanUp extends Aspect
 		add_action('added_term_meta', [$this, 'clear_term_meta_cache'], 10, 4);
 		add_action('updated_term_meta', [$this, 'clear_term_meta_cache'], 10, 4);
 		add_action('deleted_term_meta', [$this, 'clear_term_meta_cache'], 10, 4);
+		add_action('mewz_wcas_product_stock_changed', [$this, 'clear_product_page_cache'], 10, 2);
 
 		// delete associated data
 		add_action('delete_post', [$this, 'delete_post'], 10, 2);
@@ -100,6 +101,21 @@ class CleanUp extends Aspect
 			$this->cache->delete('term_multipliers');
 			$this->cache->invalidate('multipliers');
 		}
+	}
+
+	public function clear_product_page_cache($product_id, $product)
+	{
+		$post = get_post($product_id);
+		if (!$post) return;
+
+	    if ($post->post_parent > 0) {
+			$post = get_post($post->post_parent);
+		    if (!$post) return;
+		}
+
+	    // we only want to indicate that the product page cache should be cleared,
+	    // we don't need to clear the full post cache for stock changes
+	    do_action('clean_post_cache', $post->ID, $post);
 	}
 
 	public function delete_post($post_id, \WP_Post $post)

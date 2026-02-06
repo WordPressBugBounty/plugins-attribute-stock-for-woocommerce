@@ -317,11 +317,6 @@ class Loader extends Core\Loader
 				$this->aspects->load(Compatibility\Aspects\WPLister::class);
 			}
 
-			// WP Rocket
-			if (defined('WP_ROCKET_VERSION')) {
-				$this->aspects->load(Compatibility\Aspects\WPRocket::class);
-			}
-
 			// Xootix Waitlist WooCommerce
 			if (defined('XOO_WL_PLUGIN_FILE')) {
 				$this->aspects->load(Compatibility\Aspects\XootixWaitlist::class);

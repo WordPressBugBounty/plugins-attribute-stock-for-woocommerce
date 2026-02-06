@@ -103,7 +103,6 @@ class ComposerStaticInit01b8e6d67180c07f75593dbdc369405d
         'Mewz\\WCAS\\Compatibility\\Aspects\\Polylang' => __DIR__ . '/../..' . '/src/Compatibility/Aspects/Polylang.php',
         'Mewz\\WCAS\\Compatibility\\Aspects\\WPLister' => __DIR__ . '/../..' . '/src/Compatibility/Aspects/WPLister.php',
         'Mewz\\WCAS\\Compatibility\\Aspects\\WPML' => __DIR__ . '/../..' . '/src/Compatibility/Aspects/WPML.php',
-        'Mewz\\WCAS\\Compatibility\\Aspects\\WPRocket' => __DIR__ . '/../..' . '/src/Compatibility/Aspects/WPRocket.php',
         'Mewz\\WCAS\\Compatibility\\Aspects\\WooCommerce' => __DIR__ . '/../..' . '/src/Compatibility/Aspects/WooCommerce.php',
         'Mewz\\WCAS\\Compatibility\\Aspects\\XootixWaitlist' => __DIR__ . '/../..' . '/src/Compatibility/Aspects/XootixWaitlist.php',
         'Mewz\\WCAS\\Compatibility\\Classes\\WCCartStockReducer' => __DIR__ . '/../..' . '/src/Compatibility/Classes/WCCartStockReducer.php',

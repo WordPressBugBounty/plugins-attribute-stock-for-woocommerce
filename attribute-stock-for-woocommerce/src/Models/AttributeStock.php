@@ -107,16 +107,18 @@ class AttributeStock extends PostModel
 	/**
 	 * @param numeric $amount
 	 *
-	 * @return float New quantity
+	 * @return float|false New quantity
 	 */
 	public function adjust_quantity($amount)
 	{
 		$amount = (float)$amount;
 
-		if ($amount) {
-			$quantity = (float)$this->get('quantity', 'edit') + $amount;
-			$this->set_quantity($quantity);
+		if (!$amount) {
+			return false;
 		}
+
+		$quantity = (float)$this->get('quantity', 'edit') + $amount;
+		$this->set_quantity($quantity);
 
 		return $quantity;
 	}

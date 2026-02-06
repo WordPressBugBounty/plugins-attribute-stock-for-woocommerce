@@ -78,7 +78,6 @@ return array(
     'Mewz\\WCAS\\Compatibility\\Aspects\\Polylang' => $baseDir . '/src/Compatibility/Aspects/Polylang.php',
     'Mewz\\WCAS\\Compatibility\\Aspects\\WPLister' => $baseDir . '/src/Compatibility/Aspects/WPLister.php',
     'Mewz\\WCAS\\Compatibility\\Aspects\\WPML' => $baseDir . '/src/Compatibility/Aspects/WPML.php',
-    'Mewz\\WCAS\\Compatibility\\Aspects\\WPRocket' => $baseDir . '/src/Compatibility/Aspects/WPRocket.php',
     'Mewz\\WCAS\\Compatibility\\Aspects\\WooCommerce' => $baseDir . '/src/Compatibility/Aspects/WooCommerce.php',
     'Mewz\\WCAS\\Compatibility\\Aspects\\XootixWaitlist' => $baseDir . '/src/Compatibility/Aspects/XootixWaitlist.php',
     'Mewz\\WCAS\\Compatibility\\Classes\\WCCartStockReducer' => $baseDir . '/src/Compatibility/Classes/WCCartStockReducer.php',

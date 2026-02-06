@@ -248,9 +248,9 @@ class Installer extends Core\Installer
 
 		$names = [
 			$pfx . 'wc_mewz_wcas_match_sets' => $pfx . Matches::RULES_TABLE,
-			$pfx . 'wc_mewz_wcas_match_rows'  => $pfx . 'wcas_rule_attributes',
+			$pfx . 'wc_mewz_wcas_match_rows'  => $pfx . Matches::CONDITIONS_TABLE,
 			$pfx . 'wcas_match_sets' => $pfx . Matches::RULES_TABLE,
-			$pfx . 'wcas_match_rows' => $pfx . 'wcas_rule_attributes',
+			$pfx . 'wcas_match_rows' => $pfx . Matches::CONDITIONS_TABLE,
 		];
 
 		foreach ($old_tables as $old_table) {

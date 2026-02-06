@@ -1,15 +1,15 @@
-# Copyright (C) 2025 Mewz
+# Copyright (C) 2026 Mewz
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WooCommerce Attribute Stock 2.2.5\n"
+"Project-Id-Version: WooCommerce Attribute Stock 2.2.7\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/woocommerce-attribute-stock\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-09-16T19:19:59+02:00\n"
+"POT-Creation-Date: 2026-02-05T03:47:11+02:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: woocommerce-attribute-stock\n"
@@ -549,11 +549,6 @@ msgstr ""
 msgid "Out of stock - %s"
 msgstr ""
 
-#: src/Aspects/Common/StockNotifications.php:50
-#, php-format
-msgid "%s is out of stock."
-msgstr ""
-
 #: src/Aspects/Common/StockNotifications.php:70
 #, php-format
 msgid "Low in stock - %s"
@@ -641,7 +636,7 @@ msgstr ""
 msgid "Writing to PHP's output stream (php://output) has been disabled. Unable to output CSV file download."
 msgstr ""
 
-#: src/Util/Orders.php:467
+#: src/Util/Orders.php:465
 #, php-format
 msgctxt "order note line format"
 msgid "%1$s: %2$s&rarr;%3$s"

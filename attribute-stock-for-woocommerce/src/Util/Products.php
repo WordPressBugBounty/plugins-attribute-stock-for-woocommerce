@@ -2,6 +2,7 @@
 namespace Mewz\WCAS\Util;
 
 use Mewz\Framework\Util\Multilang;
+use Mewz\QueryBuilder\DB;
 
 class Products
 {
@@ -457,6 +458,20 @@ class Products
 				self::set_prop($product, 'stock_limit', null);
 			}
 		}
+	}
+
+	/**
+	 * @param string $title
+	 *
+	 * @return int
+	 */
+	public static function get_product_id_by_title($title)
+	{
+		return (int)DB::table('posts')
+			->where('post_title', $title)
+			->where('post_type', 'product')
+			->where_not('post_status', ['trash', 'auto-draft'])
+			->var('ID');
 	}
 
 	/**

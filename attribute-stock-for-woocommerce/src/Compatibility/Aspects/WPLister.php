@@ -14,6 +14,8 @@ class WPLister extends Aspect
 
 		// account for attribute stock when calculating total variable product stock
 		add_filter('get_post_metadata', [$this, 'filter_product_stock_meta'], 0, 4);
+		add_filter('wpla_get_stock', [$this, 'filter_wpl_product_stock'], 0, 2);
+		add_filter('wple_get_stock', [$this, 'filter_wpl_product_stock'], 0, 2);
 
 		// sync attribute stock when WP-Lister imports an order
 		add_action('wplister_after_create_order', [$this, 'after_create_order']);
@@ -33,6 +35,8 @@ class WPLister extends Aspect
 	public function limit_product_stock_auto_hooks($hooks)
 	{
 		$hooks[] = 'get_post_metadata';
+		$hooks[] = 'wpla_get_stock';
+		$hooks[] = 'wple_get_stock';
 
 		return $hooks;
 	}
@@ -46,7 +50,7 @@ class WPLister extends Aspect
 
 			$product = wc_get_product($object_id);
 
-			if ($product instanceof \WC_Product_Variation) {
+			if ($product instanceof \WC_Product_Simple) { // variation extends simple
 				$value = $product->get_stock_quantity();
 			}
 
@@ -56,6 +60,17 @@ class WPLister extends Aspect
 		}
 
 	    return $value;
+	}
+
+	public function filter_wpl_product_stock($stock, $product_id)
+	{
+		$product = wc_get_product($product_id);
+
+		if ($product instanceof \WC_Product_Simple) {
+			$stock = $product->get_stock_quantity();
+		}
+
+	    return $stock;
 	}
 
 	public function after_create_order($order_id)

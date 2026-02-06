@@ -47,7 +47,7 @@ class StockNotifications extends Aspect
 		$args = [
 			'recipient' => get_option('woocommerce_stock_email_recipient'),
 			'subject' => $this->get_subject_prefix() . sprintf(__('Out of stock - %s', 'woocommerce-attribute-stock'), $this->get_stock_title($stock)),
-			'message' => $this->wrap_message(sprintf(__('%s is out of stock.', 'woocommerce-attribute-stock'), $this->get_stock_title($stock, true))),
+			'message' => $this->wrap_message(sprintf(__( '%s is out of stock.', 'woocommerce' ), $this->get_stock_title($stock, true))),
 			'headers' => ['Content-type: text/html; charset: utf8'],
 			'attachments' => [],
 		];
@@ -93,7 +93,8 @@ class StockNotifications extends Aspect
 		$title = esc_html($stock->title());
 
 		if ($link) {
-			$title = '<a href="' . esc_url($stock->edit_url()) . '">' . $title . '</a>';
+			$url = admin_url('post.php?post=' . $stock->id() . '&action=edit');
+			$title = '<a href="' . esc_url($url) . '">' . $title . '</a>';
 		}
 
 		if (($sku = trim($stock->sku())) !== '') {

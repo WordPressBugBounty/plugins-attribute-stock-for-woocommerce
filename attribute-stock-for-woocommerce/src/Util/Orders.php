@@ -415,9 +415,7 @@ class Orders
 	public static function update_order_reduced_stock_amounts($order, array $changes)
 	{
 		if (!$order instanceof \WC_Order) {
-			$order_id = (int)$order;
-			$order = new \WC_Order();
-			$order->set_id($order_id);
+			$order = wc_get_order((int)$order);
 		}
 
 		$reduced = $order->get_meta(self::REDUCED_STOCK_META, true, 'edit') ?: [];

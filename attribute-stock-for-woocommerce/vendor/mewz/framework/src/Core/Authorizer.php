@@ -55,7 +55,7 @@ class Authorizer
 			});
 		}
 
-		if (strlen($envato->get_refresh_token()) === 32) {
+		if (strlen($envato->get_refresh_token()) >= 32) {
 			return;
 		}
 

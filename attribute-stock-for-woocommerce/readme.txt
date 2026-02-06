@@ -2,9 +2,9 @@
 Contributors: mewz
 Tags: attribute stock, shared stock, variable stock, woocommerce, stock
 Requires at least: 5.4
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.2.5
+Stable tag: 2.2.7
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -108,6 +108,22 @@ Email support is offered via [CodeCanyon](https://codecanyon.net/item/woocommerc
 The full version is available to purchase on [CodeCanyon](https://codecanyon.net/item/woocommerce-attribute-stock/25796765).
 
 == Changelog ==
+
+= 2.2.7 (2026-02-05) =
+- Fixed Envato OAuth authorization.
+- Fixed order creation date changing when using HPOS.
+- Fixed various stock status issues when using variable product-level stock with multipliers.
+- Improved selective clearing of product page cache.
+
+= 2.2.6 (2026-01-06) =
+- WordPress 6.9 compatibility.
+- WooCommerce 10.4 compatibility.
+- Added support for an "add_quantity" column in CSV imports.
+- Added support for referencing products by their title in CSV imports.
+- Fixed broken stock item edit links in stock notification emails.
+- Fixed an issue causing upgrades from v1 to lose match rule data.
+- Improved clearing of product page cache on stock changes.
+- Updated WP-Lister compatibility.
 
 = 2.2.5 (2025-09-16) =
 - WooCommerce 10.1 compatibility.
