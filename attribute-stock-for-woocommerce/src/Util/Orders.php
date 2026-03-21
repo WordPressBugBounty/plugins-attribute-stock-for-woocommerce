@@ -193,11 +193,13 @@ class Orders
 					// by default restore back to top-level stock items only, if refunding and order has been completed,
 					// since if "restock refunded items" is ticked we assume the items have already been created from their components
 					// and will be added back to the inventory, for example when receiving a returned product
+					$order = $order_item->get_order();
 					$restore_components = $context !== 'refund' || !$order->get_date_completed();
 					$restore_components = apply_filters('mewz_wcas_order_item_restore_components', $restore_components, $hook_data + ['order_reduced' => $order_reduced]);
 				} else {
 					// can't restore components if reduced components meta doesn't exist
 					$restore_components = false;
+					unset($order);
 				}
 
 				if ($restore_components) {

@@ -4,7 +4,7 @@ Tags: attribute stock, shared stock, variable stock, woocommerce, stock
 Requires at least: 5.4
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.2.7
+Stable tag: 2.2.8
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -109,10 +109,17 @@ The full version is available to purchase on [CodeCanyon](https://codecanyon.net
 
 == Changelog ==
 
+= 2.2.8 (2026-03-21) =
+- WooCommerce 10.6 compatibility.
+- Fixed products sometimes saving an incorrect internal stock status.
+- Fixed cart items sharing stock on backorder not always showing backorder text.
+- Fixed potential issue when restoring component stock from an order.
+- Added compatibility for Flatsome variation swatches.
+
 = 2.2.7 (2026-02-05) =
 - Fixed Envato OAuth authorization.
 - Fixed order creation date changing when using HPOS.
-- Fixed various stock status issues when using variable product-level stock with multipliers.
+- Fixed various stock status issues with variable product-level stock + multipliers.
 - Improved selective clearing of product page cache.
 
 = 2.2.6 (2026-01-06) =

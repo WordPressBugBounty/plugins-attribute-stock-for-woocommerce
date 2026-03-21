@@ -97,6 +97,7 @@ class ComposerStaticInit01b8e6d67180c07f75593dbdc369405d
         'Mewz\\WCAS\\Classes\\AttributeStockReport' => __DIR__ . '/../..' . '/src/Classes/AttributeStockReport.php',
         'Mewz\\WCAS\\Classes\\RestApiController' => __DIR__ . '/../..' . '/src/Classes/RestApiController.php',
         'Mewz\\WCAS\\Compatibility\\Aspects\\AdvancedOrderExport' => __DIR__ . '/../..' . '/src/Compatibility/Aspects/AdvancedOrderExport.php',
+        'Mewz\\WCAS\\Compatibility\\Aspects\\Flatsome' => __DIR__ . '/../..' . '/src/Compatibility/Aspects/Flatsome.php',
         'Mewz\\WCAS\\Compatibility\\Aspects\\LumiseProductDesigner' => __DIR__ . '/../..' . '/src/Compatibility/Aspects/LumiseProductDesigner.php',
         'Mewz\\WCAS\\Compatibility\\Aspects\\OpenPOS' => __DIR__ . '/../..' . '/src/Compatibility/Aspects/OpenPOS.php',
         'Mewz\\WCAS\\Compatibility\\Aspects\\OrderStatusActions' => __DIR__ . '/../..' . '/src/Compatibility/Aspects/OrderStatusActions.php',

@@ -89,7 +89,7 @@ class Loader extends Core\Loader
 
 			// load frontend actions
 			if ($this->context->front) {
-				add_action('woocommerce_cart_loaded_from_session', [$this, 'cart_loaded_from_session'], 0);
+				add_action('woocommerce_load_cart_from_session', [$this, 'load_cart_from_session'], 0);
 				add_action('wc_ajax_get_variation', [$this, 'wc_ajax_get_variation'], 0);
 
 				$this->aspects->load(Aspects\Front\VariableLimits::class);
@@ -267,7 +267,7 @@ class Loader extends Core\Loader
 		$this->aspects->load(Aspects\Admin\Plugin\PluginLinks::class);
 	}
 
-	public function cart_loaded_from_session()
+	public function load_cart_from_session()
 	{
 		$this->aspects->load(Aspects\Front\CartItems::class);
 	}
@@ -296,31 +296,36 @@ class Loader extends Core\Loader
 			$this->aspects->load(Compatibility\Aspects\OrderStatusActions::class);
 		}
 
-		if (!MEWZ_WCAS_LITE) {
-			// Advanced Order Export for WooCommerce
-			if (defined('WOE_VERSION')) {
-				$this->aspects->load(Compatibility\Aspects\AdvancedOrderExport::class);
-			}
+		if (MEWZ_WCAS_LITE) return;
 
-			// Polylang for WooCommerce
-			if (defined('PLLWC_VERSION')) {
-				$this->aspects->load(Compatibility\Aspects\Polylang::class);
-			}
+		// Advanced Order Export for WooCommerce
+		if (defined('WOE_VERSION')) {
+			$this->aspects->load(Compatibility\Aspects\AdvancedOrderExport::class);
+		}
 
-			// WooCommerce WPML
-			if (defined('WCML_VERSION')) {
-				$this->aspects->load(Compatibility\Aspects\WPML::class);
-			}
+		// Flatsome Theme
+		if (function_exists('flatsome')) {
+			$this->aspects->load(Compatibility\Aspects\Flatsome::class);
+		}
 
-			// WP-Lister (for eBay and Amazon)
-			if (defined('WPLE_PLUGIN_VERSION') || defined('WPLA_VERSION')) {
-				$this->aspects->load(Compatibility\Aspects\WPLister::class);
-			}
+		// Polylang for WooCommerce
+		if (defined('PLLWC_VERSION')) {
+			$this->aspects->load(Compatibility\Aspects\Polylang::class);
+		}
 
-			// Xootix Waitlist WooCommerce
-			if (defined('XOO_WL_PLUGIN_FILE')) {
-				$this->aspects->load(Compatibility\Aspects\XootixWaitlist::class);
-			}
+		// WooCommerce WPML
+		if (defined('WCML_VERSION')) {
+			$this->aspects->load(Compatibility\Aspects\WPML::class);
+		}
+
+		// WP-Lister (for eBay and Amazon)
+		if (defined('WPLE_PLUGIN_VERSION') || defined('WPLA_VERSION')) {
+			$this->aspects->load(Compatibility\Aspects\WPLister::class);
+		}
+
+		// Xootix Waitlist WooCommerce
+		if (defined('XOO_WL_PLUGIN_FILE')) {
+			$this->aspects->load(Compatibility\Aspects\XootixWaitlist::class);
 		}
 	}
 

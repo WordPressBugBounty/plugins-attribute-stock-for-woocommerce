@@ -72,6 +72,7 @@ return array(
     'Mewz\\WCAS\\Classes\\AttributeStockReport' => $baseDir . '/src/Classes/AttributeStockReport.php',
     'Mewz\\WCAS\\Classes\\RestApiController' => $baseDir . '/src/Classes/RestApiController.php',
     'Mewz\\WCAS\\Compatibility\\Aspects\\AdvancedOrderExport' => $baseDir . '/src/Compatibility/Aspects/AdvancedOrderExport.php',
+    'Mewz\\WCAS\\Compatibility\\Aspects\\Flatsome' => $baseDir . '/src/Compatibility/Aspects/Flatsome.php',
     'Mewz\\WCAS\\Compatibility\\Aspects\\LumiseProductDesigner' => $baseDir . '/src/Compatibility/Aspects/LumiseProductDesigner.php',
     'Mewz\\WCAS\\Compatibility\\Aspects\\OpenPOS' => $baseDir . '/src/Compatibility/Aspects/OpenPOS.php',
     'Mewz\\WCAS\\Compatibility\\Aspects\\OrderStatusActions' => $baseDir . '/src/Compatibility/Aspects/OrderStatusActions.php',
