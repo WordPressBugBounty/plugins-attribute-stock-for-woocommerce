@@ -168,7 +168,7 @@ class Matches
 	 *
 	 * @return array Raw stock match results, before any validation or filtering
 	 */
-	public static function match_raw_stock(array $attribute_id_sets = null, $product_ids = null)
+	public static function match_raw_stock($attribute_id_sets = [], $product_ids = 0)
 	{
 		$match_query = self::build_stock_match_query($attribute_id_sets, $product_ids);
 		if (!$match_query) return [];
@@ -188,11 +188,11 @@ class Matches
 	/**
 	 * @param array<int, int[]> $attribute_id_sets
 	 * @param int|int[] $product_ids
-	 * @param string|null $select
+	 * @param string $select
 	 *
 	 * @return array|false
 	 */
-	public static function build_stock_match_query(array $attribute_id_sets = null, $product_ids = null, string $select = null)
+	public static function build_stock_match_query($attribute_id_sets = [], $product_ids = 0, $select = '')
 	{
 		if (!$attribute_id_sets && !$product_ids) {
 			return false;

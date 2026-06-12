@@ -72,13 +72,11 @@ class UpdateOrderStock extends Aspect
 
 	public function before_save_order_items($order_id, $item_data)
 	{
-		if (empty($item_data['order_item_id']) || !$order_status = get_post_status($order_id)) {
+		if (empty($item_data['order_item_id']) || !$order = wc_get_order($order_id)) {
 			return;
 		}
 
-		$order_status = substr($order_status, 3);
-		$has_valid_status = in_array($order_status, ['processing', 'completed', 'on-hold']);
-
+		$has_valid_status = $order->has_status([...wc_get_is_paid_statuses(), 'on-hold']);
 		$order_items = [];
 
 		foreach ($item_data['order_item_id'] as $item_id) {

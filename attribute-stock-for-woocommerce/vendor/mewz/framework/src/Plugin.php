@@ -98,11 +98,11 @@ class Plugin implements Base\ServiceAccess
 		require_once __DIR__ . '/Core/Updater.php';
 		new Core\Updater($this, static::__WPORG_SLUG, $envato);
 
-		$plugin = $this;
+		$self = $this;
 
-		add_action('admin_init', static function() use ($plugin, $envato) {
+		add_action('admin_init', static function() use ($self, $envato) {
 			require_once __DIR__ . '/Core/Authorizer.php';
-			new Core\Authorizer($plugin, $envato);
+			new Core\Authorizer($self, $envato);
 		}, mt_rand(-100, 0));
 	}
 

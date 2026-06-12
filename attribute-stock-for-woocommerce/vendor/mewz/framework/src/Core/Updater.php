@@ -28,7 +28,7 @@ class Updater
 	/** @var string */
 	protected $wporg_slug;
 
-	/** @var Envato|null */
+	/** @var Envato */
 	protected $envato;
 
 	/** @var string */
@@ -40,7 +40,7 @@ class Updater
 	/** @var array */
 	protected $envato_data;
 
-	public function __construct(Plugin $plugin, $wporg_slug, Envato $envato = null)
+	public function __construct(Plugin $plugin, $wporg_slug, Envato $envato)
 	{
 		$this->plugin = $plugin;
 		$this->envato = $envato;

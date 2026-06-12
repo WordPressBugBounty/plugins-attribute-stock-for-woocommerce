@@ -2,9 +2,9 @@
 Contributors: mewz
 Tags: attribute stock, shared stock, variable stock, woocommerce, stock
 Requires at least: 5.4
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.2.8
+Stable tag: 2.2.9
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -108,6 +108,12 @@ Email support is offered via [CodeCanyon](https://codecanyon.net/item/woocommerc
 The full version is available to purchase on [CodeCanyon](https://codecanyon.net/item/woocommerce-attribute-stock/25796765).
 
 == Changelog ==
+
+= 2.2.9 (2026-06-12) =
+- WordPress 7.0 compatibility.
+- WooCommerce 10.8 compatibility.
+- Fixed PHP 8.4 deprecated warnings.
+- Fixed HPOS order items not reducing stock in some cases.
 
 = 2.2.8 (2026-03-21) =
 - WooCommerce 10.6 compatibility.

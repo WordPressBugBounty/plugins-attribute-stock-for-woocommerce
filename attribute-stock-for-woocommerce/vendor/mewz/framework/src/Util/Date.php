@@ -77,7 +77,7 @@ class Date
 		return $tz ??= new \DateTimeZone('UTC');
 	}
 
-	public static function interval_to_time($interval, \DateTimeInterface $from = null)
+	public static function interval_to_time($interval, ?\DateTimeInterface $from = null)
 	{
 		if (!$interval instanceof \DateInterval) {
 			$interval = new \DateInterval($interval);

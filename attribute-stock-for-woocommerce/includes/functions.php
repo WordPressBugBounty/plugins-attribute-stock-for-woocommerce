@@ -89,13 +89,13 @@ function mewz_wcas_match_product_stock($product, array $attributes, $context = '
 /**
  * Match attribute stock items based solely on match rules.
  *
- * @param array|null $attributes Key/value pairs where key is an attribute id/name/taxonomy
+ * @param array $attributes Key/value pairs where key is an attribute id/name/taxonomy
  *                          and value is a term id/slug or an array of term ids and/or slugs
  * @param int|int[] $product_ids Optional product ID or IDs
  *
  * @return array Raw stock match results, before any validation or filtering
  */
-function mewz_wcas_match_raw_stock(array $attributes = null, $product_ids = null)
+function mewz_wcas_match_raw_stock($attributes = [], $product_ids = 0)
 {
 	return Util\Matches::match_raw_stock(Util\Attributes::get_attribute_id_sets($attributes), $product_ids);
 }
