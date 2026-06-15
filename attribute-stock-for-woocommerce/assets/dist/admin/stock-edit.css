@@ -261,6 +261,9 @@
   padding: 0 0 var(--padding) var(--padding);
   vertical-align: bottom;
 }
+.wc-wp-version-gte-70.post-type-attribute_stock #poststuff .select2-container .select2-selection--multiple ul.select2-selection__rendered {
+  --padding: 7px;
+}
 .post-type-attribute_stock #poststuff .select2-container .select2-selection--multiple ul.select2-selection__rendered li {
   box-sizing: border-box;
   height: 24px;
@@ -506,6 +509,7 @@
 .mewz-wcas-components-section .component-item .component-quantity input {
   display: block;
   width: 100%;
+  min-height: 32px;
 }
 .mewz-wcas-components-section .component-item .component-quantity input:not(:focus) {
   border-color: var(--border-light);
