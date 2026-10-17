@@ -7,7 +7,7 @@ namespace Composer\Autoload;
 class ComposerStaticInit01b8e6d67180c07f75593dbdc369405d
 {
     public static $prefixLengthsPsr4 = array (
-        'M' => 
+        'M' =>
         array (
             'Mewz\\WCAS\\' => 10,
             'Mewz\\QueryBuilder\\' => 18,
@@ -16,15 +16,15 @@ class ComposerStaticInit01b8e6d67180c07f75593dbdc369405d
     );
 
     public static $prefixDirsPsr4 = array (
-        'Mewz\\WCAS\\' => 
+        'Mewz\\WCAS\\' =>
         array (
             0 => __DIR__ . '/../..' . '/src',
         ),
-        'Mewz\\QueryBuilder\\' => 
+        'Mewz\\QueryBuilder\\' =>
         array (
             0 => __DIR__ . '/..' . '/mewz/query-builder/src',
         ),
-        'Mewz\\Framework\\' => 
+        'Mewz\\Framework\\' =>
         array (
             0 => __DIR__ . '/..' . '/mewz/framework/src',
         ),

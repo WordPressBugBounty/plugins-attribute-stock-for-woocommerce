@@ -463,6 +463,8 @@ class Orders
 		$changes = apply_filters_deprecated('mewz_wcas_order_note_stock_changes', [$changes, $order, $operation, $context], '2.0.0', 'mewz_wcas_order_note_changes');
 		if (!$changes) return;
 
+		$hook_data['changes'] = $changes;
+
 		$lines = [];
 		$line_format = _x('%1$s: %2$s&rarr;%3$s', 'order note line format', 'woocommerce-attribute-stock');
 
@@ -479,7 +481,11 @@ class Orders
 			$lines[] = sprintf($line_format, $title, $change['from'], $change['to']);
 		}
 
+		$lines = apply_filters('mewz_wcas_order_note_lines', $lines, $hook_data);
 		if (!$lines) return;
+
+		sort($lines, SORT_NATURAL | SORT_FLAG_CASE);
+		$hook_data['lines'] = $lines;
 
 		if ($operation === 'reduce') {
 			$title = __('Stock levels reduced:', 'woocommerce');
@@ -489,12 +495,10 @@ class Orders
 			$title = trim(sprintf(__('Adjusted stock: %s', 'woocommerce'), ''));
 		}
 
-		$hook_data['lines'] = $lines;
 		$title = apply_filters('mewz_wcas_order_note_title', $title, $hook_data);
+		$hook_data['title'] = $title;
 
 		$order_note = $title . "\n" . implode("\n", $lines);
-
-		$hook_data['title'] = $title;
 		$order_note = apply_filters('mewz_wcas_order_note_output', $order_note, $hook_data);
 		$order_note = apply_filters_deprecated('mewz_wcas_order_note', [$order_note, $order, $operation, $changes, $title, $lines], '2.0.0', 'mewz_wcas_order_note_output');
 

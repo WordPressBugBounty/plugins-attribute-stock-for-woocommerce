@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WooCommerce Attribute Stock 2.2.10\n"
+"Project-Id-Version: WooCommerce Attribute Stock 2.2.11\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/woocommerce-attribute-stock\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-15T01:34:46+02:00\n"
+"POT-Creation-Date: 2026-10-17T20:01:18+02:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: woocommerce-attribute-stock\n"
@@ -45,20 +45,24 @@ msgid "A different version of \"%s\" is already installed. Please deactivate and
 msgstr ""
 
 #: src/Aspects/Admin/Attributes/AttributeList.php:57
-#: src/Aspects/Admin/Attributes/AttributeTermList.php:132
+#: src/Aspects/Admin/Attributes/AttributeTermList.php:266
 msgid "Edit stock"
 msgstr ""
 
 #: src/Aspects/Admin/Attributes/AttributeList.php:63
-#: src/Aspects/Admin/Attributes/AttributeTermList.php:142
+#: src/Aspects/Admin/Attributes/AttributeTermList.php:276
 msgid "List stock items"
 msgstr ""
 
-#: src/Aspects/Admin/Attributes/AttributeTermList.php:87
+#: src/Aspects/Admin/Attributes/AttributeTermList.php:89
 msgid "Multiplier"
 msgstr ""
 
-#: src/Aspects/Admin/Attributes/AttributeTermList.php:132
+#: src/Aspects/Admin/Attributes/AttributeTermList.php:119
+msgid "Table ordered by Stock."
+msgstr ""
+
+#: src/Aspects/Admin/Attributes/AttributeTermList.php:266
 msgid "Edit attribute-level stock"
 msgstr ""
 
@@ -636,7 +640,7 @@ msgstr ""
 msgid "Writing to PHP's output stream (php://output) has been disabled. Unable to output CSV file download."
 msgstr ""
 
-#: src/Util/Orders.php:467
+#: src/Util/Orders.php:469
 #, php-format
 msgctxt "order note line format"
 msgid "%1$s: %2$s&rarr;%3$s"

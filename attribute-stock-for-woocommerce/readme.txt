@@ -2,9 +2,9 @@
 Contributors: mewz
 Tags: attribute stock, shared stock, variable stock, woocommerce, stock
 Requires at least: 5.4
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.2.10
+Stable tag: 2.2.11
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -108,6 +108,13 @@ Email support is offered via [CodeCanyon](https://codecanyon.net/item/woocommerc
 The full version is available to purchase on [CodeCanyon](https://codecanyon.net/item/woocommerce-attribute-stock/25796765).
 
 == Changelog ==
+
+= 2.2.11 (2026-10-17) =
+- WordPress 7.1 compatibility.
+- WooCommerce 11.2 compatibility.
+- Added sorting to the Stock column in the attribute term list.
+- Fixed a product visibility syncing issue.
+- Sorted stock change lines in order notes by default.
 
 = 2.2.10 (2026-06-15) =
 - Fixed several backend UI issues.
